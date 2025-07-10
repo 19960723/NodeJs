@@ -26,6 +26,7 @@ prisma/dev.db-journal
 
 # Express 项目
 Express/node_modules/
+Express/generated/
 Express/dist/
 Express/build/
 Express/*.log

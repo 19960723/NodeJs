@@ -46,6 +46,8 @@
 │   │   ├── hash.ts            # 加密/比对密码（封装 bcrypt）
 │   │   └── response.ts        # 封装统一响应格式
 │
+│   ├── generated/               # 自动生成的代码（如 Prisma 客户端）
+│ 
 │   ├── types/                 # 类型定义（可选）
 │   │   └── index.d.ts         # 项目中用到的自定义类型
 │
