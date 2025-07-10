@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  // 基本資訊
+  id       Int     @id @default(autoincrement()) // 主鍵 ID，自動遞增
+  email    String? @unique // 郵箱，唯一值
+  username String // 暱稱，使用 String? 表示可選 (nullable)
+  password String // 密碼
+
+  // 時間戳記
+  createdAt DateTime @default(now()) // 註冊時間，Prisma 推薦使用 createdAt / updatedAt
+  updatedAt DateTime @updatedAt // 更新時間，每次更新記錄時自動更新
+
+  // 其他欄位
+  favs     Int    @default(100) // 積分
+  gender   String @default("") // 性別
+  roles    String @default("user") // 將 String[] 改為 String
+  avatar   String @default("") // 頭像
+  phone    String @default("") // 手機號碼
+  status   String @default("0") // 狀態 是否被禁用
+  regmark  String @default("") // 個性簽名
+  location String @default("") // 城市 地址
+  isVip    String @default("0") // 是否 Vip
+  count    Int    @default(0) // 簽到次數
+}
