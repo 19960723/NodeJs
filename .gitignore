@@ -1,14 +1,50 @@
-.DS_Store
-.VSCodeCounter
-dist/electron/*
-dist/web/*
-build/*
-!build/icons
+
+# 通用 Node.js 忽略文件
 node_modules/
+dist/
+build/
+.env
+.env.local
+.env.*.local
+*.log
+logs/
+log/
+*.tsbuildinfo
+
+# TypeScript 输出目录
+*.tsbuildinfo
+
+# VSCode 配置
+.vscode/
+
+# Prisma 本地数据库
+prisma/dev.db
+prisma/dev.db-journal
+
+# Mac 系统文件
+.DS_Store
+
+# Express 项目
 Express/node_modules/
+Express/dist/
+Express/build/
+Express/*.log
+
+# Koa2 项目
 Koa2/node_modules/
+Koa2/dist/
+Koa2/build/
+Koa2/*.log
+
+# Next.js 项目
+NextJs/.next/
 NextJs/node_modules/
-npm-debug.log
-npm-debug.log.*
-thumbs.db
-!.gitkeep
+NextJs/out/
+NextJs/*.log
+NextJs/.env.local
+NextJs/.env*
+
+# IDE 临时文件
+*.swp
+*.swo
+.idea/
