@@ -125,8 +125,6 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   username: 'username',
   password: 'password',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
   favs: 'favs',
   gender: 'gender',
   roles: 'roles',
@@ -136,7 +134,39 @@ exports.Prisma.UserScalarFieldEnum = {
   regmark: 'regmark',
   location: 'location',
   isVip: 'isVip',
-  count: 'count'
+  count: 'count',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PostScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  content: 'content',
+  published: 'published',
+  viewCount: 'viewCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  authorId: 'authorId'
+};
+
+exports.Prisma.CommentScalarFieldEnum = {
+  id: 'id',
+  content: 'content',
+  postId: 'postId',
+  authorId: 'authorId',
+  hands: 'hands',
+  status: 'status',
+  isRead: 'isRead',
+  isBest: 'isBest',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  sort: 'sort'
 };
 
 exports.Prisma.SortOrder = {
@@ -163,9 +193,28 @@ exports.Prisma.UserOrderByRelevanceFieldEnum = {
   isVip: 'isVip'
 };
 
+exports.Prisma.PostOrderByRelevanceFieldEnum = {
+  title: 'title',
+  content: 'content'
+};
+
+exports.Prisma.CommentOrderByRelevanceFieldEnum = {
+  content: 'content',
+  status: 'status',
+  isRead: 'isRead',
+  isBest: 'isBest'
+};
+
+exports.Prisma.CategoryOrderByRelevanceFieldEnum = {
+  name: 'name'
+};
+
 
 exports.Prisma.ModelName = {
-  User: 'User'
+  User: 'User',
+  Post: 'Post',
+  Comment: 'Comment',
+  Category: 'Category'
 };
 
 /**

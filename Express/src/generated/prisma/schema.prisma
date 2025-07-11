@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
@@ -15,25 +9,66 @@ datasource db {
 }
 
 model User {
-  // 基本資訊
   id       Int     @id @default(autoincrement()) // 主鍵 ID，自動遞增
-  email    String? @unique // 郵箱，唯一值
-  username String // 暱稱，使用 String? 表示可選 (nullable)
+  email    String? @unique // 郵箱，唯一
+  username String // 暱稱
   password String // 密碼
+  favs     Int     @default(100) // 積分
+  gender   String  @default("") // 性別
+  roles    String  @default("user") // 身份角色
+  avatar   String  @default("") // 頭像
+  phone    String  @default("") // 手機號碼
+  status   String  @default("0") // 狀態（是否被禁用）
+  regmark  String  @default("") // 個性簽名
+  location String  @default("") // 城市地址
+  isVip    String  @default("0") // 是否為 VIP
+  count    Int     @default(0) // 簽到次數
 
-  // 時間戳記
-  createdAt DateTime @default(now()) // 註冊時間，Prisma 推薦使用 createdAt / updatedAt
-  updatedAt DateTime @updatedAt // 更新時間，每次更新記錄時自動更新
+  createdAt DateTime @default(now()) // 註冊時間
+  updatedAt DateTime @updatedAt // 更新時間
 
-  // 其他欄位
-  favs     Int    @default(100) // 積分
-  gender   String @default("") // 性別
-  roles    String @default("user") // 將 String[] 改為 String
-  avatar   String @default("") // 頭像
-  phone    String @default("") // 手機號碼
-  status   String @default("0") // 狀態 是否被禁用
-  regmark  String @default("") // 個性簽名
-  location String @default("") // 城市 地址
-  isVip    String @default("0") // 是否 Vip
-  count    Int    @default(0) // 簽到次數
+  posts    Post[] // 使用者發表的貼文
+  comments Comment[] @relation("CommentAuthor") // 使用者發表的評論
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String   @db.Text
+  published Boolean  @default(false)
+  viewCount Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  authorId Int
+  author   User @relation(fields: [authorId], references: [id])
+
+  comments   Comment[]
+  categories Category[] @relation(name: "PostCategories")
+}
+
+model Comment {
+  id      Int    @id @default(autoincrement())
+  content String @db.Text
+
+  postId Int
+  post   Post @relation(fields: [postId], references: [id])
+
+  authorId Int
+  author   User @relation("CommentAuthor", fields: [authorId], references: [id])
+
+  hands  Int    @default(0)
+  status String @default("1") // 是否顯示
+  isRead String @default("0") // 是否已讀
+  isBest String @default("0") // 是否采納
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  sort  Int    @default(0) // 排序
+  posts Post[] @relation(name: "PostCategories")
 }
