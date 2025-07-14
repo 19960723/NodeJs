@@ -199,7 +199,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/lxl/Desktop/nodeJs/NodeJs/Express/src/generated/prisma",
+      "value": "E:\\lxl\\NodeJs\\Express\\src\\generated\\prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -208,12 +208,16 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "darwin",
+        "value": "windows",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "windows"
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/lxl/Desktop/nodeJs/NodeJs/Express/prisma/schema.prisma",
+    "sourceFilePath": "E:\\lxl\\NodeJs\\Express\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -236,8 +240,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id       Int     @id @default(autoincrement()) // 主鍵 ID，自動遞增\n  email    String? @unique // 郵箱，唯一\n  username String // 暱稱\n  password String // 密碼\n  favs     Int     @default(100) // 積分\n  gender   String  @default(\"\") // 性別\n  roles    String  @default(\"user\") // 身份角色\n  avatar   String  @default(\"\") // 頭像\n  phone    String  @default(\"\") // 手機號碼\n  status   String  @default(\"0\") // 狀態（是否被禁用）\n  regmark  String  @default(\"\") // 個性簽名\n  location String  @default(\"\") // 城市地址\n  isVip    String  @default(\"0\") // 是否為 VIP\n  count    Int     @default(0) // 簽到次數\n\n  createdAt DateTime @default(now()) // 註冊時間\n  updatedAt DateTime @updatedAt // 更新時間\n\n  posts    Post[] // 使用者發表的貼文\n  comments Comment[] @relation(\"CommentAuthor\") // 使用者發表的評論\n}\n\nmodel Post {\n  id        Int      @id @default(autoincrement())\n  title     String\n  content   String   @db.Text\n  published Boolean  @default(false)\n  viewCount Int      @default(0)\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  authorId Int\n  author   User @relation(fields: [authorId], references: [id])\n\n  comments   Comment[]\n  categories Category[] @relation(name: \"PostCategories\")\n}\n\nmodel Comment {\n  id      Int    @id @default(autoincrement())\n  content String @db.Text\n\n  postId Int\n  post   Post @relation(fields: [postId], references: [id])\n\n  authorId Int\n  author   User @relation(\"CommentAuthor\", fields: [authorId], references: [id])\n\n  hands  Int    @default(0)\n  status String @default(\"1\") // 是否顯示\n  isRead String @default(\"0\") // 是否已讀\n  isBest String @default(\"0\") // 是否采納\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Category {\n  id    Int    @id @default(autoincrement())\n  name  String @unique\n  sort  Int    @default(0) // 排序\n  posts Post[] @relation(name: \"PostCategories\")\n}\n",
-  "inlineSchemaHash": "ab246603b81b4e3686f23a6316af24a38582fd2bc247851d6e2fb55d4862dc6f",
+  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../src/generated/prisma\"\n  binaryTargets = [\"native\", \"windows\"]\n}\n\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id       Int     @id @default(autoincrement()) // 主鍵 ID，自動遞增\n  email    String? @unique // 郵箱，唯一\n  username String // 暱稱\n  password String // 密碼\n  favs     Int     @default(100) // 積分\n  gender   String  @default(\"\") // 性別\n  roles    String  @default(\"user\") // 身份角色\n  avatar   String  @default(\"\") // 頭像\n  phone    String  @default(\"\") // 手機號碼\n  status   String  @default(\"0\") // 狀態（是否被禁用）\n  regmark  String  @default(\"\") // 個性簽名\n  location String  @default(\"\") // 城市地址\n  isVip    String  @default(\"0\") // 是否為 VIP\n  count    Int     @default(0) // 簽到次數\n\n  createdAt DateTime @default(now()) // 註冊時間\n  updatedAt DateTime @updatedAt // 更新時間\n\n  posts    Post[] // 使用者發表的貼文\n  comments Comment[] @relation(\"CommentAuthor\") // 使用者發表的評論\n}\n\nmodel Post {\n  id        Int      @id @default(autoincrement())\n  title     String\n  content   String   @db.Text\n  published Boolean  @default(false)\n  viewCount Int      @default(0)\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  authorId Int\n  author   User @relation(fields: [authorId], references: [id])\n\n  comments   Comment[]\n  categories Category[] @relation(name: \"PostCategories\")\n}\n\nmodel Comment {\n  id      Int    @id @default(autoincrement())\n  content String @db.Text\n\n  postId Int\n  post   Post @relation(fields: [postId], references: [id])\n\n  authorId Int\n  author   User @relation(\"CommentAuthor\", fields: [authorId], references: [id])\n\n  hands  Int    @default(0)\n  status String @default(\"1\") // 是否顯示\n  isRead String @default(\"0\") // 是否已讀\n  isBest String @default(\"0\") // 是否采納\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Category {\n  id    Int    @id @default(autoincrement())\n  name  String @unique\n  sort  Int    @default(0) // 排序\n  posts Post[] @relation(name: \"PostCategories\")\n}\n",
+  "inlineSchemaHash": "41fa9be6b6b18453b023bc41df8c66751cdb2ad8a19f052448806277c168fa25",
   "copyEngine": true
 }
 config.dirname = '/'
