@@ -11,14 +11,14 @@ datasource db {
 
 model User {
   id       Int     @id @default(autoincrement()) // 主鍵 ID，自動遞增
-  email    String? @unique // 郵箱，唯一
-  username String // 暱稱
+  username String  @unique
+  phone    String  @unique  // 手機號碼
   password String // 密碼
+  email    String  @default("") // 邮箱
   favs     Int     @default(100) // 積分
   gender   String  @default("") // 性別
   roles    String  @default("user") // 身份角色
   avatar   String  @default("") // 頭像
-  phone    String  @default("") // 手機號碼
   status   String  @default("0") // 狀態（是否被禁用）
   regmark  String  @default("") // 個性簽名
   location String  @default("") // 城市地址

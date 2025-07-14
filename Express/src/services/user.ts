@@ -1,27 +1,39 @@
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
-import createHttpError from 'http-errors';
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import createHttpError from "http-errors";
+import prisma from "../services/prisma";
 
 interface LoginInput {
+  phone: string;
   username: string;
   password: string;
 }
-const mockUser = {  
-  username: 'admin',
-  passwordHash: bcrypt.hash('123456', 10) // 可换成 DB 查询结果
+
+export const loginService = async ({ phone, password }: LoginInput) => {
+  const user = await prisma.user.findUnique({ where: { phone } });
+  if (!user) throw new Error("手機號或密碼錯誤");
+
+  const valid = await bcrypt.compare(password, user.password); // 比对加密密码
+  if (!valid) throw new Error("手機號或密碼錯誤");
+
+  const token = jwt.sign(
+    { id: user.id, phone: user.phone },
+    process.env.JWT_SECRET!,
+    { expiresIn: "7d" }
+  );
+  return { token, userInfo: user };
 };
 
-export const loginService = async ({ username, password }: LoginInput) => {
-  if (username !== mockUser.username) {
-    throw createHttpError(401, '用户不存在');
-  }
+export const registerService = async ({
+  phone,
+  password,
+  username,
+}: LoginInput) => {
+  const exists = await prisma.user.findUnique({ where: { phone } });
+  if (exists) throw new Error("該手機號已註冊");
+  const hashedPassword = await bcrypt.hash(password, 10); // 加密密码
 
-  const match = await bcrypt.compare(password, await mockUser.passwordHash);
-  if (!match) {
-    throw createHttpError(401, '密码错误');
-  }
-
-  const token = jwt.sign({ username }, process.env.JWT_SECRET!, { expiresIn: '7d' });
-
-  return { token };
+  return await prisma.user.create({
+    data: { phone, password: hashedPassword, username: username || "" },
+  });
 };
