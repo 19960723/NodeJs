@@ -120,10 +120,57 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.ArticleCategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  sort: 'sort',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ArticleScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  content: 'content',
+  coverImage: 'coverImage',
+  authorId: 'authorId',
+  categoryId: 'categoryId',
+  views: 'views',
+  likesCount: 'likesCount',
+  favCount: 'favCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ArticleCommentScalarFieldEnum = {
+  id: 'id',
+  articleId: 'articleId',
+  userId: 'userId',
+  parentId: 'parentId',
+  content: 'content',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ArticleLikeScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  articleId: 'articleId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ArticleFavoriteScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  articleId: 'articleId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   username: 'username',
   phone: 'phone',
+  nickname: 'nickname',
   password: 'password',
   email: 'email',
   favs: 'favs',
@@ -139,17 +186,6 @@ exports.Prisma.UserScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.PostScalarFieldEnum = {
-  id: 'id',
-  title: 'title',
-  content: 'content',
-  published: 'published',
-  viewCount: 'viewCount',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  authorId: 'authorId'
-};
-
 exports.Prisma.CommentScalarFieldEnum = {
   id: 'id',
   content: 'content',
@@ -163,6 +199,17 @@ exports.Prisma.CommentScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.PostScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  content: 'content',
+  published: 'published',
+  viewCount: 'viewCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  authorId: 'authorId'
+};
+
 exports.Prisma.CategoryScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -174,9 +221,29 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.ArticleCategoryOrderByRelevanceFieldEnum = {
+  name: 'name'
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
+exports.Prisma.ArticleOrderByRelevanceFieldEnum = {
+  title: 'title',
+  content: 'content',
+  coverImage: 'coverImage'
+};
+
+exports.Prisma.ArticleCommentOrderByRelevanceFieldEnum = {
+  content: 'content'
+};
+
 exports.Prisma.UserOrderByRelevanceFieldEnum = {
   username: 'username',
   phone: 'phone',
+  nickname: 'nickname',
   password: 'password',
   email: 'email',
   gender: 'gender',
@@ -188,16 +255,16 @@ exports.Prisma.UserOrderByRelevanceFieldEnum = {
   isVip: 'isVip'
 };
 
-exports.Prisma.PostOrderByRelevanceFieldEnum = {
-  title: 'title',
-  content: 'content'
-};
-
 exports.Prisma.CommentOrderByRelevanceFieldEnum = {
   content: 'content',
   status: 'status',
   isRead: 'isRead',
   isBest: 'isBest'
+};
+
+exports.Prisma.PostOrderByRelevanceFieldEnum = {
+  title: 'title',
+  content: 'content'
 };
 
 exports.Prisma.CategoryOrderByRelevanceFieldEnum = {
@@ -206,9 +273,14 @@ exports.Prisma.CategoryOrderByRelevanceFieldEnum = {
 
 
 exports.Prisma.ModelName = {
+  ArticleCategory: 'ArticleCategory',
+  Article: 'Article',
+  ArticleComment: 'ArticleComment',
+  ArticleLike: 'ArticleLike',
+  ArticleFavorite: 'ArticleFavorite',
   User: 'User',
-  Post: 'Post',
   Comment: 'Comment',
+  Post: 'Post',
   Category: 'Category'
 };
 

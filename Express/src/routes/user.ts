@@ -16,7 +16,7 @@ import { authMiddleware } from "../middlewares/authMiddleware";
 
 /**
  * @swagger
- * /user/login:
+ * /api/user/login:
  *   post:
  *     summary: 用户登录
  *     tags: [User]
@@ -40,7 +40,7 @@ import { authMiddleware } from "../middlewares/authMiddleware";
 router.post("/login", login); //登录
 /**
  * @swagger
- * /user/register:
+ * /api/user/register:
  *   post:
  *     summary: 注册新用户
  *     tags: [User]
@@ -57,6 +57,9 @@ router.post("/login", login); //登录
  *               password:
  *                 type: string
  *                 example: 123456
+ *               phone:.
+ *                 type: string
+ *                 example: 13200000000
  *     responses:
  *       200:
  *         description: 注册成功
@@ -64,7 +67,7 @@ router.post("/login", login); //登录
 router.post("/register", register); // 注册新用户  createUser
 /**
  * @swagger
- * /user/logout:
+ * /api/user/logout:
  *   post:
  *     summary: 用户登出
  *     tags: [User]
@@ -77,7 +80,7 @@ router.post("/register", register); // 注册新用户  createUser
 router.post("/logout", authMiddleware, logout); // 登出（清除 token）
 /**
  * @swagger
- * /user/profile:
+ * /api/user/profile:
  *   get:
  *     summary: 获取当前用户信息
  *     tags: [User]
@@ -90,7 +93,7 @@ router.post("/logout", authMiddleware, logout); // 登出（清除 token）
 router.get("/profile", authMiddleware, getProfile); // 获取当前用户信息
 /**
  * @swagger
- * /user/{id}:
+ * /api/user/{id}:
  *   post:
  *     summary: 获取指定用户信息
  *     tags: [User]
@@ -110,7 +113,7 @@ router.get("/profile", authMiddleware, getProfile); // 获取当前用户信息
 router.post("/:id", authMiddleware, getUserById); // 获取指定用户
 /**
  * @swagger
- * /user/update:
+ * /api/user/update:
  *   put:
  *     summary: 更新当前用户资料
  *     tags: [User]
@@ -136,7 +139,7 @@ router.post("/:id", authMiddleware, getUserById); // 获取指定用户
 router.put("/update", authMiddleware, updateUser); // 更新当前用户资料
 /**
  * @swagger
- * /user/list:
+ * /api/user/list:
  *   get:
  *     summary: 获取用户列表（分页）
  *     tags: [User]
@@ -162,7 +165,7 @@ router.put("/update", authMiddleware, updateUser); // 更新当前用户资料
 router.get("/list", authMiddleware, getUserList); // 获取用户列表（分页）
 /**
  * @swagger
- * /user/all:
+ * /api/user/all:
  *   get:
  *     summary: 获取所有用户列表
  *     tags: [User]
@@ -175,7 +178,7 @@ router.get("/list", authMiddleware, getUserList); // 获取用户列表（分页
 router.get("/all", authMiddleware, getAllUsers); // 获取所有用户列表（
 /**
  * @swagger
- * /user/{id}:
+ * /api/user/{id}:
  *   delete:
  *     summary: 删除用户
  *     tags: [User]

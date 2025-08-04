@@ -5,14 +5,94 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "mysql" // 或 postgresql
   url      = env("DATABASE_URL")
+}
+
+// 资讯分类
+model ArticleCategory {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  sort      Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  articles Article[]
+}
+
+// 资讯列表
+model Article {
+  id         Int     @id @default(autoincrement())
+  title      String
+  content    String
+  coverImage String? // 封面图
+  authorId   Int
+  categoryId Int
+
+  views      Int @default(0) // 浏览量
+  likesCount Int @default(0) // 点赞数（缓存统计）
+  favCount   Int @default(0) // 收藏数（缓存统计）
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关系
+  category  ArticleCategory   @relation(fields: [categoryId], references: [id])
+  author    User              @relation(fields: [authorId], references: [id])
+  comments  ArticleComment[]
+  likes     ArticleLike[]
+  favorites ArticleFavorite[]
+}
+
+// 资讯评论
+model ArticleComment {
+  id        Int  @id @default(autoincrement())
+  articleId Int
+  userId    Int
+  parentId  Int? // 父评论ID（楼中楼）
+
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关系
+  article Article          @relation(fields: [articleId], references: [id])
+  user    User             @relation(fields: [userId], references: [id])
+  parent  ArticleComment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies ArticleComment[] @relation("CommentReplies")
+}
+
+// 资讯点赞（多对多关系表）
+model ArticleLike {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  articleId Int
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  article Article @relation(fields: [articleId], references: [id])
+
+  @@unique([userId, articleId]) // 一个用户对一篇文章只能点赞一次
+}
+
+// 资讯收藏（多对多关系表）
+model ArticleFavorite {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  articleId Int
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  article Article @relation(fields: [articleId], references: [id])
+
+  @@unique([userId, articleId]) // 一个用户对一篇文章只能收藏一次
 }
 
 model User {
   id       Int    @id @default(autoincrement()) // 主鍵 ID，自動遞增
   username String @unique
   phone    String @unique // 手機號碼
+  nickname String @default("") // 昵稱
   password String // 密碼
   email    String @default("") // 邮箱
   favs     Int    @default(100) // 積分
@@ -28,24 +108,13 @@ model User {
   createdAt DateTime @default(now()) // 註冊時間
   updatedAt DateTime @updatedAt // 更新時間
 
-  posts    Post[] // 使用者發表的貼文
-  comments Comment[] @relation("CommentAuthor") // 使用者發表的評論
-}
-
-model Post {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String   @db.Text
-  published Boolean  @default(false)
-  viewCount Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  authorId Int
-  author   User @relation(fields: [authorId], references: [id])
-
-  comments   Comment[]
-  categories Category[] @relation(name: "PostCategories")
+  posts            Post[] // 使用者發表的貼文
+  comments         Comment[]         @relation("CommentAuthor") // 使用者發表的評論
+  // 文章
+  articles         Article[] // 用户发布的资讯
+  articleComments  ArticleComment[] // 用户评论
+  articleLikes     ArticleLike[] // 用户点赞记录
+  articleFavorites ArticleFavorite[] // 用户收藏记录
 }
 
 model Comment {
@@ -65,6 +134,22 @@ model Comment {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String   @db.Text
+  published Boolean  @default(false)
+  viewCount Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  authorId Int
+  author   User @relation(fields: [authorId], references: [id])
+
+  comments   Comment[]
+  categories Category[] @relation(name: "PostCategories")
 }
 
 model Category {

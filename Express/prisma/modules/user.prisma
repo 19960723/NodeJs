@@ -1,0 +1,76 @@
+model User {
+  id       Int     @id @default(autoincrement()) // 主鍵 ID，自動遞增
+  username String  @unique
+  phone    String  @unique  // 手機號碼
+  nickname String  @default("") // 昵稱
+  password String // 密碼
+  email    String  @default("") // 邮箱
+  favs     Int     @default(100) // 積分
+  gender   String  @default("") // 性別
+  roles    String  @default("user") // 身份角色
+  avatar   String  @default("") // 頭像
+  status   String  @default("0") // 狀態（是否被禁用）
+  regmark  String  @default("") // 個性簽名
+  location String  @default("") // 城市地址
+  isVip    String  @default("0") // 是否為 VIP
+  count    Int     @default(0) // 簽到次數
+
+  createdAt DateTime @default(now()) // 註冊時間
+  updatedAt DateTime @updatedAt // 更新時間
+
+  posts    Post[] // 使用者發表的貼文
+  comments Comment[] @relation("CommentAuthor") // 使用者發表的評論
+  // 文章
+  articles   Article[]         // 用户发布的资讯
+  articleComments   ArticleComment[]  // 用户评论
+  articleLikes      ArticleLike[]     // 用户点赞记录
+  articleFavorites  ArticleFavorite[] // 用户收藏记录
+  
+}
+
+model Comment {
+  id      Int    @id @default(autoincrement())
+  content String @db.Text
+
+  postId Int
+  post   Post @relation(fields: [postId], references: [id])
+
+  authorId Int
+  author   User @relation("CommentAuthor", fields: [authorId], references: [id])
+
+  hands  Int    @default(0)
+  status String @default("1") // 是否顯示
+  isRead String @default("0") // 是否已讀
+  isBest String @default("0") // 是否采納
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String   @db.Text
+  published Boolean  @default(false)
+  viewCount Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  authorId Int
+  author   User @relation(fields: [authorId], references: [id])
+
+  comments   Comment[]
+  categories Category[] @relation(name: "PostCategories")
+}
+
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  sort  Int    @default(0) // 排序
+  posts Post[] @relation(name: "PostCategories")
+}
+
+

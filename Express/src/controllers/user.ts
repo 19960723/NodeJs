@@ -1,5 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { loginService, registerService } from "../services/user";
+import {
+  loginService,
+  registerService,
+  updateUserService,
+} from "../services/user";
 import { successResponse } from "../utils/response";
 import { success, error } from "../utils/result";
 import prisma from "../services/prisma";
@@ -111,11 +115,14 @@ export const getProfile = async (
     next(err);
   }
 };
-export const updateUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {};
+export const updateUser = async (req: Request, res: Response) => {
+  try {
+    const userInfo = await updateUserService(req.body);
+    successResponse(res, userInfo, "更新用户信息成功");
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
 export const deleteUser = async (
   req: Request,
   res: Response,
