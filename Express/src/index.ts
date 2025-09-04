@@ -9,6 +9,7 @@ import errorHandler from "./middlewares/errorHandler";
 import appRoutes from "./routes/app";
 import userRoutes from "./routes/user";
 import categoryRoutes from "./routes/category";
+import deepseekRoutes from "./routes/deepseek";
 
 dotenv.config();
 const app = express();
@@ -29,6 +30,7 @@ app.get("/api-docs.json", (_, res) => {
 app.use("/api/apps", appRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/category", categoryRoutes);
+app.use("/api/ai", deepseekRoutes);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

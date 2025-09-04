@@ -57,7 +57,7 @@ router.post("/login", login); //登录
  *               password:
  *                 type: string
  *                 example: 123456
- *               phone:.
+ *               phone:
  *                 type: string
  *                 example: 13200000000
  *     responses:
