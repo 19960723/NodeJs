@@ -1,9 +1,11 @@
-import { sequelize } from '../config/database';
+const { sequelize } = require('../config/database');
 import Example from './Example';
+import User from './User';
 
 // 定义模型
 const models = {
-  Example: Example(sequelize)
+  Example: Example(sequelize),
+  User: User(sequelize)
 };
 
 // 设置关联关系

@@ -1,5 +1,5 @@
 import { Context, Next } from 'koa';
-import Joi from 'joi';
+const Joi: any = require('joi');
 import { badRequest } from '../utils/response';
 import { BusinessError } from '../types';
 
@@ -7,10 +7,10 @@ import { BusinessError } from '../types';
  * 验证中间件工厂
  */
 export const validate = (schema: {
-  body?: Joi.ObjectSchema;
-  query?: Joi.ObjectSchema;
-  params?: Joi.ObjectSchema;
-  headers?: Joi.ObjectSchema;
+  body?: any;
+  query?: any;
+  params?: any;
+  headers?: any;
 }) => {
   return async (ctx: Context, next: Next): Promise<void> => {
     try {
@@ -25,7 +25,7 @@ export const validate = (schema: {
 
         if (error) {
           errors.push(
-            ...error.details.map(detail => ({
+            ...error.details.map((detail: any) => ({
               field: detail.path.join('.'),
               message: detail.message,
               type: 'body'
@@ -45,7 +45,7 @@ export const validate = (schema: {
 
         if (error) {
           errors.push(
-            ...error.details.map(detail => ({
+            ...error.details.map((detail: any) => ({
               field: detail.path.join('.'),
               message: detail.message,
               type: 'query'
@@ -65,7 +65,7 @@ export const validate = (schema: {
 
         if (error) {
           errors.push(
-            ...error.details.map(detail => ({
+            ...error.details.map((detail: any) => ({
               field: detail.path.join('.'),
               message: detail.message,
               type: 'params'
@@ -85,7 +85,7 @@ export const validate = (schema: {
 
         if (error) {
           errors.push(
-            ...error.details.map(detail => ({
+            ...error.details.map((detail: any) => ({
               field: detail.path.join('.'),
               message: detail.message,
               type: 'headers'
@@ -161,5 +161,15 @@ export const commonSchemas = {
     name: Joi.string().trim().min(1).max(100).optional(),
     description: Joi.string().trim().max(500).optional().allow(null),
     status: Joi.string().valid('active', 'inactive').optional()
-  }).min(1) // 至少有一个字段
+  }).min(1), // 至少有一个字段
+  // 登录
+  login: Joi.object({
+    username: Joi.string().trim().required(),
+    password: Joi.string().trim().required()
+  }),
+
+  // 刷新令牌
+  refresh: Joi.object({
+    refreshToken: Joi.string().trim().required()
+  })
 };
