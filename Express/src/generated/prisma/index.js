@@ -267,7 +267,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "E:\\lxl\\xue\\NodeJs\\express\\src\\generated\\prisma",
+      "value": "E:\\lxl\\NodeJs\\Express\\src\\generated\\prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -285,7 +285,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "E:\\lxl\\xue\\NodeJs\\express\\prisma\\schema.prisma",
+    "sourceFilePath": "E:\\lxl\\NodeJs\\Express\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {

@@ -1,12 +1,22 @@
+/**
+ * 用户相关控制器
+ * 处理用户认证、信息管理等相关请求
+ */
+
 import { Request, Response, NextFunction } from "express";
 import {
   loginService,
   registerService,
   updateUserService,
 } from "../services/user";
+import { captchaService } from "../services/captcha";
 import { successResponse } from "../utils/response";
 import { success, error } from "../utils/result";
 import prisma from "../services/prisma";
+
+/**
+ * 用户认证相关控制器
+ */
 
 export const login = async (
   req: Request,
@@ -14,7 +24,15 @@ export const login = async (
   next: NextFunction
 ) => {
   try {
-    const result = await loginService(req.body);
+    const { username, password, captcha, captchaId } = req.body;
+    const ipAddress = req.ip || req.connection.remoteAddress;
+    const userAgent = req.get("User-Agent");
+
+    const result = await loginService(
+      { username, password, captcha, captchaId },
+      ipAddress,
+      userAgent
+    );
     successResponse(res, result, "登陆成功");
   } catch (err) {
     next(err);
@@ -29,9 +47,9 @@ export const register = async (
   const { phone, password, username } = req.body;
   try {
     const user = await registerService({ phone, password, username });
-    res.status(201).json(success(user, "註冊成功"));
-  } catch (err: any) {
-    res.json(error(err.message));
+    successResponse(res, user, "註冊成功");
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -98,12 +116,15 @@ export const getUserById = async (
 };
 
 export const getProfile = async (
-  req: Request,
+  req: Request & { user?: { id: number } },
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const userId = req.user.id; // 假设用户ID存储在req.user中
+    if (!req.user) {
+      return res.status(401).json({ message: "未授权访问" });
+    }
+    const userId = req.user.id;
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });
@@ -115,12 +136,16 @@ export const getProfile = async (
     next(err);
   }
 };
-export const updateUser = async (req: Request, res: Response) => {
+export const updateUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const userInfo = await updateUserService(req.body);
     successResponse(res, userInfo, "更新用户信息成功");
-  } catch (error: any) {
-    res.status(400).json({ success: false, message: error.message });
+  } catch (err) {
+    next(err);
   }
 };
 export const deleteUser = async (
@@ -129,7 +154,7 @@ export const deleteUser = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.params.id; // 从请求参数中获取用户ID
+    const userId = parseInt(req.params.id);
     await prisma.user.delete({
       where: { id: userId },
     });

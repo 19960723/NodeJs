@@ -1,3 +1,8 @@
+/**
+ * 用户路由模块
+ * 处理用户认证、用户信息管理等相关路由
+ * 包含登录、注册、登出、个人信息管理、用户列表等功能
+ */
 import { Router } from "express";
 import {
   login,
@@ -13,6 +18,8 @@ import {
 } from "../controllers/user";
 const router = Router();
 import { authMiddleware } from "../middlewares/authMiddleware";
+import { validate } from "../middlewares/validators";
+import { loginValidation, registerValidation, updateUserValidation } from "../utils/validators";
 
 /**
  * @swagger
@@ -37,7 +44,8 @@ import { authMiddleware } from "../middlewares/authMiddleware";
  *       200:
  *         description: 登录成功
  */
-router.post("/login", login); //登录
+// 认证相关路由
+router.post("/login", loginValidation, validate, login);
 /**
  * @swagger
  * /api/user/register:
@@ -64,7 +72,7 @@ router.post("/login", login); //登录
  *       200:
  *         description: 注册成功
  */
-router.post("/register", register); // 注册新用户  createUser
+router.post("/register", registerValidation, validate, register); // 认证相关路由
 /**
  * @swagger
  * /api/user/logout:
@@ -77,7 +85,7 @@ router.post("/register", register); // 注册新用户  createUser
  *       200:
  *         description: 登出成功
  */
-router.post("/logout", authMiddleware, logout); // 登出（清除 token）
+router.post("/logout", authMiddleware, logout); // 认证相关路由
 /**
  * @swagger
  * /api/user/profile:
@@ -136,7 +144,7 @@ router.post("/:id", authMiddleware, getUserById); // 获取指定用户
  *       200:
  *         description: 更新成功
  */
-router.put("/update", authMiddleware, updateUser); // 更新当前用户资料
+router.put("/update", authMiddleware, updateUserValidation, validate, updateUser); // 更新当前用户资料
 /**
  * @swagger
  * /api/user/list:

@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { Request, Response, NextFunction } from "express";
+import logger from "../utils/logger";
 
 const openai = new OpenAI({
   apiKey: process.env.DEEPSEEK_API_KEY || "your-api-key",
@@ -36,7 +37,7 @@ export const chat = async (req: Request, res: Response, next: NextFunction) => {
     const responseMessage =
       completion.choices[0]?.message?.content || "无响应内容";
 
-    console.log("AI回复:", responseMessage);
+    logger.info("AI回复:", { responseMessage });
 
     // 返回AI回复，同时保留完整的对话历史
     res.json({
@@ -60,7 +61,7 @@ export const chat = async (req: Request, res: Response, next: NextFunction) => {
       },
     });
   } catch (error: any) {
-    console.error("DeepSeek API调用错误:", error);
+    logger.error("DeepSeek API调用错误:", error);
     res.status(500).json({
       code: 500,
       message: "AI服务调用失败",
@@ -90,7 +91,7 @@ export const chatStream = async (req: Request, res: Response, next: NextFunction
     const conversationHistory = [...messages];
     let fullResponse = "";
     
-    console.log("开始流式对话，模型:", model);
+    logger.info("开始流式对话", { model });
     
     // 创建流式请求
     const stream = await openai.chat.completions.create({
@@ -134,7 +135,7 @@ export const chatStream = async (req: Request, res: Response, next: NextFunction
     res.end();
     
   } catch (error: any) {
-    console.error("DeepSeek API调用错误:", error);
+    logger.error("DeepSeek API调用错误:", error);
     
     // 发送错误信号
     if (!res.headersSent) {
@@ -174,9 +175,7 @@ export const chatWithSession = async (
 
     // 在实际应用中，这里应该从数据库或缓存中获取该会话的历史对话
     // 为了示例简单，我们直接使用提供的messages
-    console.log(`会话ID: ${sessionId}`);
-    console.log(`使用模型: ${model}`);
-    console.log("对话历史:", messages);
+    logger.info("会话开始", { sessionId, model, messagesLength: Array.isArray(messages) ? messages.length : 0 });
 
     // 调用DeepSeek API
     const completion = await openai.chat.completions.create({
@@ -189,7 +188,7 @@ export const chatWithSession = async (
     const responseMessage =
       completion.choices[0]?.message?.content || "无响应内容";
 
-    console.log("AI回复:", responseMessage);
+    logger.info("AI回复:", { responseMessage });
 
     // 在实际应用中，这里应该将新的对话历史保存到数据库或缓存中
     const updatedMessages = [
@@ -216,7 +215,7 @@ export const chatWithSession = async (
       },
     });
   } catch (error: any) {
-    console.error("DeepSeek API调用错误:", error);
+    logger.error("DeepSeek API调用错误:", error);
     res.status(500).json({
       code: 500,
       message: "AI服务调用失败",

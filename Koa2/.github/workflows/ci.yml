@@ -1,0 +1,141 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: koa2_test
+          MYSQL_USER: testuser
+          MYSQL_PASSWORD: testpassword
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 20.x]
+
+    steps:
+    - name: Checkout 代码
+      uses: actions/checkout@v4
+
+    - name: 设置 Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: 安装依赖
+      run: npm ci
+
+    - name: 代码风格检查
+      run: npm run lint
+
+    - name: 等待 MySQL 启动
+      run: |
+        while ! mysqladmin ping -h"127.0.0.1" -P"3306" -u"root" -p"rootpassword" --silent; do
+          echo "等待 MySQL 启动..."
+          sleep 2
+        done
+
+    - name: 运行数据库迁移
+      run: npm run db:migrate
+      env:
+        NODE_ENV: test
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_NAME: koa2_test
+        DB_USER: root
+        DB_PASSWORD: rootpassword
+        JWT_SECRET: test-secret-key
+
+    - name: 运行测试
+      run: npm test
+      env:
+        NODE_ENV: test
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_NAME: koa2_test
+        DB_USER: root
+        DB_PASSWORD: rootpassword
+        JWT_SECRET: test-secret-key
+
+    - name: 上传覆盖率报告
+      uses: codecov/codecov-action@v3
+      if: matrix.node-version == '18.x'
+      with:
+        file: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+    - name: Checkout 代码
+      uses: actions/checkout@v4
+
+    - name: 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: 安装依赖
+      run: npm ci --only=production
+
+    - name: 构建 Docker 镜像
+      run: docker build -t koa2-app:latest .
+
+    - name: 测试 Docker 镜像
+      run: |
+        docker run -d --name test-app -p 3000:3000 \
+          -e NODE_ENV=production \
+          -e DB_HOST=localhost \
+          -e DB_NAME=test \
+          -e DB_USER=test \
+          -e DB_PASSWORD=test \
+          -e JWT_SECRET=test-secret \
+          koa2-app:latest
+        sleep 10
+        docker logs test-app
+        docker stop test-app
+        docker rm test-app
+
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout 代码
+      uses: actions/checkout@v4
+
+    - name: 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: 安装依赖
+      run: npm ci
+
+    - name: 安全漏洞扫描
+      run: npm audit --audit-level=high
+
+    - name: 依赖检查
+      run: npx depcheck

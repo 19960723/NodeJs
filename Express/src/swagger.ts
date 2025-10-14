@@ -4,9 +4,18 @@ const swaggerOptions = {
     definition: {
         openapi: '3.0.0',
         info: {
-            title: '分类接口文档',
+            title: 'Y Express API 文档',
             version: '1.0.0',
-            description: '基于 Express + Prisma 的分类管理 API'
+            description: '基于 Express + Prisma + Redis 的后端服务 API 文档'
+        },
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: 'http',
+                    scheme: 'bearer',
+                    bearerFormat: 'JWT'
+                }
+            }
         },
         servers: [
             { url: 'http://localhost:3000' }

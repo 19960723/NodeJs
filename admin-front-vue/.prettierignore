@@ -1,0 +1,11 @@
+dist
+node_modules
+*.d.ts
+auto-imports.d.ts
+components.d.ts
+public
+.vscode
+.idea
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
