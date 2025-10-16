@@ -105,4 +105,43 @@ export class UserService extends BaseService<any> {
     const { password: pwd, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
+
+  async getUserInfo(userId: number) {
+    // 根据用户ID查询用户信息
+    const user = await this.repository.findById(userId);
+
+    if (!user) {
+      throw new BusinessError(404, '用户不存在');
+    }
+
+    // 返回用户信息（不包含密码）
+    return {
+      id: user.id,
+      username: user.username,
+      nickname: user.nickname || null
+    };
+  }
+
+  async deleteUser(id: number) {
+    const user = await this.repository.findById(id);
+    if (!user) {
+      throw new BusinessError(404, '用户不存在');
+    }
+    return await this.repository.delete(id);
+  }
+
+  async updateUser(id: number, data: any) {
+    const user = await this.repository.findById(id);
+    if (!user) {
+      throw new BusinessError(404, '用户不存在');
+    }
+    return await this.repository.update(id, data);
+  }
+  async getUserById(id: number) {
+    const user = await this.repository.findById(id);
+    if (!user) {
+      throw new BusinessError(404, '用户不存在');
+    }
+    return user;
+  }
 }

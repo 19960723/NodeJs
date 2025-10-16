@@ -109,6 +109,24 @@ export const serverError = (
 };
 
 /**
+ * 统一错误处理函数
+ * 根据错误类型自动处理响应
+ */
+export const handleError = (ctx: Context, err: any): void => {
+  // 如果是业务错误（有 statusCode 和 code 属性）
+  if (err && typeof err === 'object' && 'statusCode' in err && 'code' in err) {
+    ctx.status = err.statusCode;
+    ctx.body = {
+      code: err.code,
+      message: err.message || '操作失败'
+    };
+  } else {
+    // 未知错误，返回500
+    serverError(ctx, err?.message || '服务器内部错误');
+  }
+};
+
+/**
  * 分页数据响应
  */
 export const paginated = <T>(

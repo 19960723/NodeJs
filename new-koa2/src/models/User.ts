@@ -1,4 +1,13 @@
-import { DataTypes, Model, Sequelize, ModelCtor } from 'sequelize';
+import {
+  DataTypes,
+  Model,
+  Sequelize,
+  ModelCtor,
+  BelongsToManyAddAssociationMixin,
+  BelongsToManyGetAssociationsMixin,
+  BelongsToManySetAssociationsMixin
+} from 'sequelize';
+import { RoleInstance } from './Role';
 
 export interface UserAttributes {
   id?: number;
@@ -11,7 +20,12 @@ export interface UserAttributes {
   lastLoginAt?: Date | null;
 }
 
-export interface UserInstance extends Model<UserAttributes>, UserAttributes {}
+export interface UserInstance extends Model<UserAttributes>, UserAttributes {
+  // 关联方法
+  getRoles?: BelongsToManyGetAssociationsMixin<RoleInstance>;
+  addRole?: BelongsToManyAddAssociationMixin<RoleInstance, number>;
+  setRoles?: BelongsToManySetAssociationsMixin<RoleInstance, number>;
+}
 
 const User = (sequelize: Sequelize): ModelCtor<UserInstance> => {
   const UserModel = sequelize.define<UserInstance>(
