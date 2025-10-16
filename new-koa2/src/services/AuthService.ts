@@ -22,8 +22,9 @@ export class AuthService extends BaseService<LoginDto> {
     const { username, password } = data;
     const user = await this.repository.findByUsername(username);
     if (!user) {
-      throw new BusinessError(401, '用户不存在');
+      throw new BusinessError(401, '用户名或密码错误');
     }
+
     const hashed = String(user.password || '');
     let passwordOk = false;
     if (hashed.startsWith('$2')) {
@@ -32,19 +33,40 @@ export class AuthService extends BaseService<LoginDto> {
       passwordOk = hashed === password;
     }
     if (!passwordOk) {
-      throw new BusinessError(401, '密码错误');
+      throw new BusinessError(401, '用户名或密码错误');
     }
 
     const config = getConfig();
     const secret = config.security.jwtSecret || 'dev-secret';
+
+    // 生成访问令牌
     const accessToken = jwt.sign(
-      { sub: user.id, username: user.username },
+      {
+        sub: user.id,
+        username: user.username,
+        type: 'access',
+        iat: Math.floor(Date.now() / 1000)
+      },
       secret,
-      { expiresIn: config.security.jwtExpiresIn || '24h' }
+      {
+        expiresIn: config.security.jwtExpiresIn || '24h',
+        issuer: config.app.name
+      }
     );
-    const refreshToken = jwt.sign({ sub: user.id, type: 'refresh' }, secret, {
-      expiresIn: '7d'
-    });
+
+    // 生成刷新令牌
+    const refreshToken = jwt.sign(
+      {
+        sub: user.id,
+        type: 'refresh',
+        iat: Math.floor(Date.now() / 1000)
+      },
+      secret,
+      {
+        expiresIn: '7d',
+        issuer: config.app.name
+      }
+    );
 
     const userInfo = {
       id: user.id,
@@ -55,7 +77,8 @@ export class AuthService extends BaseService<LoginDto> {
     return {
       accessToken,
       refreshToken,
-      user: userInfo
+      user: userInfo,
+      expiresIn: config.security.jwtExpiresIn || '24h'
     };
   }
 
@@ -63,18 +86,45 @@ export class AuthService extends BaseService<LoginDto> {
     if (!refreshToken) {
       throw new BusinessError(400, '缺少刷新令牌');
     }
+
     const config = getConfig();
     const secret = config.security.jwtSecret || 'dev-secret';
+
     try {
       const payload = jwt.verify(refreshToken, secret) as any;
       if (!payload || payload.type !== 'refresh' || !payload.sub) {
-        throw new Error('无效刷新令牌');
+        throw new BusinessError(401, '无效刷新令牌');
       }
-      const accessToken = jwt.sign({ sub: payload.sub }, secret, {
+
+      // 验证用户是否仍然存在
+      const user = await this.repository.findById(payload.sub);
+      if (!user) {
+        throw new BusinessError(401, '用户不存在');
+      }
+
+      // 生成新的访问令牌
+      const accessToken = jwt.sign(
+        {
+          sub: payload.sub,
+          username: user.username,
+          type: 'access',
+          iat: Math.floor(Date.now() / 1000)
+        },
+        secret,
+        {
+          expiresIn: config.security.jwtExpiresIn || '24h',
+          issuer: config.app.name
+        }
+      );
+
+      return {
+        accessToken,
         expiresIn: config.security.jwtExpiresIn || '24h'
-      });
-      return { accessToken };
-    } catch (e) {
+      };
+    } catch (error) {
+      if (error instanceof BusinessError) {
+        throw error;
+      }
       throw new BusinessError(401, '刷新令牌无效或已过期');
     }
   }

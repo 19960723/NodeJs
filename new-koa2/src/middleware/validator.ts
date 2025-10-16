@@ -18,21 +18,30 @@ export const validate = (schema: {
 
       // 验证请求体
       if (schema.body) {
-        const { error, value } = schema.body.validate(ctx.request.body, {
-          abortEarly: false,
-          stripUnknown: true
-        });
-
-        if (error) {
-          errors.push(
-            ...error.details.map((detail: any) => ({
-              field: detail.path.join('.'),
-              message: detail.message,
-              type: 'body'
-            }))
-          );
+        // 检查请求体是否存在
+        if (ctx.request.body === undefined || ctx.request.body === null) {
+          errors.push({
+            field: 'body',
+            message: '请求体不能为空',
+            type: 'body'
+          });
         } else {
-          ctx.request.body = value;
+          const { error, value } = schema.body.validate(ctx.request.body, {
+            abortEarly: false,
+            stripUnknown: true
+          });
+
+          if (error) {
+            errors.push(
+              ...error.details.map((detail: any) => ({
+                field: detail.path.join('.'),
+                message: detail.message,
+                type: 'body'
+              }))
+            );
+          } else {
+            ctx.request.body = value;
+          }
         }
       }
 
@@ -110,7 +119,9 @@ export const validate = (schema: {
           url: ctx.url,
           query: ctx.query,
           body: ctx.request.body,
-          headers: ctx.headers
+          headers: ctx.headers,
+          contentType: ctx.headers['content-type'],
+          contentLength: ctx.headers['content-length']
         }
       });
 
@@ -164,8 +175,28 @@ export const commonSchemas = {
   }).min(1), // 至少有一个字段
   // 登录
   login: Joi.object({
-    username: Joi.string().trim().required(),
-    password: Joi.string().trim().required()
+    username: Joi.string().trim().min(2).max(50).required().messages({
+      'string.empty': '用户名不能为空',
+      'string.min': '用户名至少2个字符',
+      'string.max': '用户名不能超过50个字符'
+    }),
+    password: Joi.string().trim().min(6).required().messages({
+      'string.empty': '密码不能为空',
+      'string.min': '密码长度至少6位'
+    })
+  }),
+  // 注册
+  register: Joi.object({
+    username: Joi.string().trim().min(2).max(50).required().messages({
+      'string.empty': '用户名不能为空',
+      'string.min': '用户名至少2个字符',
+      'string.max': '用户名不能超过50个字符'
+    }),
+    password: Joi.string().trim().min(6).required().messages({
+      'string.empty': '密码不能为空',
+      'string.min': '密码长度至少6位'
+    }),
+    nickname: Joi.string().trim().optional()
   }),
 
   // 刷新令牌

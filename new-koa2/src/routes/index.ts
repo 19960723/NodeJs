@@ -2,6 +2,7 @@ import Router from 'koa-router';
 import healthRoutes from './healthRoutes';
 import exampleRoutes from './exampleRoutes';
 import authRoutes from './authRoutes';
+import userRoutes from './userRoutes';
 import { success } from '../utils/response';
 
 const router = new Router();
@@ -63,4 +64,5 @@ router.get('/api', async ctx => {
 router.use(healthRoutes.routes(), healthRoutes.allowedMethods());
 router.use(exampleRoutes.routes(), exampleRoutes.allowedMethods());
 router.use(authRoutes.routes(), authRoutes.allowedMethods());
+router.use(userRoutes.routes(), userRoutes.allowedMethods());
 export default router;

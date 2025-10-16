@@ -23,7 +23,7 @@ import routes from './routes';
 
 // 导入配置和数据库
 import { getConfig, validateConfig } from './config';
-import { testConnection } from './config/database';
+const { testConnection } = require('./config/database');
 import { syncDatabase } from './models';
 import logger from './utils/logger';
 
@@ -62,7 +62,32 @@ app.use(
 app.use(
   bodyParser({
     jsonLimit: '10mb',
-    textLimit: '10mb'
+    textLimit: '10mb',
+    enableTypes: ['json', 'form', 'text'],
+    extendTypes: {
+      json: ['application/json'],
+      form: ['application/x-www-form-urlencoded'],
+      text: ['text/plain']
+    },
+    onerror: (err, ctx) => {
+      logger.error('Body parser error:', {
+        error: err.message,
+        stack: err.stack,
+        url: ctx.url,
+        method: ctx.method,
+        headers: ctx.headers,
+        body: ctx.request.body
+      });
+
+      // 提供更详细的错误信息
+      if (err.message.includes('Bad escaped character')) {
+        ctx.throw(400, 'JSON格式错误：包含无效的转义字符，请检查JSON格式');
+      } else if (err.message.includes('Unexpected token')) {
+        ctx.throw(400, 'JSON格式错误：包含无效的字符，请检查JSON格式');
+      } else {
+        ctx.throw(400, `请求体解析失败: ${err.message}`);
+      }
+    }
   })
 );
 
@@ -171,13 +196,10 @@ process.on('uncaughtException', (error: Error) => {
   process.exit(1);
 });
 
-process.on(
-  'unhandledRejection',
-  (reason: unknown, promise: Promise<unknown>) => {
-    logger.error('未处理的 Promise 拒绝:', reason);
-    process.exit(1);
-  }
-);
+process.on('unhandledRejection', (reason: unknown) => {
+  logger.error('未处理的 Promise 拒绝:', reason);
+  process.exit(1);
+});
 
 // 启动服务器
 if (require.main === module) {
