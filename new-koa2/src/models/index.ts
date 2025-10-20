@@ -4,6 +4,7 @@ import User from './User';
 import Menu from './Menus';
 import Role from './Role';
 import UserRole from './UserRole';
+import RoleMenu from './RoleMenu';
 
 // 定义模型
 const models = {
@@ -11,7 +12,8 @@ const models = {
   User: User(sequelize),
   Menu: Menu(sequelize),
   Role: Role(sequelize),
-  UserRole: UserRole(sequelize)
+  UserRole: UserRole(sequelize),
+  RoleMenu: RoleMenu(sequelize)
 };
 
 // 设置关联关系
@@ -28,6 +30,21 @@ models.Role.belongsToMany(models.User, {
   foreignKey: 'role_id',
   otherKey: 'user_id',
   as: 'users'
+});
+
+// Role 和 Menu 多对多关系
+models.Role.belongsToMany(models.Menu, {
+  through: models.RoleMenu,
+  foreignKey: 'role_id',
+  otherKey: 'menu_id',
+  as: 'menus'
+});
+
+models.Menu.belongsToMany(models.Role, {
+  through: models.RoleMenu,
+  foreignKey: 'menu_id',
+  otherKey: 'role_id',
+  as: 'roles'
 });
 
 // 其他关联关系

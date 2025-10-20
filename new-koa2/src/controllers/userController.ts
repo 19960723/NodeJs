@@ -73,6 +73,83 @@ class UserController {
       handleError(ctx, error);
     }
   }
+
+  /**
+   * 获取用户的角色
+   */
+  static async getUserRoles(ctx: Context): Promise<void> {
+    try {
+      const { id } = ctx.params;
+      const result = await UserController.userService.getUserRoles(Number(id));
+      success(ctx, result, '获取用户角色成功', 200);
+    } catch (error) {
+      handleError(ctx, error);
+    }
+  }
+
+  /**
+   * 为用户分配角色
+   */
+  static async assignRoles(ctx: Context): Promise<void> {
+    try {
+      const { id } = ctx.params;
+      const { roleIds } = ctx.request.body as any;
+
+      if (!Array.isArray(roleIds)) {
+        ctx.status = 400;
+        ctx.body = { code: 400, message: 'roleIds必须是数组' };
+        return;
+      }
+
+      const result = await UserController.userService.assignRoles(
+        Number(id),
+        roleIds
+      );
+      success(ctx, result, '分配角色成功', 200);
+    } catch (error) {
+      handleError(ctx, error);
+    }
+  }
+
+  /**
+   * 为用户添加单个角色
+   */
+  static async addRole(ctx: Context): Promise<void> {
+    try {
+      const { id } = ctx.params;
+      const { roleId } = ctx.request.body as any;
+
+      if (!roleId) {
+        ctx.status = 400;
+        ctx.body = { code: 400, message: 'roleId不能为空' };
+        return;
+      }
+
+      const result = await UserController.userService.addRole(
+        Number(id),
+        Number(roleId)
+      );
+      success(ctx, result, '添加角色成功', 200);
+    } catch (error) {
+      handleError(ctx, error);
+    }
+  }
+
+  /**
+   * 移除用户的角色
+   */
+  static async removeRole(ctx: Context): Promise<void> {
+    try {
+      const { id, roleId } = ctx.params;
+      const result = await UserController.userService.removeRole(
+        Number(id),
+        Number(roleId)
+      );
+      success(ctx, result, '移除角色成功', 200);
+    } catch (error) {
+      handleError(ctx, error);
+    }
+  }
 }
 
 export const login = [

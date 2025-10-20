@@ -19,6 +19,7 @@
     "db:seed:undo": "sequelize-cli db:seed:undo:all",
     "db:init": "ts-node scripts/init-db.ts",
     "db:setup": "node scripts/setup-database.js",
+    "rbac:init": "ts-node scripts/init-rbac.ts",
     "docker:build": "docker build -t koa2-app .",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down"

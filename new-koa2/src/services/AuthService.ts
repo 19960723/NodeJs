@@ -36,6 +36,28 @@ export class AuthService extends BaseService<LoginDto> {
       throw new BusinessError(401, '用户名或密码错误');
     }
 
+    // 获取用户角色和权限
+    const models = require('../models').models;
+    const MenuService = require('./MenuService').default;
+    const menuService = new MenuService(models.Menu);
+
+    const userWithRoles = await models.User.findByPk(user.id, {
+      include: [
+        {
+          model: models.Role,
+          as: 'roles',
+          where: { status: 1 },
+          required: false,
+          through: { attributes: [] },
+          attributes: ['id', 'code', 'name', 'description']
+        }
+      ]
+    });
+
+    const roles = (userWithRoles as any)?.roles || [];
+    const permissions = await menuService.getUserPermissions(user.id);
+    const menus = await menuService.getUserMenus(user.id);
+
     const config = getConfig();
     const secret = config.security.jwtSecret || 'dev-secret';
 
@@ -71,7 +93,15 @@ export class AuthService extends BaseService<LoginDto> {
     const userInfo = {
       id: user.id,
       username: user.username,
-      nickname: user['nickname'] || null
+      nickname: user['nickname'] || null,
+      avatar: user['avatar'] || null,
+      roles: roles.map((role: any) => ({
+        id: role.id,
+        code: role.code,
+        name: role.name
+      })),
+      permissions,
+      menus
     };
 
     return {

@@ -4,9 +4,12 @@ import {
   Sequelize,
   ModelCtor,
   BelongsToManyAddAssociationMixin,
-  BelongsToManyGetAssociationsMixin
+  BelongsToManyGetAssociationsMixin,
+  BelongsToManySetAssociationsMixin,
+  BelongsToManyAddAssociationsMixin as AddManyMixin
 } from 'sequelize';
 import { UserInstance } from './User';
+import { MenuInstance } from './Menus';
 
 export interface RoleAttributes {
   id?: number;
@@ -19,9 +22,17 @@ export interface RoleAttributes {
 }
 
 export interface RoleInstance extends Model<RoleAttributes>, RoleAttributes {
-  // 关联方法
+  // 与User的关联方法
   getUsers?: BelongsToManyGetAssociationsMixin<UserInstance>;
   addUser?: BelongsToManyAddAssociationMixin<UserInstance, number>;
+  setUsers?: BelongsToManySetAssociationsMixin<UserInstance, number>;
+
+  // 与Menu的关联方法
+  getMenus?: BelongsToManyGetAssociationsMixin<MenuInstance>;
+  addMenu?: BelongsToManyAddAssociationMixin<MenuInstance, number>;
+  addMenus?: AddManyMixin<MenuInstance, number>;
+  setMenus?: BelongsToManySetAssociationsMixin<MenuInstance, number>;
+  removeMenu?: BelongsToManyAddAssociationMixin<MenuInstance, number>;
 }
 
 export const Role = (sequelize: Sequelize): ModelCtor<RoleInstance> => {
