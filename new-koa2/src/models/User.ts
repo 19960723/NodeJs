@@ -15,6 +15,8 @@ export interface UserAttributes {
   password: string;
   nickname?: string | null;
   avatar?: string | null;
+  email?: string | null;
+  phone?: string | null;
   created_at?: Date;
   updated_at?: Date;
   lastLoginAt?: Date | null;
@@ -56,6 +58,16 @@ const User = (sequelize: Sequelize): ModelCtor<UserInstance> => {
         type: DataTypes.STRING(255),
         allowNull: true,
         comment: '头像'
+      },
+      email: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        comment: '邮箱'
+      },
+      phone: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        comment: '手机号'
       },
       lastLoginAt: {
         type: DataTypes.DATE,

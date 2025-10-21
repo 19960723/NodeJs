@@ -254,7 +254,10 @@ export class UserService extends BaseService<any> {
     return {
       id: user.id,
       username: user.username,
-      nickname: user.nickname || null
+      nickname: user.nickname || null,
+      avatar: user.avatar || null,
+      email: user.email || null,
+      phone: user.phone || null
     };
   }
 
