@@ -1,7 +1,6 @@
 import Router from 'koa-router';
 import healthRoutes from './healthRoutes';
 import exampleRoutes from './exampleRoutes';
-import authRoutes from './authRoutes';
 import userRoutes from './userRoutes';
 import roleRoutes from './roleRoutes';
 import menuRoutes from './menuRoutes';
@@ -65,7 +64,6 @@ router.get('/api', async ctx => {
 // 注册路由
 router.use(healthRoutes.routes(), healthRoutes.allowedMethods());
 router.use(exampleRoutes.routes(), exampleRoutes.allowedMethods());
-router.use(authRoutes.routes(), authRoutes.allowedMethods());
 router.use(userRoutes.routes(), userRoutes.allowedMethods());
 router.use(roleRoutes.routes(), roleRoutes.allowedMethods());
 router.use(menuRoutes.routes(), menuRoutes.allowedMethods());

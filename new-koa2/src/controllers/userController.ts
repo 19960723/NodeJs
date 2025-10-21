@@ -28,6 +28,32 @@ class UserController {
       handleError(ctx, error);
     }
   }
+  static async logout(ctx: Context): Promise<void> {
+    try {
+      const userId = ctx.state['user']?.id;
+      if (!userId) {
+        ctx.status = 401;
+        ctx.body = { code: 401, message: '用户未认证' };
+        return;
+      }
+      // 获取 token
+      const authHeader = ctx.headers['authorization'];
+      const token = authHeader?.split(' ')[1] || '';
+      const result = await UserController.userService.logout(userId, token);
+      success(ctx, result, '退出成功', 200);
+    } catch (error) {
+      handleError(ctx, error);
+    }
+  }
+  static async refresh(ctx: Context): Promise<void> {
+    try {
+      const { refreshToken } = ctx.request.body as any;
+      const result = await UserController.userService.refresh(refreshToken);
+      success(ctx, result, '刷新成功', 200);
+    } catch (error) {
+      handleError(ctx, error);
+    }
+  }
 
   static async getUser(ctx: Context): Promise<void> {
     try {
@@ -160,6 +186,8 @@ export const register = [
   validate({ body: commonSchemas.register }),
   UserController.register
 ];
+export const logout = [validate({}), UserController.logout];
+export const refresh = [validate({}), UserController.refresh];
 
 export const getUser = [validate({}), UserController.getUser];
 export const deleteUser = [validate({}), UserController.deleteUser];

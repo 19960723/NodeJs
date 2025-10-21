@@ -3,6 +3,8 @@ import UserController from '../controllers/userController';
 import {
   login,
   register,
+  logout,
+  refresh,
   getUser,
   deleteUser,
   updateUser,
@@ -125,6 +127,8 @@ router.post('/login', ...login);
  */
 router.post('/register', ...register);
 
+router.post('/logout', auth, ...logout);
+router.post('/refresh', auth, ...refresh);
 /**
  * @swagger
  * /api/user:
