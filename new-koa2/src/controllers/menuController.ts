@@ -15,9 +15,9 @@ class MenuController {
   async getAllMenus(ctx: Context): Promise<void> {
     try {
       const menus = await menuService.getAllMenuTree();
-      ctx.body = success(menus, '获取菜单列表成功');
+      success(ctx, menus, '获取菜单列表成功');
     } catch (err: any) {
-      ctx.body = error(err.message || '获取菜单列表失败');
+      error(ctx, err.message || '获取菜单列表失败');
     }
   }
 
@@ -30,13 +30,13 @@ class MenuController {
       const menu = await menuService.getById(Number(id));
 
       if (!menu) {
-        ctx.body = error('菜单不存在', 404);
+        error(ctx, '菜单不存在', 404, 404);
         return;
       }
 
-      ctx.body = success(menu, '获取菜单详情成功');
+      success(ctx, menu, '获取菜单详情成功');
     } catch (err: any) {
-      ctx.body = error(err.message || '获取菜单详情失败');
+      error(ctx, err.message || '获取菜单详情失败');
     }
   }
 
@@ -49,13 +49,13 @@ class MenuController {
       const menu = await menuService.getMenuWithRoles(Number(id));
 
       if (!menu) {
-        ctx.body = error('菜单不存在', 404);
+        error(ctx, '菜单不存在', 404, 404);
         return;
       }
 
-      ctx.body = success(menu, '获取菜单信息成功');
+      success(ctx, menu, '获取菜单信息成功');
     } catch (err: any) {
-      ctx.body = error(err.message || '获取菜单信息失败');
+      error(ctx, err.message || '获取菜单信息失败');
     }
   }
 
@@ -66,9 +66,9 @@ class MenuController {
     try {
       const menuData = ctx.request.body;
       const menu = await menuService.createMenu(menuData);
-      ctx.body = success(menu, '创建菜单成功', 201);
+      success(ctx, menu, '创建菜单成功', 201);
     } catch (err: any) {
-      ctx.body = error(err.message || '创建菜单失败');
+      error(ctx, err.message || '创建菜单失败');
     }
   }
 
@@ -80,9 +80,9 @@ class MenuController {
       const { id } = ctx.params;
       const menuData = ctx.request.body;
       const menu = await menuService.updateMenu(Number(id), menuData);
-      ctx.body = success(menu, '更新菜单成功');
+      success(ctx, menu, '更新菜单成功');
     } catch (err: any) {
-      ctx.body = error(err.message || '更新菜单失败');
+      error(ctx, err.message || '更新菜单失败');
     }
   }
 
@@ -93,9 +93,9 @@ class MenuController {
     try {
       const { id } = ctx.params;
       await menuService.deleteMenu(Number(id));
-      ctx.body = success(null, '删除菜单成功');
+      success(ctx, null, '删除菜单成功');
     } catch (err: any) {
-      ctx.body = error(err.message || '删除菜单失败');
+      error(ctx, err.message || '删除菜单失败');
     }
   }
 
@@ -106,14 +106,14 @@ class MenuController {
     try {
       const userId = ctx.state.user?.id;
       if (!userId) {
-        ctx.body = error('用户未登录', 401);
+        error(ctx, '用户未登录', 401, 401);
         return;
       }
 
       const menus = await menuService.getUserMenus(userId);
-      ctx.body = success(menus, '获取用户菜单成功');
+      success(ctx, menus, '获取用户菜单成功');
     } catch (err: any) {
-      ctx.body = error(err.message || '获取用户菜单失败');
+      error(ctx, err.message || '获取用户菜单失败');
     }
   }
 
@@ -124,14 +124,14 @@ class MenuController {
     try {
       const userId = ctx.state.user?.id;
       if (!userId) {
-        ctx.body = error('用户未登录', 401);
+        error(ctx, '用户未登录', 401, 401);
         return;
       }
 
       const permissions = await menuService.getUserPermissions(userId);
-      ctx.body = success(permissions, '获取用户权限成功');
+      success(ctx, permissions, '获取用户权限成功');
     } catch (err: any) {
-      ctx.body = error(err.message || '获取用户权限失败');
+      error(ctx, err.message || '获取用户权限失败');
     }
   }
 
@@ -141,9 +141,9 @@ class MenuController {
   async getAllButtons(ctx: Context): Promise<void> {
     try {
       const buttons = await menuService.getAllButtons();
-      ctx.body = success(buttons, '获取按钮权限成功');
+      success(ctx, buttons, '获取按钮权限成功');
     } catch (err: any) {
-      ctx.body = error(err.message || '获取按钮权限失败');
+      error(ctx, err.message || '获取按钮权限失败');
     }
   }
 
@@ -155,14 +155,14 @@ class MenuController {
       const { type } = ctx.params;
 
       if (!['M', 'C', 'A'].includes(type)) {
-        ctx.body = error('菜单类型无效');
+        error(ctx, '菜单类型无效', 400, 400);
         return;
       }
 
       const menus = await menuService.getMenusByType(type as 'M' | 'C' | 'A');
-      ctx.body = success(menus, '获取菜单成功');
+      success(ctx, menus, '获取菜单成功');
     } catch (err: any) {
-      ctx.body = error(err.message || '获取菜单失败');
+      error(ctx, err.message || '获取菜单失败');
     }
   }
 
@@ -174,14 +174,14 @@ class MenuController {
       const { orders } = ctx.request.body;
 
       if (!Array.isArray(orders)) {
-        ctx.body = error('参数格式错误');
+        error(ctx, '参数格式错误', 400, 400);
         return;
       }
 
       await menuService.updateMenusOrder(orders);
-      ctx.body = success(null, '更新菜单排序成功');
+      success(ctx, null, '更新菜单排序成功');
     } catch (err: any) {
-      ctx.body = error(err.message || '更新菜单排序失败');
+      error(ctx, err.message || '更新菜单排序失败');
     }
   }
 }
