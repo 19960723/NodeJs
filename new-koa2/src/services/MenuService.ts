@@ -1,7 +1,7 @@
 import { ModelCtor } from 'sequelize';
 import { MenuInstance, MenusAttributes } from '../models/Menus';
 import MenuRepository from '../repositories/MenuRepository';
-import BaseService from './BaseService';
+import { BaseService } from './BaseService';
 
 /**
  * 菜单服务层

@@ -1,15 +1,14 @@
-import { ModelCtor } from 'sequelize';
 import { RoleInstance } from '../models/Role';
 import { MenuInstance } from '../models/Menus';
-import { UserInstance } from '../models/User';
-import BaseRepository from './BaseRepository';
+import { BaseRepository } from './BaseRepository';
+import models from '../models';
 
 /**
  * 角色数据访问层
  */
-class RoleRepository extends BaseRepository<RoleInstance> {
-  constructor(model: ModelCtor<RoleInstance>) {
-    super(model);
+export class RoleRepository extends BaseRepository<RoleInstance> {
+  constructor() {
+    super((models as any)['Role'] as any);
   }
 
   /**
@@ -146,5 +145,3 @@ class RoleRepository extends BaseRepository<RoleInstance> {
     return menus.map((menu: MenuInstance) => menu.id!);
   }
 }
-
-export default RoleRepository;

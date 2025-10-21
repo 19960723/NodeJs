@@ -1,6 +1,6 @@
 import { ModelCtor } from 'sequelize';
 import { MenuInstance } from '../models/Menus';
-import BaseRepository from './BaseRepository';
+import { BaseRepository } from './BaseRepository';
 
 /**
  * 菜单数据访问层
