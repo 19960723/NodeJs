@@ -45,6 +45,14 @@ NextJs/*.log
 NextJs/.env.local
 NextJs/.env*
 
+# vue-vben-admin 项目
+vue-vben-admin/node_modules/
+vue-vben-admin/dist/
+vue-vben-admin/build/
+vue-vben-admin/*.log
+vue-vben-admin/.env.local
+vue-vben-admin/.env*
+
 # IDE 临时文件
 *.swp
 *.swo
