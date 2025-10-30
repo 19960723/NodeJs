@@ -11,6 +11,12 @@ export class RoleRepository extends BaseRepository<RoleInstance> {
     super((models as any)['Role'] as any);
   }
 
+  async findByName(name: string): Promise<RoleInstance | null> {
+    return await this.model.findOne({
+      where: { name }
+    });
+  }
+
   /**
    * 根据角色代码查找角色
    */

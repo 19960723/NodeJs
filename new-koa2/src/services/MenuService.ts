@@ -32,10 +32,27 @@ class MenuService extends BaseService<MenuInstance> {
    * 创建菜单
    */
   async createMenu(data: MenusAttributes): Promise<MenuInstance> {
-    // 验证路径是否已存在
-    const pathExists = await this.menuRepository.isPathExists(data.path);
-    if (pathExists) {
-      throw new Error('菜单路径已存在');
+    // 根据类型验证路径
+    const menuType = data.type || 'M';
+
+    // 如果是按钮类型，不应该有路径
+    if (menuType === 'A') {
+      if (data.path && data.path.trim() !== '') {
+        throw new Error('按钮类型的菜单不应该有路径');
+      }
+      // 按钮类型时，将path设置为空字符串（数据库不允许null）
+      data.path = '';
+    } else {
+      // 非按钮类型必须验证路径
+      if (!data.path || data.path.trim() === '') {
+        throw new Error('菜单路径不能为空');
+      }
+
+      // 验证路径是否已存在
+      const pathExists = await this.menuRepository.isPathExists(data.path);
+      if (pathExists) {
+        throw new Error('菜单路径已存在');
+      }
     }
 
     // 如果有父级菜单，验证父级菜单是否存在
@@ -61,11 +78,36 @@ class MenuService extends BaseService<MenuInstance> {
       throw new Error('菜单不存在');
     }
 
-    // 如果更新路径，检查新路径是否已被其他菜单使用
-    if (data.path && data.path !== menu.path) {
-      const pathExists = await this.menuRepository.isPathExists(data.path, id);
-      if (pathExists) {
-        throw new Error('菜单路径已存在');
+    // 确定最终的菜单类型（如果更新了类型则使用新类型，否则使用原来的类型）
+    const finalType = data.type !== undefined ? data.type : menu.type;
+
+    // 根据类型验证路径
+    if (finalType === 'A') {
+      // 如果是按钮类型，不应该有路径
+      if (data.path !== undefined && data.path.trim() !== '') {
+        throw new Error('按钮类型的菜单不应该有路径');
+      }
+      // 如果更新类型为按钮，确保path为空字符串
+      if (data.type === 'A' && menu.type !== 'A') {
+        data.path = '';
+      }
+    } else {
+      // 非按钮类型必须验证路径
+      if (data.path !== undefined) {
+        if (!data.path || data.path.trim() === '') {
+          throw new Error('菜单路径不能为空');
+        }
+
+        // 如果更新路径，检查新路径是否已被其他菜单使用
+        if (data.path !== menu.path) {
+          const pathExists = await this.menuRepository.isPathExists(
+            data.path,
+            id
+          );
+          if (pathExists) {
+            throw new Error('菜单路径已存在');
+          }
+        }
       }
     }
 

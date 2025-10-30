@@ -15,7 +15,7 @@ class MenuRepository extends BaseRepository<MenuInstance> {
    */
   async findAllMenuTree(): Promise<MenuInstance[]> {
     const allMenus = await this.model.findAll({
-      where: { status: 'active' },
+      // where: { status: 1 },
       order: [
         ['order', 'ASC'],
         ['id', 'ASC']
@@ -79,7 +79,7 @@ class MenuRepository extends BaseRepository<MenuInstance> {
             {
               model: models.Menu,
               as: 'menus',
-              where: { status: 'active' },
+              where: { status: 1 },
               required: false,
               through: { attributes: [] }
             }
@@ -161,7 +161,7 @@ class MenuRepository extends BaseRepository<MenuInstance> {
    */
   async findAllButtons(): Promise<MenuInstance[]> {
     return await this.model.findAll({
-      where: { type: 'A', status: 'active' },
+      where: { type: 'A', status: 1 },
       order: [['order', 'ASC']]
     });
   }
@@ -174,7 +174,7 @@ class MenuRepository extends BaseRepository<MenuInstance> {
       where: {
         parent_id: menuId,
         type: 'A',
-        status: 'active'
+        status: 1
       },
       order: [['order', 'ASC']]
     });

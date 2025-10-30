@@ -14,7 +14,7 @@ interface MenusAttributes {
   parent_id?: number | null;
   name: string;
   path: string;
-  type?: 'menu' | 'button' | 'link';
+  type?: 'M' | 'C' | 'A'; // [M=目录, C=菜单, A=按钮]
   perms?: string | null;
   component?: string | null;
   params?: string | null;
@@ -22,7 +22,7 @@ interface MenusAttributes {
   isShow?: 0 | 1;
   icon?: string | null;
   order?: number;
-  status?: 'active' | 'inactive';
+  status?: number;
   created_at?: Date;
   updated_at?: Date;
 }
@@ -100,13 +100,14 @@ const Menu = (sequelize: Sequelize): ModelCtor<MenuInstance> => {
       },
       order: {
         type: DataTypes.INTEGER,
-        allowNull: true,
+        allowNull: false,
+        defaultValue: 0,
         comment: '排序'
       },
       status: {
-        type: DataTypes.ENUM('active', 'inactive'),
-        defaultValue: 'active',
-        comment: '状态'
+        type: DataTypes.TINYINT,
+        defaultValue: 1,
+        comment: '状态 [0=否, 1=是]'
       }
     },
     {
