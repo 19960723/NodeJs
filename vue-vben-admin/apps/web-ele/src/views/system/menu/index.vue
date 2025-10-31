@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import { Page, VbenButton, useVbenDrawer } from '@vben/common-ui';
-import { Plus } from '@vben/icons';
+import { IconifyIcon, Plus } from '@vben/icons';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getAllMenusApi, deleteMenu } from '#/api/core/menu';
 import MenuFormDrawer from './modules/form.vue';
@@ -36,6 +36,13 @@ const columns = [
     field: 'type',
     minWidth: 100,
     cellRender: { name: 'CellTag', options: getMenuTypeOptions() },
+  },
+  {
+    title: '图标',
+    field: 'icon',
+    minWidth: 80,
+    align: 'center',
+    slots: { default: 'icon' },
   },
   {
     title: '路由路径',
@@ -176,6 +183,13 @@ async function onDelete(row: any) {
           >
             删除
           </VbenButton>
+        </div>
+      </template>
+      <template #icon="{ row }">
+        <div class="flex w-full items-center justify-center gap-1">
+          <div class="size-5 flex-shrink-0">
+            <IconifyIcon :icon="row.icon" class="size-full" />
+          </div>
         </div>
       </template>
     </Grid>
