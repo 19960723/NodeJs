@@ -6,6 +6,7 @@ import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getAllMenusApi, deleteMenu } from '#/api/core/menu';
 import MenuFormDrawer from './modules/form.vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { $t } from '#/locales';
 
 const [FormDrawer, formDrawerApi] = useVbenDrawer({
   connectedComponent: MenuFormDrawer,
@@ -16,68 +17,69 @@ function getMenuTypeOptions() {
   return [
     {
       type: 'primary',
-      label: '目录',
+      label: $t('system.menu.typeCatalog'),
       value: 'M',
     },
-    { type: 'success', label: '菜单', value: 'C' },
-    { type: 'danger', label: '按钮', value: 'A' },
+    { type: 'success', label: $t('system.menu.typeMenu'), value: 'C' },
+    { type: 'danger', label: $t('system.menu.typeButton'), value: 'A' },
   ];
 }
 const columns = [
   {
-    title: '菜单名称',
+    title: $t('system.menu.menuName'),
     field: 'name',
     minWidth: 150,
     align: 'left',
     treeNode: true,
+    slots: { default: 'name' },
   },
   {
-    title: '菜单类型',
+    title: $t('system.menu.menuType'),
     field: 'type',
     minWidth: 100,
     cellRender: { name: 'CellTag', options: getMenuTypeOptions() },
   },
   {
-    title: '图标',
+    title: $t('system.menu.icon'),
     field: 'icon',
     minWidth: 80,
     align: 'center',
     slots: { default: 'icon' },
   },
   {
-    title: '路由路径',
+    title: $t('system.menu.path'),
     field: 'path',
     minWidth: 150,
     align: 'left',
   },
   {
-    title: '组件路径',
+    title: $t('system.menu.component'),
     field: 'component',
     minWidth: 150,
     align: 'left',
   },
   {
-    title: '权限标识',
+    title: $t('system.menu.authCode'),
     field: 'perms',
     minWidth: 150,
     align: 'left',
   },
   {
-    title: '状态',
+    title: $t('system.menu.status'),
     field: 'status',
     minWidth: 100,
     cellRender: { name: 'CellTag' },
   },
   {
-    title: '排序',
+    title: $t('system.menu.order'),
     field: 'order',
     minWidth: 100,
   },
   {
     align: 'left',
     fixed: 'right',
-    title: '操作',
-    width: 150,
+    title: $t('system.menu.operation'),
+    width: 200,
     slots: { default: 'action' },
   },
 ];
@@ -159,8 +161,13 @@ async function onDelete(row: any) {
       <template #toolbar-tools>
         <VbenButton type="primary" @click="onCreate">
           <Plus class="size-5" />
-          新增菜单
+          {{ $t('ui.actionTitle.create', [$t('system.menu.name')]) }}
         </VbenButton>
+      </template>
+      <template #name="{ row }">
+        <div class="flex items-center justify-start gap-2">
+          <span>{{ $t(row.name) }}</span>
+        </div>
       </template>
       <template #action="{ row }">
         <div class="flex items-center justify-start gap-2">
@@ -170,10 +177,10 @@ async function onDelete(row: any) {
             variant="link"
             @click="onCreate(row)"
           >
-            新增
+            {{ $t('ui.actionTitle.create') }}
           </VbenButton>
           <VbenButton size="small" variant="link" @click="onEdit(row)">
-            编辑
+            {{ $t('ui.actionTitle.edit') }}
           </VbenButton>
           <VbenButton
             size="small"
@@ -181,7 +188,7 @@ async function onDelete(row: any) {
             class="text-red-600 hover:text-red-700"
             @click="onDelete(row)"
           >
-            删除
+            {{ $t('ui.actionTitle.delete') }}
           </VbenButton>
         </div>
       </template>

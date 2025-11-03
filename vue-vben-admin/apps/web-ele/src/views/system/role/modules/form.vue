@@ -7,6 +7,7 @@ import { computed, nextTick, ref } from 'vue';
 import { useVbenForm, useVbenModal } from '@vben/common-ui';
 import { createRoles, updateRole } from '#/api/core/user';
 import { ElMessage } from 'element-plus';
+import { $t } from '#/locales';
 
 const emit = defineEmits<{
   success: [];
@@ -19,44 +20,37 @@ const id = ref<number>();
 const formSchema = [
   {
     component: 'Input',
-    componentProps: {
-      placeholder: '请输入角色名称',
-    },
     fieldName: 'name',
-    label: '角色名称',
+    label: $t('system.role.roleName'),
     rules: 'required',
   },
   {
     component: 'Input',
-    componentProps: {
-      placeholder: '请输入角色编码',
-    },
     fieldName: 'code',
-    label: '角色编码',
+    label: $t('system.role.roleCode'),
     rules: 'required',
   },
   {
     component: 'RadioGroup',
     componentProps: {
       options: [
-        { label: '启用', value: 1 },
-        { label: '禁用', value: 0 },
+        { label: $t('common.enabled'), value: 1 },
+        { label: $t('common.disabled'), value: 0 },
       ],
     },
     defaultValue: 1,
     fieldName: 'status',
-    label: '状态',
+    label: $t('system.role.status'),
   },
   {
     component: 'Textarea',
     componentProps: {
-      placeholder: '请输入角色描述',
       rows: 4,
       showCount: true,
       maxLength: 200,
     },
     fieldName: 'description',
-    label: '角色描述',
+    label: $t('system.role.description'),
   },
 ];
 
@@ -125,7 +119,9 @@ const [Modal, modalApi] = useVbenModal({
 
 // 计算 Modal 标题
 const modalTitle = computed(() => {
-  return formData.value?.id ? '编辑角色' : '新增角色';
+  return formData.value?.id
+    ? $t('ui.actionTitle.edit')
+    : $t('ui.actionTitle.create');
 });
 </script>
 

@@ -15,6 +15,7 @@ import { deleteRole, getRolePageList } from '#/api/core/user';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import RoleFormModal from './modules/form.vue';
 
+import { $t } from '#/locales';
 // 创建 Modal
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: RoleFormModal,
@@ -27,44 +28,38 @@ function onRefresh() {
 }
 
 const columns = [
-  // {
-  //   align: 'center',
-  //   title: 'ID',
-  //   field: 'id',
-  //   width: 80,
-  // },
   {
-    title: '角色名称',
+    title: $t('system.role.roleName'),
     field: 'name',
     minWidth: 150,
   },
   {
-    title: '角色编码',
+    title: $t('system.role.roleCode'),
     field: 'code',
     minWidth: 150,
   },
   {
     align: 'center',
-    title: '状态',
+    title: $t('system.role.status'),
     field: 'status',
     width: 100,
     slots: { default: 'status' },
   },
   {
-    title: '角色描述',
+    title: $t('system.role.description'),
     field: 'description',
     minWidth: 200,
   },
   {
     align: 'center',
-    title: '创建时间',
+    title: $t('system.role.createdAt'),
     field: 'created_at',
     width: 180,
   },
   {
     align: 'center',
     fixed: 'right',
-    title: '操作',
+    title: $t('system.role.operation'),
     width: 150,
     slots: { default: 'action' },
   },
@@ -76,7 +71,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       {
         component: 'Input',
         fieldName: 'name',
-        label: '角色名称',
+        label: $t('system.role.roleName'),
       },
     ],
     submitOnChange: true,
@@ -155,7 +150,7 @@ async function onDelete(row: any) {
       <template #toolbar-tools>
         <VbenButton type="primary" @click="onCreate">
           <Plus class="size-5" />
-          新增角色
+          {{ $t('ui.actionTitle.create', [$t('system.role.name')]) }}
         </VbenButton>
       </template>
 
@@ -169,7 +164,7 @@ async function onDelete(row: any) {
               : 'bg-red-100 text-red-700',
           ]"
         >
-          {{ row.status === 1 ? '启用' : '禁用' }}
+          {{ row.status === 1 ? $t('common.enabled') : $t('common.disabled') }}
         </span>
       </template>
 
@@ -177,7 +172,7 @@ async function onDelete(row: any) {
       <template #action="{ row }">
         <div class="flex items-center justify-center gap-2">
           <VbenButton size="small" variant="link" @click="onEdit(row)">
-            编辑
+            {{ $t('ui.actionTitle.edit') }}
           </VbenButton>
           <VbenButton
             size="small"
@@ -185,7 +180,7 @@ async function onDelete(row: any) {
             class="text-red-600 hover:text-red-700"
             @click="onDelete(row)"
           >
-            删除
+            {{ $t('ui.actionTitle.delete') }}
           </VbenButton>
         </div>
       </template>

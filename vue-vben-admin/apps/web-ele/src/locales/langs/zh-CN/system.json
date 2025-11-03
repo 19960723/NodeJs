@@ -2,10 +2,31 @@
   "title": "系统管理",
   "role": {
     "title": "角色管理",
-    "list": "角色列表"
+    "list": "角色列表",
+    "name": "角色",
+    "roleName": "角色名称",
+    "roleCode": "角色编码",
+    "status": "状态",
+    "description": "角色描述",
+    "createdAt": "创建时间",
+    "operation": "操作"
   },
   "menu": {
     "title": "菜单管理",
-    "list": "菜单列表"
+    "list": "菜单列表",
+    "name": "菜单",
+    "menuName": "菜单名称",
+    "authCode": "权限标识",
+    "menuType": "菜单类型",
+    "path": "路由路径",
+    "component": "组件路径",
+    "icon": "图标",
+    "order": "排序",
+    "status": "状态",
+    "operation": "操作",
+    "typeCatalog": "目录",
+    "typeMenu": "菜单",
+    "typeButton": "按钮",
+    "parent": "父级菜单"
   }
 }

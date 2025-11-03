@@ -2,10 +2,31 @@
   "title": "System Management",
   "role": {
     "title": "Role Management",
-    "list": "Role List"
+    "list": "Role List",
+    "name": "Role",
+    "roleName": "Role Name",
+    "roleCode": "Role Code",
+    "status": "Status",
+    "description": "Description",
+    "createdAt": "Created At",
+    "operation": "Operation"
   },
   "menu": {
     "title": "Menu Management",
-    "list": "Menu List"
+    "list": "Menu List",
+    "name": "Menu",
+    "menuName": "Menu Name",
+    "authCode": "Auth Code",
+    "menuType": "Menu Type",
+    "path": "Path",
+    "component": "Component",
+    "icon": "Icon",
+    "order": "Order",
+    "status": "Status",
+    "operation": "Operation",
+    "typeCatalog": "Catalog",
+    "typeMenu": "Menu",
+    "typeButton": "Button",
+    "parent": "Parent Menu"
   }
 }

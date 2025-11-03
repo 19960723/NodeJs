@@ -20,21 +20,21 @@ const emit = defineEmits<{
 
 const menuTypes = [
   {
-    label: '目录',
+    label: $t('system.menu.typeCatalog'),
     value: 'M',
   },
   {
-    label: '菜单',
+    label: $t('system.menu.typeMenu'),
     value: 'C',
   },
   {
-    label: '按钮',
+    label: $t('system.menu.typeButton'),
     value: 'A',
   },
 ];
 const formSchema = [
   {
-    label: '菜单类型',
+    label: $t('system.menu.menuType'),
     fieldName: 'type',
     component: 'RadioGroup',
     rules: 'required',
@@ -49,7 +49,7 @@ const formSchema = [
   {
     component: 'ApiTreeSelect',
     fieldName: 'parent_id',
-    label: '父级菜单',
+    label: $t('system.menu.parent'),
     componentProps: {
       api: getAllMenusApi,
       class: 'w-full',
@@ -85,14 +85,14 @@ const formSchema = [
   {
     component: 'Input',
     fieldName: 'name',
-    label: '菜单名称',
+    label: $t('system.menu.menuName'),
     rules: 'required',
   },
 
   {
     component: 'Input',
     fieldName: 'path',
-    label: '路由路径',
+    label: $t('system.menu.path'),
     rules: 'required',
     dependencies: {
       show: (values: any) => {
@@ -104,7 +104,7 @@ const formSchema = [
   {
     component: 'Input',
     fieldName: 'component',
-    label: '前端组件',
+    label: $t('system.menu.component'),
     rules: 'required',
     dependencies: {
       show: (values: any) => {
@@ -116,7 +116,7 @@ const formSchema = [
   {
     component: 'Input',
     fieldName: 'perms',
-    label: '权限标识',
+    label: $t('system.menu.authCode'),
   },
   {
     component: 'IconPicker',
@@ -124,30 +124,30 @@ const formSchema = [
       prefix: 'carbon',
     },
     dependencies: {
-      show: (values) => {
-        return ['M'].includes(values.type);
+      show: (values: any) => {
+        return ['M', 'C'].includes(values.type);
       },
       triggerFields: ['type'],
     },
     fieldName: 'icon',
-    label: '图标',
+    label: $t('system.menu.icon'),
   },
   {
     component: 'Input',
     fieldName: 'order',
-    label: '排序',
+    label: $t('system.menu.order'),
   },
   {
     component: 'RadioGroup',
     componentProps: {
       options: [
-        { label: '启用', value: 1 },
-        { label: '禁用', value: 0 },
+        { label: $t('common.enabled'), value: 1 },
+        { label: $t('common.disabled'), value: 0 },
       ],
     },
     defaultValue: 1,
     fieldName: 'status',
-    label: '状态',
+    label: $t('system.menu.status'),
   },
 ];
 const [Form, formApi] = useVbenForm({
@@ -189,7 +189,9 @@ const [Drawer, drawerApi] = useVbenDrawer({
   },
 });
 const getDrawerTitle = computed(() => {
-  return formData.value?.id ? '编辑菜单' : '新增菜单';
+  return formData.value?.id
+    ? $t('ui.actionTitle.edit')
+    : $t('ui.actionTitle.create');
 });
 </script>
 
