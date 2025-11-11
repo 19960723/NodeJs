@@ -8,7 +8,8 @@ import {
   getUser,
   deleteUser,
   updateUser,
-  getUserById
+  getUserById,
+  getUserList
 } from '../controllers/userController';
 import { auth } from '../middleware/auth';
 
@@ -158,6 +159,18 @@ router.post('/refresh', auth, ...refresh);
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get('/', auth, ...getUser);
+
+/**
+ * @swagger
+ * /api/user/list:
+ *   get:
+ *     summary: 获取用户列表
+ *     description: 获取用户列表
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get('/list', auth, ...getUserList);
 
 /**
  * @swagger

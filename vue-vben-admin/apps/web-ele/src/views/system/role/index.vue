@@ -8,18 +8,25 @@
  * 4. 删除操作
  */
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import { Page, VbenButton, useVbenModal } from '@vben/common-ui';
+import { Page, VbenButton, useVbenModal, useVbenDrawer } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { deleteRole, getRolePageList } from '#/api/core/user';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import RoleFormModal from './modules/form.vue';
+import AssignModal from './modules/assign.vue';
 
 import { $t } from '#/locales';
 // 创建 Modal
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: RoleFormModal,
   destroyOnClose: true, // 关闭时销毁组件
+});
+
+// 创建 Drawer
+const [AssignDrawer, assignDrawerApi] = useVbenDrawer({
+  connectedComponent: AssignModal,
+  destroyOnClose: true,
 });
 
 // 处理表单提交成功
@@ -119,6 +126,11 @@ function onEdit(row: any) {
   formModalApi.setData(row).open(); // 🔥 使用 setData API
 }
 
+// 分配权限
+function onAssign(row: any) {
+  assignDrawerApi.setData(row).open();
+}
+
 // 删除角色
 async function onDelete(row: any) {
   try {
@@ -146,6 +158,7 @@ async function onDelete(row: any) {
 <template>
   <Page auto-content-height>
     <FormModal @success="onRefresh" />
+    <AssignDrawer @success="onRefresh" />
     <Grid>
       <template #toolbar-tools>
         <VbenButton type="primary" @click="onCreate">
@@ -171,6 +184,9 @@ async function onDelete(row: any) {
       <!-- 操作列 -->
       <template #action="{ row }">
         <div class="flex items-center justify-center gap-2">
+          <VbenButton size="small" variant="link" @click="onAssign(row)">
+            授权
+          </VbenButton>
           <VbenButton size="small" variant="link" @click="onEdit(row)">
             {{ $t('ui.actionTitle.edit') }}
           </VbenButton>

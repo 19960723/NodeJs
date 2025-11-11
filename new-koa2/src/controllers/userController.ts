@@ -55,6 +55,24 @@ class UserController {
     }
   }
 
+  static async getUserList(ctx: Context): Promise<void> {
+    try {
+      const query = ctx.query as any;
+      const queryParams: any = {
+        page: query.page ? parseInt(query.page) : 1,
+        pageSize: query.pageSize ? parseInt(query.pageSize) : 10,
+        keyword: query.keyword
+      };
+      if (query.status !== undefined) {
+        queryParams.status = parseInt(query.status);
+      }
+      const result = await UserController.userService.getUserList(queryParams);
+      success(ctx, result, '获取用户列表成功', 200);
+    } catch (error) {
+      handleError(ctx, error);
+    }
+  }
+
   static async getUser(ctx: Context): Promise<void> {
     try {
       // 从ctx.state.user中获取当前用户信息（由auth中间件设置）
@@ -193,4 +211,6 @@ export const getUser = [validate({}), UserController.getUser];
 export const deleteUser = [validate({}), UserController.deleteUser];
 export const updateUser = [validate({}), UserController.updateUser];
 export const getUserById = [validate({}), UserController.getUserById];
+export const getUserList = [validate({}), UserController.getUserList];
+
 export default UserController;

@@ -150,4 +150,27 @@ export class RoleRepository extends BaseRepository<RoleInstance> {
     const menus = (role as any).menus || [];
     return menus.map((menu: MenuInstance) => menu.id!);
   }
+
+  /**
+   * 获取所有启用的角色
+   */
+  async findActiveRoles(): Promise<RoleInstance[]> {
+    return await this.model.findAll({
+      where: { status: 1 },
+      order: [['created_at', 'DESC']]
+    });
+  }
+
+  /**
+   * 更新角色状态
+   */
+  async updateStatus(id: number, status: number): Promise<RoleInstance> {
+    const role = await this.findById(id);
+    if (!role) {
+      throw new Error('角色不存在');
+    }
+
+    await role.update({ status });
+    return role;
+  }
 }

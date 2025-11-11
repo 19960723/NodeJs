@@ -117,6 +117,7 @@ export class RoleService extends BaseService<any> {
       code?: string;
       description?: string;
       status?: number;
+      menuIds?: number[];
     }
   ) {
     const roleId = this.validateId(id);
@@ -142,7 +143,6 @@ export class RoleService extends BaseService<any> {
         throw new BusinessError(409, '角色代码已存在');
       }
     }
-
     // 更新角色
     return await this.repository.update(roleId, data);
   }
@@ -183,5 +183,88 @@ export class RoleService extends BaseService<any> {
     }
 
     return await this.repository.updateStatus(roleId, status);
+  }
+
+  /**
+   * 获取角色的菜单权限
+   */
+  async getRoleMenus(id: number) {
+    const roleId = this.validateId(id);
+
+    // 检查角色是否存在
+    const role = await this.repository.findById(roleId);
+    if (!role) {
+      throw new BusinessError(404, '角色不存在');
+    }
+
+    // 获取角色及其菜单
+    const roleWithMenus = await this.repository.findWithMenus(roleId);
+    const menus = (roleWithMenus as any)?.menus || [];
+
+    return {
+      roleId,
+      roleName: role.name,
+      menus,
+      menuIds: menus.map((m: any) => m.id)
+    };
+  }
+
+  /**
+   * 为角色分配菜单权限
+   */
+  async assignMenusToRole(id: number, menuIds: number[]) {
+    const roleId = this.validateId(id);
+
+    // 检查角色是否存在
+    const role = await this.repository.findById(roleId);
+    if (!role) {
+      throw new BusinessError(404, '角色不存在');
+    }
+
+    // 验证角色状态
+    if (role.status !== 1) {
+      throw new BusinessError(400, '角色已被禁用，无法分配权限');
+    }
+
+    // 验证菜单ID
+    if (!Array.isArray(menuIds)) {
+      throw new BusinessError(400, '菜单ID必须是数组');
+    }
+
+    // 去重并验证
+    const validMenuIds = [...new Set(menuIds)].filter(id => {
+      const numId = Number(id);
+      return !isNaN(numId) && numId > 0;
+    });
+
+    // 验证菜单是否存在
+    if (validMenuIds.length > 0) {
+      const models = require('../models').models;
+      const menus = await models.Menu.findAll({
+        where: { id: validMenuIds }
+      });
+
+      if (menus.length !== validMenuIds.length) {
+        throw new BusinessError(400, '部分菜单不存在');
+      }
+
+      // 检查菜单状态
+      const disabledMenus = menus.filter((m: any) => m.status !== 1);
+      if (disabledMenus.length > 0) {
+        throw new BusinessError(
+          400,
+          `部分菜单已被禁用: ${disabledMenus.map((m: any) => m.name).join(', ')}`
+        );
+      }
+    }
+
+    // 使用Sequelize的关联方法分配菜单
+    await this.repository.assignMenus(roleId, validMenuIds);
+
+    return {
+      roleId,
+      menuIds: validMenuIds,
+      message: '菜单权限分配成功'
+    };
   }
 }

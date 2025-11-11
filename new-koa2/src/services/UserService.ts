@@ -241,6 +241,43 @@ export class UserService extends BaseService<any> {
       expiresIn: config.security.jwtExpiresIn || '24h'
     };
   }
+  /**
+   * 获取用户列表（分页）
+   */
+  async getUserList(query: {
+    page?: number;
+    pageSize?: number;
+    status?: number;
+    keyword?: string;
+  }) {
+    const { page = 1, pageSize = 10, status, keyword } = query;
+    const where: any = {};
+
+    // 状态筛选
+    if (status !== undefined) {
+      where.status = status;
+    }
+    // 关键词搜索（名称或代码）
+    if (keyword) {
+      const { Op } = require('sequelize');
+      where[Op.or] = [
+        { name: { [Op.like]: `%${keyword}%` } },
+        { code: { [Op.like]: `%${keyword}%` } },
+        { description: { [Op.like]: `%${keyword}%` } }
+      ];
+    }
+    const offset = (page - 1) * pageSize;
+    const { rows, count } = await this.repository.findAll({
+      where,
+      limit: pageSize,
+      offset,
+      order: [['created_at', 'DESC']]
+    });
+    return {
+      list: rows,
+      pagination: this.calculatePagination(page, pageSize, count)
+    };
+  }
 
   async getUserInfo(userId: number) {
     // 根据用户ID查询用户信息

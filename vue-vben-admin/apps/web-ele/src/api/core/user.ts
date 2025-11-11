@@ -10,6 +10,13 @@ export async function getUserInfoApi() {
 }
 
 /**
+ * 获取用户列表
+ */
+export async function getUserListApi(params?: any) {
+  return requestClient.get<any>('/user/list', { params });
+}
+
+/**
  * 获取角色分页列表
  */
 export async function getRolePageList(params?: any) {
@@ -34,4 +41,18 @@ export async function updateRole(id: number, data: any) {
  */
 export async function deleteRole(id: number) {
   return requestClient.delete<any>(`/role/${id}`);
+}
+
+/**
+ * 分配角色菜单
+ */
+export async function assignRoleMenus(id: number, menuIds: number[]) {
+  return requestClient.post<any>(`/role/${id}/menus`, { menuIds });
+}
+
+/**
+ * 获取角色菜单
+ */
+export async function getRoleMenus(id: number) {
+  return requestClient.get<any>(`/role/${id}/menus`);
 }

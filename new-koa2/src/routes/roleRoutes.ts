@@ -6,7 +6,9 @@ import {
   getRoleById,
   updateRole,
   deleteRole,
-  updateRoleStatus
+  updateRoleStatus,
+  getRoleMenus,
+  assignMenusToRole
 } from '../controllers/roleController';
 import { auth } from '../middleware/auth';
 
@@ -435,5 +437,86 @@ router.delete('/:id', auth, ...deleteRole);
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.patch('/:id/status', auth, ...updateRoleStatus);
+
+/**
+ * @swagger
+ * /api/role/{id}/menus:
+ *   get:
+ *     summary: 获取角色的菜单权限
+ *     description: 获取指定角色拥有的所有菜单权限
+ *     tags: [Role]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 角色ID
+ *     responses:
+ *       200:
+ *         description: 获取成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *       404:
+ *         description: 角色不存在
+ *       401:
+ *         description: 未授权
+ */
+router.get('/:id/menus', auth, ...getRoleMenus);
+
+/**
+ * @swagger
+ * /api/role/{id}/menus:
+ *   post:
+ *     summary: 为角色分配菜单权限
+ *     description: 为指定角色分配菜单权限（会替换原有权限）
+ *     tags: [Role]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 角色ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - menuIds
+ *             properties:
+ *               menuIds:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 description: 菜单ID数组
+ *           examples:
+ *             assign:
+ *               summary: 分配菜单权限示例
+ *               value:
+ *                 menuIds: [1, 2, 3, 4, 5]
+ *     responses:
+ *       200:
+ *         description: 分配成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *       400:
+ *         description: 请求参数错误
+ *       404:
+ *         description: 角色不存在
+ *       401:
+ *         description: 未授权
+ */
+router.post('/:id/menus', auth, ...assignMenusToRole);
 
 export default router;

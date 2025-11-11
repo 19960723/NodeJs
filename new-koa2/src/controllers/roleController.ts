@@ -25,12 +25,15 @@ class RoleController {
   static async getRoleList(ctx: Context): Promise<void> {
     try {
       const query = ctx.query as any;
-      const result = await RoleController.roleService.getRoleList({
+      const queryParams: any = {
         page: query.page ? parseInt(query.page) : 1,
         pageSize: query.pageSize ? parseInt(query.pageSize) : 10,
-        status: query.status !== undefined ? parseInt(query.status) : undefined,
         keyword: query.keyword
-      });
+      };
+      if (query.status !== undefined) {
+        queryParams.status = parseInt(query.status);
+      }
+      const result = await RoleController.roleService.getRoleList(queryParams);
       success(ctx, result, '获取角色列表成功', 200);
     } catch (error) {
       handleError(ctx, error);
@@ -54,7 +57,7 @@ class RoleController {
    */
   static async getRoleById(ctx: Context): Promise<void> {
     try {
-      const { id } = ctx.params;
+      const { id } = ctx['params'];
       const result = await RoleController.roleService.getRoleById(parseInt(id));
       success(ctx, result, '获取角色详情成功', 200);
     } catch (error) {
@@ -67,7 +70,7 @@ class RoleController {
    */
   static async updateRole(ctx: Context): Promise<void> {
     try {
-      const { id } = ctx.params;
+      const { id } = ctx['params'];
       const data = ctx.request.body as any;
       const result = await RoleController.roleService.updateRole(
         parseInt(id),
@@ -84,7 +87,7 @@ class RoleController {
    */
   static async deleteRole(ctx: Context): Promise<void> {
     try {
-      const { id } = ctx.params;
+      const { id } = ctx['params'];
       const result = await RoleController.roleService.deleteRole(parseInt(id));
       success(ctx, result, '删除角色成功', 200);
     } catch (error) {
@@ -97,13 +100,45 @@ class RoleController {
    */
   static async updateRoleStatus(ctx: Context): Promise<void> {
     try {
-      const { id } = ctx.params;
+      const { id } = ctx['params'];
       const { status } = ctx.request.body as any;
       const result = await RoleController.roleService.updateRoleStatus(
         parseInt(id),
         status
       );
       success(ctx, result, '更新角色状态成功', 200);
+    } catch (error) {
+      handleError(ctx, error);
+    }
+  }
+
+  /**
+   * 获取角色的菜单权限
+   */
+  static async getRoleMenus(ctx: Context): Promise<void> {
+    try {
+      const { id } = ctx['params'];
+      const result = await RoleController.roleService.getRoleMenus(
+        parseInt(id)
+      );
+      success(ctx, result, '获取角色菜单权限成功', 200);
+    } catch (error) {
+      handleError(ctx, error);
+    }
+  }
+
+  /**
+   * 为角色分配菜单权限
+   */
+  static async assignMenusToRole(ctx: Context): Promise<void> {
+    try {
+      const { id } = ctx['params'];
+      const { menuIds } = ctx.request.body as any;
+      const result = await RoleController.roleService.assignMenusToRole(
+        parseInt(id),
+        menuIds
+      );
+      success(ctx, result, '分配菜单权限成功', 200);
     } catch (error) {
       handleError(ctx, error);
     }
@@ -118,5 +153,10 @@ export const getRoleById = [validate({}), RoleController.getRoleById];
 export const updateRole = [validate({}), RoleController.updateRole];
 export const deleteRole = [validate({}), RoleController.deleteRole];
 export const updateRoleStatus = [validate({}), RoleController.updateRoleStatus];
+export const getRoleMenus = [validate({}), RoleController.getRoleMenus];
+export const assignMenusToRole = [
+  validate({}),
+  RoleController.assignMenusToRole
+];
 
 export default RoleController;
