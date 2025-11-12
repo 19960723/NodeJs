@@ -7,6 +7,7 @@ import {
   refresh,
   getUser,
   deleteUser,
+  createUser,
   updateUser,
   getUserById,
   getUserList
@@ -130,6 +131,97 @@ router.post('/register', ...register);
 
 router.post('/logout', auth, ...logout);
 router.post('/refresh', auth, ...refresh);
+
+/**
+ * @swagger
+ * /api/user:
+ *   post:
+ *     summary: 创建用户
+ *     description: 创建新用户
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post('/', auth, ...createUser);
+/**
+ * @swagger
+ * /api/user/{id}:
+ *   put:
+ *     summary: 更新用户信息
+ *     description: 根据用户ID更新用户信息
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           format: int64
+ *         description: 用户ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 description: 用户名
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: 邮箱
+ *               nickname:
+ *                 type: string
+ *                 description: 昵称
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 description: 新密码
+ *               status:
+ *                 type: boolean
+ *                 description: 用户状态
+ *           examples:
+ *             update:
+ *               summary: 更新用户信息
+ *               value:
+ *                 nickname: "更新的昵称"
+ *                 email: "newemail@example.com"
+ *     responses:
+ *       200:
+ *         description: 更新用户成功
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/User'
+ *       404:
+ *         description: 用户不存在
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       400:
+ *         description: 请求参数错误
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: 未授权
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.put('/:id', auth, ...updateUser);
 /**
  * @swagger
  * /api/user:
@@ -215,86 +307,6 @@ router.get('/list', auth, ...getUserList);
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get('/:id', auth, ...getUserById);
-
-/**
- * @swagger
- * /api/user/{id}:
- *   put:
- *     summary: 更新用户信息
- *     description: 根据用户ID更新用户信息
- *     tags: [User]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *           format: int64
- *         description: 用户ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               username:
- *                 type: string
- *                 description: 用户名
- *               email:
- *                 type: string
- *                 format: email
- *                 description: 邮箱
- *               nickname:
- *                 type: string
- *                 description: 昵称
- *               password:
- *                 type: string
- *                 format: password
- *                 description: 新密码
- *               status:
- *                 type: boolean
- *                 description: 用户状态
- *           examples:
- *             update:
- *               summary: 更新用户信息
- *               value:
- *                 nickname: "更新的昵称"
- *                 email: "newemail@example.com"
- *     responses:
- *       200:
- *         description: 更新用户成功
- *         content:
- *           application/json:
- *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/ApiResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                       $ref: '#/components/schemas/User'
- *       404:
- *         description: 用户不存在
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *       400:
- *         description: 请求参数错误
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *       401:
- *         description: 未授权
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- */
-router.put('/:id', auth, ...updateUser);
 
 /**
  * @swagger

@@ -17,6 +17,27 @@ export async function getUserListApi(params?: any) {
 }
 
 /**
+ * 创建用户
+ */
+export async function createUser(data: any) {
+  return requestClient.post<any>('/user', data);
+}
+
+/**
+ * 删除用户
+ */
+export async function deleteUser(id: number) {
+  return requestClient.delete<any>(`/user/${id}`);
+}
+
+/**
+ * 更新用户
+ */
+export async function updateUser(id: number, data: any) {
+  return requestClient.put<any>(`/user/${id}`, data);
+}
+
+/**
  * 获取角色分页列表
  */
 export async function getRolePageList(params?: any) {

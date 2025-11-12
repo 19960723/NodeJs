@@ -12,6 +12,31 @@ export class UserService extends BaseService<any> {
     this.repository = new UserRepository();
   }
 
+  /**
+   * 过滤用户敏感信息
+   * @param user 用户对象
+   * @returns 不包含敏感信息的用户对象
+   */
+  private filterSensitiveInfo(user: any) {
+    if (!user) return null;
+
+    // 如果是 Sequelize 模型实例，转换为普通对象
+    const userData = user.toJSON ? user.toJSON() : user;
+
+    // 移除敏感字段
+    const { password, ...safeUser } = userData;
+    return safeUser;
+  }
+
+  /**
+   * 批量过滤用户敏感信息
+   * @param users 用户数组
+   * @returns 不包含敏感信息的用户数组
+   */
+  private filterSensitiveInfoBatch(users: any[]) {
+    return users.map(user => this.filterSensitiveInfo(user));
+  }
+
   async login(data: { username: string; password: string }) {
     const { username, password } = data;
     const user = await this.repository.findByUsername(username);
@@ -262,8 +287,9 @@ export class UserService extends BaseService<any> {
       const { Op } = require('sequelize');
       where[Op.or] = [
         { name: { [Op.like]: `%${keyword}%` } },
-        { code: { [Op.like]: `%${keyword}%` } },
-        { description: { [Op.like]: `%${keyword}%` } }
+        { username: { [Op.like]: `%${keyword}%` } },
+        { nickname: { [Op.like]: `%${keyword}%` } },
+        { phone: { [Op.like]: `%${keyword}%` } }
       ];
     }
     const offset = (page - 1) * pageSize;
@@ -273,8 +299,12 @@ export class UserService extends BaseService<any> {
       offset,
       order: [['created_at', 'DESC']]
     });
+
+    // 过滤敏感信息
+    const safeList = this.filterSensitiveInfoBatch(rows);
+
     return {
-      list: rows,
+      list: safeList,
       pagination: this.calculatePagination(page, pageSize, count)
     };
   }
@@ -287,15 +317,38 @@ export class UserService extends BaseService<any> {
       throw new BusinessError(404, '用户不存在');
     }
 
-    // 返回用户信息（不包含密码）
-    return {
-      id: user.id,
-      username: user.username,
-      nickname: user.nickname || null,
-      avatar: user.avatar || null,
-      email: user.email || null,
-      phone: user.phone || null
+    // 返回用户信息（过滤敏感信息）
+    return this.filterSensitiveInfo(user);
+  }
+
+  async createUser(data: any) {
+    const { username, password } = data;
+
+    // 检查用户名是否已存在
+    const existUser = await this.repository.findByUsername(username);
+    if (existUser) {
+      throw new BusinessError(409, '用户名已存在');
+    }
+
+    // 如果没有提供密码，使用username作为默认密码
+    const passwordToUse = password || username;
+
+    // 加密密码
+    const hashedPassword = await bcrypt.hash(passwordToUse, 10);
+
+    // 创建用户数据
+    const userData = {
+      ...data,
+      password: hashedPassword,
+      nickname: data.nickname || username
     };
+
+    // 创建用户
+    const user = await this.repository.create(userData);
+
+    // 安全起见，不返回密码
+    const { password: pwd, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 
   async deleteUser(id: number) {
@@ -311,14 +364,17 @@ export class UserService extends BaseService<any> {
     if (!user) {
       throw new BusinessError(404, '用户不存在');
     }
-    return await this.repository.update(id, data);
+    const updatedUser = await this.repository.update(id, data);
+    // 过滤敏感信息
+    return this.filterSensitiveInfo(updatedUser);
   }
   async getUserById(id: number) {
     const user = await this.repository.findById(id);
     if (!user) {
       throw new BusinessError(404, '用户不存在');
     }
-    return user;
+    // 过滤敏感信息
+    return this.filterSensitiveInfo(user);
   }
 
   /**
@@ -342,7 +398,8 @@ export class UserService extends BaseService<any> {
       throw new BusinessError(404, '用户不存在');
     }
 
-    return user;
+    // 双重保险：再次过滤敏感信息
+    return this.filterSensitiveInfo(user);
   }
 
   /**
@@ -431,7 +488,8 @@ export class UserService extends BaseService<any> {
           through: { attributes: [] },
           attributes: ['id', 'name', 'code', 'description']
         }
-      ]
+      ],
+      attributes: { exclude: ['password'] }
     });
 
     if (!user) {

@@ -77,7 +77,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     schema: [
       {
         component: 'Input',
-        fieldName: 'name',
+        fieldName: 'keyword',
         label: $t('system.role.roleName'),
       },
     ],
@@ -130,6 +130,9 @@ function onEdit(row: any) {
 function onAssign(row: any) {
   assignDrawerApi.setData(row).open();
 }
+
+// 绑定用户
+function onBindUser(row: any) {}
 
 // 删除角色
 async function onDelete(row: any) {
@@ -186,6 +189,9 @@ async function onDelete(row: any) {
         <div class="flex items-center justify-center gap-2">
           <VbenButton size="small" variant="link" @click="onAssign(row)">
             授权
+          </VbenButton>
+          <VbenButton size="small" variant="link" @click="onBindUser(row)">
+            用户
           </VbenButton>
           <VbenButton size="small" variant="link" @click="onEdit(row)">
             {{ $t('ui.actionTitle.edit') }}

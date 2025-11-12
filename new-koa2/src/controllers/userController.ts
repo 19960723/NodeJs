@@ -73,6 +73,16 @@ class UserController {
     }
   }
 
+  static async createUser(ctx: Context): Promise<void> {
+    try {
+      const data = ctx.request.body as any;
+      const result = await UserController.userService.createUser(data);
+      success(ctx, result, '创建用户成功', 200);
+    } catch (error) {
+      handleError(ctx, error);
+    }
+  }
+
   static async getUser(ctx: Context): Promise<void> {
     try {
       // 从ctx.state.user中获取当前用户信息（由auth中间件设置）
@@ -207,6 +217,7 @@ export const register = [
 export const logout = [validate({}), UserController.logout];
 export const refresh = [validate({}), UserController.refresh];
 
+export const createUser = [validate({}), UserController.createUser];
 export const getUser = [validate({}), UserController.getUser];
 export const deleteUser = [validate({}), UserController.deleteUser];
 export const updateUser = [validate({}), UserController.updateUser];

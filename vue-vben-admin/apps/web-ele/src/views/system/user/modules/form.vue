@@ -4,8 +4,22 @@ import { useVbenDrawer } from '@vben/common-ui';
 import { computed, ref } from 'vue';
 import { $t } from '#/locales';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
+import { createUser, updateUser } from '#/api/core/user';
 
+const emit = defineEmits<{
+  success: [];
+}>();
 const formSchema = [
+  {
+    component: 'Input',
+    fieldName: 'nickname',
+    label: '昵称',
+  },
+  {
+    component: 'Input',
+    fieldName: 'phone',
+    label: '手机号',
+  },
   {
     component: 'Upload',
     componentProps: {
@@ -23,22 +37,7 @@ const formSchema = [
       };
     },
   },
-  {
-    component: 'RadioGroup',
-    componentProps: {
-      options: [
-        { label: '男', value: 1 },
-        { label: '女', value: 2 },
-      ],
-    },
-    fieldName: 'gender',
-    label: '性别',
-  },
-  {
-    component: 'Input',
-    fieldName: 'name',
-    label: '姓名',
-  },
+
   {
     component: 'Divider',
     fieldName: 'divider1',
@@ -48,29 +47,40 @@ const formSchema = [
   {
     component: 'Input',
     fieldName: 'username',
-    label: '员工编号',
+    label: '员工账号',
+    rules: 'required',
   },
-
   {
     component: 'Input',
-    fieldName: 'phone',
-    label: '手机号',
+    fieldName: 'name',
+    label: '姓名',
   },
+
   {
     component: 'Input',
     fieldName: 'email',
     label: '邮箱',
   },
   {
-    component: 'Input',
-    fieldName: 'nickname',
-    label: '昵称',
+    component: 'RadioGroup',
+    componentProps: {
+      options: [
+        { label: '男', value: 1 },
+        { label: '女', value: 0 },
+      ],
+    },
+    fieldName: 'gender',
+    label: '性别',
   },
-
   {
     component: 'Textarea',
     fieldName: 'remark',
     label: '备注',
+    componentProps: {
+      rows: 4,
+      showCount: true,
+      maxLength: 200,
+    },
     formItemClass: 'col-span-2 md:col-span-2',
   },
 ];
@@ -93,8 +103,16 @@ const [Drawer, drawerApi] = useVbenDrawer({
   async onConfirm() {
     const { valid } = await formApi.validate();
     if (!valid) return;
-    const values = await formApi.getValues();
-    drawerApi.close();
+    const data = await formApi.getValues();
+    try {
+      await (formData.value?.id
+        ? updateUser(formData.value.id, data)
+        : createUser(data));
+      drawerApi.close();
+      emit('success');
+    } catch (error) {
+      console.log(error);
+    }
   },
   onOpenChange(isOpen) {
     if (isOpen) {
