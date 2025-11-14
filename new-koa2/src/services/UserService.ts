@@ -41,7 +41,7 @@ export class UserService extends BaseService<any> {
     const { username, password } = data;
     const user = await this.repository.findByUsername(username);
     if (!user) {
-      throw new BusinessError(401, '用户名或密码错误');
+      throw new BusinessError(422, '用户名或密码错误');
     }
 
     const hashedPassword = user.password ? String(user.password) : '';
@@ -61,7 +61,7 @@ export class UserService extends BaseService<any> {
     }
 
     if (!passwordValid) {
-      throw new BusinessError(401, '用户名或密码错误');
+      throw new BusinessError(422, '用户名或密码错误');
     }
 
     // 生成JWT令牌
@@ -113,7 +113,7 @@ export class UserService extends BaseService<any> {
     // 检查用户名是否已存在
     const existUser = await this.repository.findByUsername(username);
     if (existUser) {
-      throw new BusinessError(409, '用户名已存在');
+      throw new BusinessError(422, '用户名已存在');
     }
 
     // 加密密码

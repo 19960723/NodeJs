@@ -8,7 +8,9 @@ import {
   deleteRole,
   updateRoleStatus,
   getRoleMenus,
-  assignMenusToRole
+  assignMenusToRole,
+  getRoleUsers,
+  assignUsersToRole
 } from '../controllers/roleController';
 import { auth } from '../middleware/auth';
 
@@ -518,5 +520,29 @@ router.get('/:id/menus', auth, ...getRoleMenus);
  *         description: 未授权
  */
 router.post('/:id/menus', auth, ...assignMenusToRole);
+
+/**
+ * @swagger
+ * /api/role/{id}/users:
+ *   get:
+ *     summary: 获取角色用户列表
+ *     description: 获取指定角色拥有的所有用户
+ *     tags: [Role]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get('/:id/users', auth, ...getRoleUsers);
+
+/**
+ * @swagger
+ * /api/role/{id}/users:
+ *   post:
+ *     summary: 为角色分配用户
+ *     description: 为指定角色分配用户
+ *     tags: [Role]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post('/:id/users', auth, ...assignUsersToRole);
 
 export default router;

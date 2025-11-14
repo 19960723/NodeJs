@@ -87,7 +87,6 @@ class MenuRepository extends BaseRepository<MenuInstance> {
         }
       ]
     });
-
     if (!user) {
       return [];
     }
@@ -112,7 +111,9 @@ class MenuRepository extends BaseRepository<MenuInstance> {
   /**
    * 获取用户的权限列表
    */
-  async findUserPermissions(userId: number): Promise<string[]> {
+  async findUserPermissions(
+    userId: number
+  ): Promise<{ permissions: string[]; menus: MenuInstance[] }> {
     const menus = await this.findUserMenus(userId);
     const permissions: string[] = [];
 
@@ -130,7 +131,10 @@ class MenuRepository extends BaseRepository<MenuInstance> {
     };
 
     extractPermissions(menus);
-    return [...new Set(permissions)]; // 去重
+    return {
+      permissions: [...new Set(permissions)],
+      menus: menus
+    }; // 去重
   }
 
   /**
@@ -146,6 +150,12 @@ class MenuRepository extends BaseRepository<MenuInstance> {
       if (menu.parent_id === parentId) {
         const children = this.buildMenuTree(menus, menu.id!);
         const menuData = menu.toJSON() as any;
+
+        // 添加meta信息，包含title
+        menuData.meta = menuData.meta || {};
+        menuData.meta.title = menu.name || '';
+        menuData.meta.icon = menu.icon || '';
+
         if (children.length > 0) {
           menuData.children = children;
         }

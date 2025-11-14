@@ -39,7 +39,8 @@ class UserController {
       // 获取 token
       const authHeader = ctx.headers['authorization'];
       const token = authHeader?.split(' ')[1] || '';
-      const result = await UserController.userService.logout(userId, token);
+      // const result = await UserController.userService.logout(userId, token);
+      const result = {};
       success(ctx, result, '退出成功', 200);
     } catch (error) {
       handleError(ctx, error);

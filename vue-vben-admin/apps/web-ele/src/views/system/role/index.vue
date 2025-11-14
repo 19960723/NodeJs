@@ -15,6 +15,7 @@ import { deleteRole, getRolePageList } from '#/api/core/user';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import RoleFormModal from './modules/form.vue';
 import AssignModal from './modules/assign.vue';
+import BindUserModal from './modules/bind-user.vue';
 
 import { $t } from '#/locales';
 // 创建 Modal
@@ -26,6 +27,12 @@ const [FormModal, formModalApi] = useVbenModal({
 // 创建 Drawer
 const [AssignDrawer, assignDrawerApi] = useVbenDrawer({
   connectedComponent: AssignModal,
+  destroyOnClose: true,
+});
+
+// 创建绑定用户 Drawer
+const [BindUserDrawer, bindUserDrawerApi] = useVbenDrawer({
+  connectedComponent: BindUserModal,
   destroyOnClose: true,
 });
 
@@ -132,7 +139,9 @@ function onAssign(row: any) {
 }
 
 // 绑定用户
-function onBindUser(row: any) {}
+function onBindUser(row: any) {
+  bindUserDrawerApi.setData(row).open();
+}
 
 // 删除角色
 async function onDelete(row: any) {
@@ -162,6 +171,7 @@ async function onDelete(row: any) {
   <Page auto-content-height>
     <FormModal @success="onRefresh" />
     <AssignDrawer @success="onRefresh" />
+    <BindUserDrawer @success="onRefresh" />
     <Grid>
       <template #toolbar-tools>
         <VbenButton type="primary" @click="onCreate">

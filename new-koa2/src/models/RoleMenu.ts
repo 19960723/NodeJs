@@ -53,6 +53,7 @@ export const RoleMenu = (sequelize: Sequelize): ModelCtor<RoleMenuInstance> => {
       timestamps: true,
       createdAt: 'created_at',
       updatedAt: 'updated_at',
+      paranoid: false,
       comment: '角色菜单关联表',
       indexes: [
         {

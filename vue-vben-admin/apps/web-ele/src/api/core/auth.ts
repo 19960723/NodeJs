@@ -38,14 +38,16 @@ export async function refreshTokenApi() {
  * 退出登录
  */
 export async function logoutApi() {
-  return baseRequestClient.post('/user/logout', {
+  return requestClient.post('/user/logout', {
     withCredentials: true,
   });
 }
 
 /**
- * 获取用户权限码
+ * 获取用户权限
  */
-export async function getAccessCodesApi() {
-  return requestClient.get<string[]>('/menus/user/permissions');
+export async function getUserPermissionsApi() {
+  return requestClient.get<{ permissions: string[]; menus: any[] }>(
+    '/menus/user/permissions',
+  );
 }

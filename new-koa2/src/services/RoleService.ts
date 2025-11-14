@@ -267,4 +267,82 @@ export class RoleService extends BaseService<any> {
       message: '菜单权限分配成功'
     };
   }
+  /**
+   * 获取角色用户列表
+   */
+  async getRoleUsers(id: number) {
+    const roleId = this.validateId(id);
+
+    // 检查角色是否存在
+    const role = await this.repository.findById(roleId);
+    if (!role) {
+      throw new BusinessError(404, '角色不存在');
+    }
+    const userWithMenus = await this.repository.findWithUsers(roleId);
+    const users = (userWithMenus as any)?.users || [];
+    return {
+      roleId,
+      roleName: role.name,
+      users,
+      userIds: users.map((u: any) => u.id)
+    };
+  }
+  /**
+   * 为角色分配用户
+   */
+  async assignUsersToRole(id: number, userIds: number[]) {
+    const roleId = this.validateId(id);
+
+    // 检查角色是否存在
+    const role = await this.repository.findById(roleId);
+    if (!role) {
+      throw new BusinessError(404, '角色不存在');
+    }
+
+    // 验证角色状态
+    if (role.status !== 1) {
+      throw new BusinessError(400, '角色已被禁用，无法分配权限');
+    }
+
+    // 验证用户ID
+    if (!Array.isArray(userIds)) {
+      throw new BusinessError(400, '菜单ID必须是数组');
+    }
+
+    // 去重并验证
+    const validUserIds = [...new Set(userIds)].filter(id => {
+      const numId = Number(id);
+      return !isNaN(numId) && numId > 0;
+    });
+
+    // 验证用户是否存在
+    if (validUserIds.length > 0) {
+      const models = require('../models').models;
+      const users = await models.User.findAll({
+        where: { id: validUserIds }
+      });
+
+      if (users.length !== validUserIds.length) {
+        throw new BusinessError(400, '部分菜单不存在');
+      }
+
+      // 检查用户状态
+      const disabledUsers = users.filter((m: any) => m.status !== 1);
+      if (disabledUsers.length > 0) {
+        throw new BusinessError(
+          400,
+          `部分菜单已被禁用: ${disabledUsers.map((m: any) => m.name).join(', ')}`
+        );
+      }
+    }
+
+    // 使用Sequelize的关联方法分配用户
+    await this.repository.assignUsersToRole(roleId, validUserIds);
+
+    return {
+      roleId,
+      userIds: validUserIds,
+      message: '用户角色绑定成功'
+    };
+  }
 }

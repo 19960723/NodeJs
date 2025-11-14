@@ -143,6 +143,37 @@ class RoleController {
       handleError(ctx, error);
     }
   }
+  /**
+   * 获取角色用户列表
+   */
+  static async getRoleUsers(ctx: Context): Promise<void> {
+    try {
+      const { id } = ctx['params'];
+      const result = await RoleController.roleService.getRoleUsers(
+        parseInt(id)
+      );
+      success(ctx, result, '获取角色用户列表成功', 200);
+    } catch (error) {
+      handleError(ctx, error);
+    }
+  }
+  /**
+   * 为角色分配用户
+   */
+  static async assignUsersToRole(ctx: Context): Promise<void> {
+    try {
+      const { id } = ctx['params'];
+      const { userIds } = ctx.request.body as any;
+
+      const result = await RoleController.roleService.assignUsersToRole(
+        parseInt(id),
+        userIds
+      );
+      success(ctx, result, '为角色分配用户成功', 200);
+    } catch (error) {
+      handleError(ctx, error);
+    }
+  }
 }
 
 // 导出控制器方法（带验证中间件）
@@ -157,6 +188,11 @@ export const getRoleMenus = [validate({}), RoleController.getRoleMenus];
 export const assignMenusToRole = [
   validate({}),
   RoleController.assignMenusToRole
+];
+export const getRoleUsers = [validate({}), RoleController.getRoleUsers];
+export const assignUsersToRole = [
+  validate({}),
+  RoleController.assignUsersToRole
 ];
 
 export default RoleController;

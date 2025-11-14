@@ -173,4 +173,19 @@ export class RoleRepository extends BaseRepository<RoleInstance> {
     await role.update({ status });
     return role;
   }
+  /**
+   * 为角色分配用户
+   */
+  async assignUsersToRole(roleId: number, userIds: number[]): Promise<void> {
+    const models = require('../models').models;
+    const role = await models.Role.findByPk(roleId);
+
+    if (!role) {
+      throw new Error('角色不存在');
+    }
+
+    if (role.setUsers) {
+      await role.setUsers(userIds);
+    }
+  }
 }

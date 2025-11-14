@@ -77,3 +77,17 @@ export async function assignRoleMenus(id: number, menuIds: number[]) {
 export async function getRoleMenus(id: number) {
   return requestClient.get<any>(`/role/${id}/menus`);
 }
+
+/**
+ * 获取角色已绑定的用户列表
+ */
+export async function getRoleUsers(roleId: number) {
+  return requestClient.get<any>(`/role/${roleId}/users`);
+}
+
+/**
+ * 分配角色用户
+ */
+export async function assignRoleUsers(roleId: number, userIds: number[]) {
+  return requestClient.post<any>(`/role/${roleId}/users`, { userIds });
+}

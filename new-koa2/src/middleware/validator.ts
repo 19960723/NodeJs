@@ -180,9 +180,9 @@ export const commonSchemas = {
       'string.min': '用户名至少2个字符',
       'string.max': '用户名不能超过50个字符'
     }),
-    password: Joi.string().trim().min(6).required().messages({
-      'string.empty': '密码不能为空',
-      'string.min': '密码长度至少6位'
+    password: Joi.string().trim().required().messages({
+      'string.empty': '密码不能为空'
+      // 'string.min': '密码长度至少6位'
     })
   }),
   // 注册
@@ -192,9 +192,9 @@ export const commonSchemas = {
       'string.min': '用户名至少2个字符',
       'string.max': '用户名不能超过50个字符'
     }),
-    password: Joi.string().trim().min(6).required().messages({
-      'string.empty': '密码不能为空',
-      'string.min': '密码长度至少6位'
+    password: Joi.string().trim().required().messages({
+      'string.empty': '密码不能为空'
+      // 'string.min': '密码长度至少6位'
     }),
     nickname: Joi.string().trim().optional()
   }),

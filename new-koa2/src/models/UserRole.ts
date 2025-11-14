@@ -49,6 +49,7 @@ export const UserRole = (sequelize: Sequelize): ModelCtor<UserRoleInstance> => {
       timestamps: true,
       createdAt: 'created_at',
       updatedAt: 'updated_at',
+      paranoid: false,
       comment: '用户角色关联表',
       indexes: [
         {

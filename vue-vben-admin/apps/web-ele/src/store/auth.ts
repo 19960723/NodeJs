@@ -10,7 +10,12 @@ import { resetAllStores, useAccessStore, useUserStore } from '@vben/stores';
 import { ElNotification } from 'element-plus';
 import { defineStore } from 'pinia';
 
-import { getAccessCodesApi, getUserInfoApi, loginApi, logoutApi } from '#/api';
+import {
+  getUserPermissionsApi,
+  getUserInfoApi,
+  loginApi,
+  logoutApi,
+} from '#/api';
 import { $t } from '#/locales';
 
 export const useAuthStore = defineStore('auth', () => {
@@ -43,7 +48,7 @@ export const useAuthStore = defineStore('auth', () => {
         // 获取用户信息并存储到 accessStore 中
         const [fetchUserInfoResult, accessCodes] = await Promise.all([
           fetchUserInfo(),
-          getAccessCodesApi(),
+          fetchAccessCodes(),
         ]);
 
         userInfo = fetchUserInfoResult;
@@ -103,6 +108,12 @@ export const useAuthStore = defineStore('auth', () => {
     userInfo = await getUserInfoApi();
     userStore.setUserInfo(userInfo);
     return userInfo;
+  }
+  async function fetchAccessCodes() {
+    const { permissions, menus } = await getUserPermissionsApi();
+    accessStore.setAccessCodes(permissions);
+    accessStore.setAccessMenus(menus);
+    return permissions;
   }
 
   function $reset() {

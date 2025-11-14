@@ -5,6 +5,8 @@ import Menu from './Menus';
 import Role from './Role';
 import UserRole from './UserRole';
 import RoleMenu from './RoleMenu';
+import SysDict from './sys_dict';
+import SysDictItem from './sys_dict_item';
 
 // 定义模型
 const models = {
@@ -13,7 +15,9 @@ const models = {
   Menu: Menu(sequelize),
   Role: Role(sequelize),
   UserRole: UserRole(sequelize),
-  RoleMenu: RoleMenu(sequelize)
+  RoleMenu: RoleMenu(sequelize),
+  SysDict: SysDict(sequelize),
+  SysDictItem: SysDictItem(sequelize)
 };
 
 // 设置关联关系

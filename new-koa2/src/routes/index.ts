@@ -4,6 +4,7 @@ import exampleRoutes from './exampleRoutes';
 import userRoutes from './userRoutes';
 import roleRoutes from './roleRoutes';
 import menuRoutes from './menuRoutes';
+import sysRoutes from './sysRoutes';
 import { success } from '../utils/response';
 
 const router = new Router();
@@ -67,5 +68,6 @@ router.use(exampleRoutes.routes(), exampleRoutes.allowedMethods());
 router.use(userRoutes.routes(), userRoutes.allowedMethods());
 router.use(roleRoutes.routes(), roleRoutes.allowedMethods());
 router.use(menuRoutes.routes(), menuRoutes.allowedMethods());
+router.use(sysRoutes.routes(), sysRoutes.allowedMethods());
 
 export default router;

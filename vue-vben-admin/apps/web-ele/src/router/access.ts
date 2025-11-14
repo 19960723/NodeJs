@@ -25,10 +25,10 @@ async function generateAccess(options: GenerateMenuAndRoutesOptions) {
   return await generateAccessible(preferences.app.accessMode, {
     ...options,
     fetchMenuListAsync: async () => {
-      ElMessage({
-        duration: 1500,
-        message: `${$t('common.loadingMenu')}...`,
-      });
+      // ElMessage({
+      //   duration: 1500,
+      //   message: `${$t('common.loadingMenu')}...`,
+      // });
       return await getUserAllMenusApi();
     },
     // 可以指定没有权限跳转403页面
