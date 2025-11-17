@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import { Page, useVbenModal } from '@vben/common-ui';
+import { Page, useVbenModal, useVbenDrawer } from '@vben/common-ui';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { VbenButton } from '@vben/common-ui';
 import { Plus } from '@vben/icons';

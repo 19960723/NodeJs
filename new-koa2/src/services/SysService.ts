@@ -88,4 +88,27 @@ export class SysService extends BaseService<any> {
     }
     return await models.SysDict.destroy({ where: { id } });
   }
+
+  async getDictDataList(dictId: number): Promise<any> {
+    const dictData = await models.SysDictData.findAll({
+      where: { dict_id: dictId }
+    });
+    return dictData;
+  }
+  async getDictDataById(id: number): Promise<any> {
+    const dictData = await models.SysDictData.findOne({ where: { id } });
+    return dictData;
+  }
+  async createDictData(data: any): Promise<any> {
+    const dictData = await models.SysDictData.create(data);
+    return dictData;
+  }
+  async updateDictData(id: number, data: any): Promise<any> {
+    const dictData = await models.SysDictData.update(data, { where: { id } });
+    return dictData;
+  }
+  async deleteDictData(id: number): Promise<any> {
+    const dictData = await models.SysDictData.destroy({ where: { id } });
+    return dictData;
+  }
 }
