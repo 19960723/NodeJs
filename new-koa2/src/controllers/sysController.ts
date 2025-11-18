@@ -10,7 +10,15 @@ class SysController {
   static async getDictList(ctx: Context): Promise<void> {
     try {
       const query = ctx.query as any;
-      const result = await SysController.sysService.getDictList(query);
+      const queryParams: any = {
+        page: query.page ? parseInt(query.page) : 1,
+        pageSize: query.pageSize ? parseInt(query.pageSize) : 10,
+        keyword: query.keyword
+      };
+      if (query.status !== undefined) {
+        queryParams.status = parseInt(query.status);
+      }
+      const result = await SysController.sysService.getDictList(queryParams);
       success(ctx, result, '获取字典列表成功', 200);
     } catch (error) {
       handleError(ctx, error);
@@ -56,8 +64,19 @@ class SysController {
 
   static async getDictDataList(ctx: Context): Promise<void> {
     try {
+      const { id } = ctx['params'];
+      const query = ctx.query as any;
+      const queryParams: any = {
+        page: query.page ? parseInt(query.page) : 1,
+        pageSize: query.pageSize ? parseInt(query.pageSize) : 10,
+        keyword: query.keyword
+      };
+      if (query.status !== undefined) {
+        queryParams.status = parseInt(query.status);
+      }
       const result = await SysController.sysService.getDictDataList(
-        ctx.params.id
+        id,
+        queryParams
       );
       success(ctx, result, '获取字典数据列表成功', 200);
     } catch (error) {

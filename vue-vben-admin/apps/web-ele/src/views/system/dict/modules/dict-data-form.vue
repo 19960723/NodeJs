@@ -3,6 +3,7 @@ import { useVbenForm, useVbenModal } from '@vben/common-ui';
 import { ref, computed } from 'vue';
 import { $t } from '#/locales';
 import { createDictDataApi, updateDictDataApi } from '#/api/core/sys';
+import { ElMessage } from 'element-plus';
 
 const emit = defineEmits<{
   success: [];
@@ -14,7 +15,7 @@ const [Modal, modalApi] = useVbenModal({
       const values = modalApi.getData<any>();
       console.log(values, '===');
       formData.value = values;
-      if (formData.value && formData.value.id) {
+      if (formData.value) {
         formApi.setValues(formData.value);
       } else {
         formApi.resetForm();
@@ -28,11 +29,11 @@ const [Modal, modalApi] = useVbenModal({
     const values = await formApi.getValues();
     // 锁定 Modal，防止重复提交
     modalApi.lock();
-
+    console.log(values, '===', formData.value);
     // 调用 API
-    (formData.value.id
-      ? updateDictDataApi(formData.value.id, values)
-      : createDictDataApi(values)
+    (formData.value?.id
+      ? updateDictDataApi(formData.value?.id, values)
+      : createDictDataApi({ ...values, dict_id: formData.value?.dict_id })
     )
       .then(() => {
         ElMessage.success(
@@ -50,7 +51,7 @@ const [Modal, modalApi] = useVbenModal({
 const formSchema = [
   {
     component: 'Input',
-    fieldName: 'name',
+    fieldName: 'label',
     label: '名称',
     rules: 'required',
   },

@@ -38,7 +38,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     columns: [
       {
         title: '名称',
-        field: 'name',
+        field: 'label',
         minWidth: 150,
       },
       {
@@ -60,10 +60,19 @@ const [Grid, gridApi] = useVbenVxeGrid({
           return await getDictDataListApi(dict_info.value.id, {
             page: page.currentPage,
             pageSize: page.pageSize,
+            dict_id: dict_info.value.id,
             ...formValues,
           });
         },
       },
+      response: {
+        result: 'list',
+        total: 'pagination.total',
+        list: 'list',
+      },
+    },
+    rowConfig: {
+      keyField: 'id',
     },
     height: 'auto',
     keepSource: true,
@@ -89,7 +98,7 @@ const dict_title = computed(() => {
 });
 
 function onCreate() {
-  formModalApi.setData({}).open();
+  formModalApi.setData({ dict_id: dict_info.value.id }).open();
 }
 function onEdit(row: any) {
   formModalApi.setData(row).open();

@@ -14,6 +14,7 @@ export namespace SysApi {
     value: string;
     description: string;
     status: number;
+    dict_id?: number;
   }
 }
 
@@ -31,9 +32,12 @@ export async function deleteDictApi(id: number) {
 }
 
 export async function getDictDataListApi(dictId: number, params: any) {
-  return requestClient.get<SysApi.SysDictData[]>(`/sys/dict-data/${dictId}`, {
-    params,
-  });
+  return requestClient.get<SysApi.SysDictData[]>(
+    `/sys/dict-data/list/${dictId}`,
+    {
+      params,
+    },
+  );
 }
 export async function getDictDataByIdApi(id: number) {
   return requestClient.get<SysApi.SysDictData>(`/sys/dict-data/${id}`);
