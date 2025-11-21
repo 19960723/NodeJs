@@ -1,0 +1,190 @@
+### NestJS 企业级项目 API 测试
+### 使用 REST Client 插件或 IntelliJ IDEA 内置 HTTP Client 执行
+
+@baseUrl = http://localhost:3000/api
+@token = 
+
+### 1. 健康检查（无需认证）
+GET {{baseUrl}}/
+
+### ===== 认证相关 =====
+
+### 2. 用户注册
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "zhangsan",
+  "email": "zhangsan@example.com",
+  "password": "Password123"
+}
+
+### 3. 用户登录（获取 Token）
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "Admin123"
+}
+
+### 4. 获取当前用户信息（需要 Token）
+GET {{baseUrl}}/auth/profile
+Authorization: Bearer {{token}}
+
+### ===== 用户管理 =====
+
+### 5. 创建用户（需要 Token）
+POST {{baseUrl}}/user
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "username": "lisi",
+  "email": "lisi@example.com",
+  "password": "Password123",
+  "nickname": "李四"
+}
+
+### 6. 查询用户列表（需要 Token）
+GET {{baseUrl}}/user?page=1&pageSize=10
+Authorization: Bearer {{token}}
+
+### 7. 查询用户详情（需要 Token）
+GET {{baseUrl}}/user/1
+Authorization: Bearer {{token}}
+
+### 8. 更新用户（需要 Token）
+PATCH {{baseUrl}}/user/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nickname": "张三三"
+}
+
+### 9. 删除用户（需要 Token）
+DELETE {{baseUrl}}/user/2
+Authorization: Bearer {{token}}
+
+### ===== 角色管理 =====
+
+### 10. 创建角色（需要 Token）
+POST {{baseUrl}}/role
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "编辑",
+  "code": "EDITOR",
+  "description": "内容编辑角色"
+}
+
+### 11. 查询角色列表（需要 Token）
+GET {{baseUrl}}/role?page=1&pageSize=10
+Authorization: Bearer {{token}}
+
+### 12. 查询角色详情（需要 Token）
+GET {{baseUrl}}/role/1
+Authorization: Bearer {{token}}
+
+### 13. 更新角色（需要 Token）
+PATCH {{baseUrl}}/role/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "description": "更新后的描述"
+}
+
+### 14. 删除角色（需要 Token）
+DELETE {{baseUrl}}/role/3
+Authorization: Bearer {{token}}
+
+### ===== 分类管理 =====
+
+### 15. 创建分类（需要 Token）
+POST {{baseUrl}}/category
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "前端开发",
+  "slug": "frontend",
+  "description": "前端开发相关文章"
+}
+
+### 16. 查询分类列表（公开接口）
+GET {{baseUrl}}/category?page=1&pageSize=10
+
+### 17. 查询分类详情（公开接口）
+GET {{baseUrl}}/category/1
+
+### 18. 更新分类（需要 Token）
+PATCH {{baseUrl}}/category/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "description": "更新后的分类描述"
+}
+
+### 19. 删除分类（需要 Token）
+DELETE {{baseUrl}}/category/3
+Authorization: Bearer {{token}}
+
+### ===== 文章管理 =====
+
+### 20. 创建文章（需要 Token）
+POST {{baseUrl}}/article
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "深入理解 TypeScript 类型系统",
+  "slug": "typescript-type-system",
+  "summary": "本文深入探讨 TypeScript 的类型系统...",
+  "content": "## TypeScript 类型系统\n\nTypeScript 是 JavaScript 的超集...",
+  "categoryId": 1
+}
+
+### 21. 查询文章列表（公开接口）
+GET {{baseUrl}}/article?page=1&pageSize=10
+
+### 22. 查询文章详情（公开接口）
+GET {{baseUrl}}/article/1
+
+### 23. 根据标识查询文章（公开接口）
+GET {{baseUrl}}/article/slug/welcome-to-nestjs
+
+### 24. 更新文章（需要 Token，只能更新自己的文章）
+PATCH {{baseUrl}}/article/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "更新后的文章标题"
+}
+
+### 25. 删除文章（需要 Token，只能删除自己的文章）
+DELETE {{baseUrl}}/article/3
+Authorization: Bearer {{token}}
+
+### 26. 点赞文章（公开接口）
+POST {{baseUrl}}/article/1/like
+
+### ===== 查询测试 =====
+
+### 27. 按分类查询文章
+GET {{baseUrl}}/article?categoryId=1&page=1&pageSize=10
+
+### 28. 按作者查询文章
+GET {{baseUrl}}/article?authorId=1&page=1&pageSize=10
+
+### 29. 搜索文章标题
+GET {{baseUrl}}/article?title=NestJS&page=1&pageSize=10
+
+### 30. 查询草稿文章（需要 Token）
+GET {{baseUrl}}/article?status=0&page=1&pageSize=10
+Authorization: Bearer {{token}}
+

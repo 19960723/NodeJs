@@ -1,0 +1,103 @@
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  ParseIntPipe,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiResponse,
+} from '@nestjs/swagger';
+import { RoleService } from './role.service';
+import { CreateRoleDto } from './dto/create-role.dto';
+import { UpdateRoleDto } from './dto/update-role.dto';
+import { QueryRoleDto } from './dto/query-role.dto';
+import { RoleVo } from './dto/role.vo';
+import { Result } from '../../common/dto/result.dto';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+
+/**
+ * Role Controller
+ * 处理角色相关的 HTTP 请求
+ */
+@ApiTags('角色管理')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
+@Controller('role')
+export class RoleController {
+  constructor(private readonly roleService: RoleService) {}
+
+  /**
+   * 创建角色
+   */
+  @Post()
+  @ApiOperation({ summary: '创建角色' })
+  @ApiResponse({ status: 200, description: '创建成功', type: RoleVo })
+  async create(@Body() createRoleDto: CreateRoleDto): Promise<Result<RoleVo>> {
+    const role = await this.roleService.create(createRoleDto);
+    return Result.success(role, '创建角色成功');
+  }
+
+  /**
+   * 分页查询角色列表
+   */
+  @Get()
+  @ApiOperation({ summary: '查询角色列表' })
+  @ApiResponse({ status: 200, description: '查询成功' })
+  async findAll(@Query() queryRoleDto: QueryRoleDto): Promise<Result> {
+    const result = await this.roleService.findAll(queryRoleDto);
+    return Result.page(
+      result.list,
+      result.total,
+      result.page,
+      result.pageSize,
+      '查询角色列表成功',
+    );
+  }
+
+  /**
+   * 根据 ID 查询角色
+   */
+  @Get(':id')
+  @ApiOperation({ summary: '查询角色详情' })
+  @ApiResponse({ status: 200, description: '查询成功', type: RoleVo })
+  async findOne(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Result<RoleVo>> {
+    const role = await this.roleService.findById(id);
+    return Result.success(role, '查询角色详情成功');
+  }
+
+  /**
+   * 更新角色
+   */
+  @Patch(':id')
+  @ApiOperation({ summary: '更新角色' })
+  @ApiResponse({ status: 200, description: '更新成功', type: RoleVo })
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateRoleDto: UpdateRoleDto,
+  ): Promise<Result<RoleVo>> {
+    const role = await this.roleService.update(id, updateRoleDto);
+    return Result.success(role, '更新角色成功');
+  }
+
+  /**
+   * 删除角色
+   */
+  @Delete(':id')
+  @ApiOperation({ summary: '删除角色' })
+  @ApiResponse({ status: 200, description: '删除成功' })
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<Result<void>> {
+    await this.roleService.remove(id);
+    return Result.success(undefined, '删除角色成功');
+  }
+}

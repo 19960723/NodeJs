@@ -1,0 +1,156 @@
+// Prisma Schema
+// 定义数据库模型
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// 用户表
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique @db.VarChar(50)
+  email     String   @unique @db.VarChar(100)
+  password  String   @db.VarChar(255)
+  nickname  String?  @db.VarChar(50)
+  avatar    String?  @db.VarChar(255)
+  phone     String?  @unique @db.VarChar(20)
+  status    Int      @default(1) @db.TinyInt // 1:正常 0:禁用
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // 关联关系
+  roles         UserRole[]
+  articles      Article[]
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+// 角色表
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar(50)
+  code        String   @unique @db.VarChar(50)
+  description String?  @db.VarChar(255)
+  status      Int      @default(1) @db.TinyInt // 1:正常 0:禁用
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // 关联关系
+  users       UserRole[]
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+// 用户角色关联表（多对多）
+model UserRole {
+  id     Int @id @default(autoincrement())
+  userId Int @map("user_id")
+  roleId Int @map("role_id")
+
+  // 关联关系
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@map("user_roles")
+}
+
+// 分类表
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar(50)
+  slug        String   @unique @db.VarChar(50)
+  description String?  @db.VarChar(255)
+  parentId    Int?     @map("parent_id")
+  sort        Int      @default(0)
+  status      Int      @default(1) @db.TinyInt // 1:正常 0:禁用
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // 关联关系
+  articles Article[]
+
+  @@map("categories")
+}
+
+// 文章表
+model Article {
+  id         Int      @id @default(autoincrement())
+  title      String   @db.VarChar(200)
+  slug       String   @unique @db.VarChar(200)
+  summary    String?  @db.Text
+  content    String   @db.LongText
+  cover      String?  @db.VarChar(255)
+  authorId   Int      @map("author_id")
+  categoryId Int      @map("category_id")
+  viewCount  Int      @default(0) @map("view_count")
+  likeCount  Int      @default(0) @map("like_count")
+  status     Int      @default(1) @db.TinyInt // 1:已发布 0:草稿
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  // 关联关系
+  author   User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@index([authorId])
+  @@index([categoryId])
+  @@map("articles")
+}
+
+// Refresh Token 表
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique @db.VarChar(500)
+  userId    Int      @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  isRevoked Boolean  @default(false) @map("is_revoked") // 是否已撤销
+
+  // 关联关系
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+// 权限表
+model Permission {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar(50)
+  code        String   @unique @db.VarChar(50) // 权限代码，如: user:create, article:delete
+  resource    String   @db.VarChar(50) // 资源类型: user, role, article, category
+  action      String   @db.VarChar(20) // 操作类型: create, read, update, delete, list
+  description String?  @db.VarChar(255)
+  status      Int      @default(1) @db.TinyInt // 1:正常 0:禁用
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // 关联关系
+  roles RolePermission[]
+
+  @@index([resource, action])
+  @@map("permissions")
+}
+
+// 角色权限关联表（多对多）
+model RolePermission {
+  id           Int @id @default(autoincrement())
+  roleId       Int @map("role_id")
+  permissionId Int @map("permission_id")
+
+  // 关联关系
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@map("role_permissions")
+}

@@ -1,0 +1,1712 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "注册成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginVo"
+                }
+              }
+            }
+          }
+        },
+        "summary": "用户注册",
+        "tags": [
+          "认证管理"
+        ]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "登录成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginVo"
+                }
+              }
+            }
+          }
+        },
+        "summary": "用户登录",
+        "tags": [
+          "认证管理"
+        ]
+      }
+    },
+    "/auth/profile": {
+      "get": {
+        "operationId": "AuthController_getProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "获取成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserVo"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "获取当前用户信息",
+        "tags": [
+          "认证管理"
+        ]
+      }
+    },
+    "/auth/user": {
+      "get": {
+        "operationId": "AuthController_getUser",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "获取成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserVo"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "获取当前用户信息",
+        "tags": [
+          "认证管理"
+        ]
+      }
+    },
+    "/user": {
+      "post": {
+        "operationId": "UserController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "创建成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserVo"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "创建用户",
+        "tags": [
+          "用户管理"
+        ]
+      },
+      "get": {
+        "operationId": "UserController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "页码",
+            "schema": {
+              "minimum": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "description": "每页数量",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "username",
+            "required": false,
+            "in": "query",
+            "description": "用户名（模糊搜索）",
+            "schema": {
+              "example": "zhang",
+              "type": "string"
+            }
+          },
+          {
+            "name": "email",
+            "required": false,
+            "in": "query",
+            "description": "邮箱（模糊搜索）",
+            "schema": {
+              "example": "example.com",
+              "type": "string"
+            }
+          },
+          {
+            "name": "phone",
+            "required": false,
+            "in": "query",
+            "description": "手机号",
+            "schema": {
+              "example": "13800138000",
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "状态：1-正常，0-禁用",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "查询用户列表",
+        "tags": [
+          "用户管理"
+        ]
+      }
+    },
+    "/user/{id}": {
+      "get": {
+        "operationId": "UserController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserVo"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "查询用户详情",
+        "tags": [
+          "用户管理"
+        ]
+      },
+      "patch": {
+        "operationId": "UserController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserVo"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "更新用户",
+        "tags": [
+          "用户管理"
+        ]
+      },
+      "delete": {
+        "operationId": "UserController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "删除成功"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "删除用户",
+        "tags": [
+          "用户管理"
+        ]
+      }
+    },
+    "/role": {
+      "post": {
+        "operationId": "RoleController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "创建成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleVo"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "创建角色",
+        "tags": [
+          "角色管理"
+        ]
+      },
+      "get": {
+        "operationId": "RoleController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "页码",
+            "schema": {
+              "minimum": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "description": "每页数量",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "description": "角色名称（模糊搜索）",
+            "schema": {
+              "example": "管理",
+              "type": "string"
+            }
+          },
+          {
+            "name": "code",
+            "required": false,
+            "in": "query",
+            "description": "角色编码（模糊搜索）",
+            "schema": {
+              "example": "ADMIN",
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "状态：1-正常，0-禁用",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "查询角色列表",
+        "tags": [
+          "角色管理"
+        ]
+      }
+    },
+    "/role/{id}": {
+      "get": {
+        "operationId": "RoleController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleVo"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "查询角色详情",
+        "tags": [
+          "角色管理"
+        ]
+      },
+      "patch": {
+        "operationId": "RoleController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleVo"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "更新角色",
+        "tags": [
+          "角色管理"
+        ]
+      },
+      "delete": {
+        "operationId": "RoleController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "删除成功"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "删除角色",
+        "tags": [
+          "角色管理"
+        ]
+      }
+    },
+    "/category": {
+      "post": {
+        "operationId": "CategoryController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "创建成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryVo"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "创建分类",
+        "tags": [
+          "分类管理"
+        ]
+      },
+      "get": {
+        "operationId": "CategoryController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "页码",
+            "schema": {
+              "minimum": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "description": "每页数量",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "description": "分类名称（模糊搜索）",
+            "schema": {
+              "example": "技术",
+              "type": "string"
+            }
+          },
+          {
+            "name": "slug",
+            "required": false,
+            "in": "query",
+            "description": "分类标识",
+            "schema": {
+              "example": "tech",
+              "type": "string"
+            }
+          },
+          {
+            "name": "parentId",
+            "required": false,
+            "in": "query",
+            "description": "父分类 ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "状态：1-正常，0-禁用",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "查询分类列表",
+        "tags": [
+          "分类管理"
+        ]
+      }
+    },
+    "/category/{id}": {
+      "get": {
+        "operationId": "CategoryController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryVo"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "查询分类详情",
+        "tags": [
+          "分类管理"
+        ]
+      },
+      "patch": {
+        "operationId": "CategoryController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCategoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryVo"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "更新分类",
+        "tags": [
+          "分类管理"
+        ]
+      },
+      "delete": {
+        "operationId": "CategoryController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "删除成功"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "删除分类",
+        "tags": [
+          "分类管理"
+        ]
+      }
+    },
+    "/article": {
+      "post": {
+        "operationId": "ArticleController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateArticleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "创建成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleVo"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "创建文章",
+        "tags": [
+          "文章管理"
+        ]
+      },
+      "get": {
+        "operationId": "ArticleController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "页码",
+            "schema": {
+              "minimum": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "description": "每页数量",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "title",
+            "required": false,
+            "in": "query",
+            "description": "文章标题（模糊搜索）",
+            "schema": {
+              "example": "NestJS",
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorId",
+            "required": false,
+            "in": "query",
+            "description": "作者 ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "categoryId",
+            "required": false,
+            "in": "query",
+            "description": "分类 ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "状态：1-已发布，0-草稿",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "查询文章列表",
+        "tags": [
+          "文章管理"
+        ]
+      }
+    },
+    "/article/{id}": {
+      "get": {
+        "operationId": "ArticleController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleVo"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "查询文章详情",
+        "tags": [
+          "文章管理"
+        ]
+      },
+      "patch": {
+        "operationId": "ArticleController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateArticleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleVo"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "更新文章",
+        "tags": [
+          "文章管理"
+        ]
+      },
+      "delete": {
+        "operationId": "ArticleController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "删除成功"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "删除文章",
+        "tags": [
+          "文章管理"
+        ]
+      }
+    },
+    "/article/slug/{slug}": {
+      "get": {
+        "operationId": "ArticleController_findBySlug",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "查询成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleVo"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "根据标识查询文章",
+        "tags": [
+          "文章管理"
+        ]
+      }
+    },
+    "/article/{id}/like": {
+      "post": {
+        "operationId": "ArticleController_like",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "点赞成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleVo"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "点赞文章",
+        "tags": [
+          "文章管理"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "NestJS 企业级项目 API",
+    "description": "基于 NestJS + Prisma + MySQL 的企业级后端项目 API 文档",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "认证管理",
+      "description": "用户登录、注册、Token 管理"
+    },
+    {
+      "name": "用户管理",
+      "description": "用户 CRUD 操作"
+    },
+    {
+      "name": "角色管理",
+      "description": "角色 CRUD 操作"
+    },
+    {
+      "name": "分类管理",
+      "description": "文章分类 CRUD 操作"
+    },
+    {
+      "name": "文章管理",
+      "description": "文章 CRUD 操作"
+    }
+  ],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "JWT": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "name": "Authorization",
+        "description": "请输入 JWT Token",
+        "in": "header"
+      }
+    },
+    "schemas": {
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "用户名",
+            "example": "zhangsan",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "email": {
+            "type": "string",
+            "description": "邮箱",
+            "example": "zhangsan@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "密码",
+            "example": "Password123",
+            "minLength": 6,
+            "maxLength": 20
+          }
+        },
+        "required": [
+          "username",
+          "email",
+          "password"
+        ]
+      },
+      "UserVo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "用户 ID"
+          },
+          "username": {
+            "type": "string",
+            "description": "用户名"
+          },
+          "email": {
+            "type": "string",
+            "description": "邮箱"
+          },
+          "nickname": {
+            "type": "string",
+            "description": "昵称"
+          },
+          "avatar": {
+            "type": "string",
+            "description": "头像"
+          },
+          "phone": {
+            "type": "string",
+            "description": "手机号"
+          },
+          "status": {
+            "type": "number",
+            "description": "状态：1-正常，0-禁用"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "创建时间"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "更新时间"
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "email",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "LoginVo": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "Access Token"
+          },
+          "user": {
+            "description": "用户信息",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserVo"
+              }
+            ]
+          }
+        },
+        "required": [
+          "accessToken",
+          "user"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "用户名或邮箱",
+            "example": "zhangsan"
+          },
+          "password": {
+            "type": "string",
+            "description": "密码",
+            "example": "Password123"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "用户名",
+            "example": "zhangsan",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "email": {
+            "type": "string",
+            "description": "邮箱",
+            "example": "zhangsan@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "密码",
+            "example": "Password123",
+            "minLength": 6,
+            "maxLength": 20
+          },
+          "nickname": {
+            "type": "string",
+            "description": "昵称",
+            "example": "张三"
+          },
+          "avatar": {
+            "type": "string",
+            "description": "头像 URL",
+            "example": "https://example.com/avatar.jpg"
+          },
+          "phone": {
+            "type": "string",
+            "description": "手机号",
+            "example": "13800138000"
+          }
+        },
+        "required": [
+          "username",
+          "email",
+          "password"
+        ]
+      },
+      "UpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "邮箱",
+            "example": "zhangsan@example.com"
+          },
+          "nickname": {
+            "type": "string",
+            "description": "昵称",
+            "example": "张三"
+          },
+          "avatar": {
+            "type": "string",
+            "description": "头像 URL",
+            "example": "https://example.com/avatar.jpg"
+          },
+          "phone": {
+            "type": "string",
+            "description": "手机号",
+            "example": "13800138000"
+          }
+        }
+      },
+      "CreateRoleDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "角色名称",
+            "example": "管理员",
+            "minLength": 2,
+            "maxLength": 50
+          },
+          "code": {
+            "type": "string",
+            "description": "角色编码",
+            "example": "ADMIN",
+            "minLength": 2,
+            "maxLength": 50
+          },
+          "description": {
+            "type": "string",
+            "description": "角色描述",
+            "example": "系统管理员角色"
+          }
+        },
+        "required": [
+          "name",
+          "code"
+        ]
+      },
+      "RoleVo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "角色 ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "角色名称"
+          },
+          "code": {
+            "type": "string",
+            "description": "角色编码"
+          },
+          "description": {
+            "type": "string",
+            "description": "角色描述"
+          },
+          "status": {
+            "type": "number",
+            "description": "状态：1-正常，0-禁用"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "创建时间"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "更新时间"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "code",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "UpdateRoleDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "角色名称",
+            "example": "管理员",
+            "minLength": 2,
+            "maxLength": 50
+          },
+          "code": {
+            "type": "string",
+            "description": "角色编码",
+            "example": "ADMIN",
+            "minLength": 2,
+            "maxLength": 50
+          },
+          "description": {
+            "type": "string",
+            "description": "角色描述",
+            "example": "系统管理员角色"
+          }
+        }
+      },
+      "CreateCategoryDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "分类名称",
+            "example": "技术文章",
+            "minLength": 2,
+            "maxLength": 50
+          },
+          "slug": {
+            "type": "string",
+            "description": "分类标识",
+            "example": "tech",
+            "minLength": 2,
+            "maxLength": 50
+          },
+          "description": {
+            "type": "string",
+            "description": "分类描述",
+            "example": "技术相关的文章"
+          },
+          "parentId": {
+            "type": "number",
+            "description": "父分类 ID",
+            "example": 1
+          },
+          "sort": {
+            "type": "number",
+            "description": "排序值",
+            "example": 0
+          }
+        },
+        "required": [
+          "name",
+          "slug"
+        ]
+      },
+      "CategoryVo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "分类 ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "分类名称"
+          },
+          "slug": {
+            "type": "string",
+            "description": "分类标识"
+          },
+          "description": {
+            "type": "string",
+            "description": "分类描述"
+          },
+          "parentId": {
+            "type": "number",
+            "description": "父分类 ID"
+          },
+          "sort": {
+            "type": "number",
+            "description": "排序值"
+          },
+          "status": {
+            "type": "number",
+            "description": "状态：1-正常，0-禁用"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "创建时间"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "更新时间"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "sort",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "UpdateCategoryDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "分类名称",
+            "example": "技术文章",
+            "minLength": 2,
+            "maxLength": 50
+          },
+          "slug": {
+            "type": "string",
+            "description": "分类标识",
+            "example": "tech",
+            "minLength": 2,
+            "maxLength": 50
+          },
+          "description": {
+            "type": "string",
+            "description": "分类描述",
+            "example": "技术相关的文章"
+          },
+          "parentId": {
+            "type": "number",
+            "description": "父分类 ID",
+            "example": 1
+          },
+          "sort": {
+            "type": "number",
+            "description": "排序值",
+            "example": 0
+          }
+        }
+      },
+      "CreateArticleDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "文章标题",
+            "example": "NestJS 企业级开发实践",
+            "minLength": 5,
+            "maxLength": 200
+          },
+          "slug": {
+            "type": "string",
+            "description": "文章标识",
+            "example": "nestjs-enterprise-practice",
+            "minLength": 5,
+            "maxLength": 200
+          },
+          "summary": {
+            "type": "string",
+            "description": "文章摘要",
+            "example": "本文介绍 NestJS 企业级开发的最佳实践..."
+          },
+          "content": {
+            "type": "string",
+            "description": "文章内容",
+            "example": "## 介绍\n\nNestJS 是一个..."
+          },
+          "cover": {
+            "type": "string",
+            "description": "封面图 URL",
+            "example": "https://example.com/cover.jpg"
+          },
+          "categoryId": {
+            "type": "number",
+            "description": "分类 ID",
+            "example": 1
+          }
+        },
+        "required": [
+          "title",
+          "slug",
+          "content",
+          "categoryId"
+        ]
+      },
+      "ArticleVo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "文章 ID"
+          },
+          "title": {
+            "type": "string",
+            "description": "文章标题"
+          },
+          "slug": {
+            "type": "string",
+            "description": "文章标识"
+          },
+          "summary": {
+            "type": "string",
+            "description": "文章摘要"
+          },
+          "content": {
+            "type": "string",
+            "description": "文章内容"
+          },
+          "cover": {
+            "type": "string",
+            "description": "封面图"
+          },
+          "authorId": {
+            "type": "number",
+            "description": "作者 ID"
+          },
+          "categoryId": {
+            "type": "number",
+            "description": "分类 ID"
+          },
+          "viewCount": {
+            "type": "number",
+            "description": "浏览次数"
+          },
+          "likeCount": {
+            "type": "number",
+            "description": "点赞次数"
+          },
+          "status": {
+            "type": "number",
+            "description": "状态：1-已发布，0-草稿"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "创建时间"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "更新时间"
+          },
+          "author": {
+            "description": "作者信息",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserVo"
+              }
+            ]
+          },
+          "category": {
+            "description": "分类信息",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CategoryVo"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "slug",
+          "content",
+          "authorId",
+          "categoryId",
+          "viewCount",
+          "likeCount",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "UpdateArticleDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "文章标题",
+            "example": "NestJS 企业级开发实践",
+            "minLength": 5,
+            "maxLength": 200
+          },
+          "slug": {
+            "type": "string",
+            "description": "文章标识",
+            "example": "nestjs-enterprise-practice",
+            "minLength": 5,
+            "maxLength": 200
+          },
+          "summary": {
+            "type": "string",
+            "description": "文章摘要",
+            "example": "本文介绍 NestJS 企业级开发的最佳实践..."
+          },
+          "content": {
+            "type": "string",
+            "description": "文章内容",
+            "example": "## 介绍\n\nNestJS 是一个..."
+          },
+          "cover": {
+            "type": "string",
+            "description": "封面图 URL",
+            "example": "https://example.com/cover.jpg"
+          },
+          "categoryId": {
+            "type": "number",
+            "description": "分类 ID",
+            "example": 1
+          }
+        }
+      }
+    }
+  }
+}
