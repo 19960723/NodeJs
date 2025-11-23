@@ -61,10 +61,17 @@ export class BusinessError {
   }
 
   /**
-   * 未授权
+   * 未授权（通用）
    */
   static unauthorized(message: string = '未授权，请先登录'): never {
     throw new BusinessException(message, ErrorCode.UNAUTHORIZED);
+  }
+
+  /**
+   * 凭证无效（用户名或密码错误）
+   */
+  static invalidCredentials(message: string = '用户名或密码错误'): never {
+    throw new BusinessException(message, ErrorCode.INVALID_CREDENTIALS);
   }
 
   /**
@@ -124,9 +131,23 @@ export class BusinessError {
     throw BusinessException.fromErrorCode(ErrorCode.TOKEN_INVALID, message);
   }
 
+  static refreshTokenExpired(message?: string): never {
+    throw BusinessException.fromErrorCode(
+      ErrorCode.REFRESH_TOKEN_EXPIRED,
+      message,
+    );
+  }
+
   static refreshTokenInvalid(message?: string): never {
     throw BusinessException.fromErrorCode(
       ErrorCode.REFRESH_TOKEN_INVALID,
+      message,
+    );
+  }
+
+  static refreshTokenRevoked(message?: string): never {
+    throw BusinessException.fromErrorCode(
+      ErrorCode.REFRESH_TOKEN_REVOKED,
       message,
     );
   }

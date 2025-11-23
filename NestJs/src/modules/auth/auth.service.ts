@@ -75,12 +75,12 @@ export class AuthService {
     }
 
     if (!user) {
-      BusinessError.unauthorized('用户名或密码错误');
+      BusinessError.invalidCredentials('用户名或密码错误');
     }
 
     // 检查用户状态
     if (user.status === 0) {
-      BusinessError.forbidden('账号已被禁用');
+      BusinessError.userDisabled('账号已被禁用');
     }
 
     // 验证密码
@@ -89,7 +89,7 @@ export class AuthService {
       user.password,
     );
     if (!isPasswordValid) {
-      BusinessError.unauthorized('用户名或密码错误');
+      BusinessError.invalidCredentials('用户名或密码错误');
     }
 
     this.logger.log(`用户登录成功: ${user.username}`);
@@ -193,25 +193,25 @@ export class AuthService {
       await this.refreshTokenRepository.findByToken(refreshToken);
 
     if (!tokenRecord) {
-      BusinessError.unauthorized('Invalid refresh token');
+      BusinessError.refreshTokenInvalid('Refresh Token 无效');
     }
 
     // 检查是否已撤销
     if (tokenRecord.isRevoked) {
-      BusinessError.unauthorized('Refresh token has been revoked');
+      BusinessError.refreshTokenRevoked('Refresh Token 已被撤销');
     }
 
     // 检查是否过期
     if (new Date() > tokenRecord.expiresAt) {
       // 删除过期 token
       await this.refreshTokenRepository.deleteByToken(refreshToken);
-      BusinessError.unauthorized('Refresh token has expired');
+      BusinessError.refreshTokenExpired('Refresh Token 已过期');
     }
 
     // 检查用户状态
     const user = tokenRecord.user;
     if (user.status === 0) {
-      BusinessError.forbidden('账号已被禁用');
+      BusinessError.userDisabled('账号已被禁用');
     }
 
     // 撤销旧的 refresh token

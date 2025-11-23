@@ -2,6 +2,8 @@ import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PERMISSIONS_KEY } from '../decorators/permissions.decorator';
 import { PrismaService } from '../repositories/prisma.service';
+import { BusinessException } from '../exceptions/business.exception';
+import { ErrorCode } from '../constants/error-codes';
 
 /**
  * 权限守卫
@@ -30,7 +32,7 @@ export class PermissionsGuard implements CanActivate {
     const user = request.user;
 
     if (!user) {
-      return false;
+      throw new BusinessException('未登录，请先登录', ErrorCode.UNAUTHORIZED);
     }
 
     // 查询用户的权限 (通过角色)
@@ -54,7 +56,7 @@ export class PermissionsGuard implements CanActivate {
     });
 
     if (!userWithPermissions) {
-      return false;
+      throw new BusinessException('用户不存在', ErrorCode.USER_NOT_FOUND);
     }
 
     // 提取用户的所有权限代码
@@ -63,8 +65,17 @@ export class PermissionsGuard implements CanActivate {
       .map((rp) => rp.permission.code);
 
     // 检查用户是否拥有所需的所有权限 (AND 逻辑)
-    return requiredPermissions.every((permission) =>
+    const hasAllPermissions = requiredPermissions.every((permission) =>
       userPermissionCodes.includes(permission),
     );
+
+    if (!hasAllPermissions) {
+      throw new BusinessException(
+        `权限不足，需要权限: ${requiredPermissions.join(', ')}`,
+        ErrorCode.INSUFFICIENT_PERMISSIONS,
+      );
+    }
+
+    return true;
   }
 }
