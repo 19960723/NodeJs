@@ -100,4 +100,31 @@ export class RoleController {
     await this.roleService.remove(id);
     return Result.success(undefined, '删除角色成功');
   }
+
+  /**
+   * 为角色分配权限
+   */
+  @Post(':id/permissions')
+  @ApiOperation({ summary: '为角色分配权限' })
+  @ApiResponse({ status: 200, description: '分配成功' })
+  async assignPermissions(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { permissionIds: number[] },
+  ): Promise<Result<void>> {
+    await this.roleService.assignPermissions(id, body.permissionIds);
+    return Result.success(undefined, '分配权限成功');
+  }
+
+  /**
+   * 获取角色的权限列表
+   */
+  @Get(':id/permissions')
+  @ApiOperation({ summary: '获取角色的权限列表' })
+  @ApiResponse({ status: 200, description: '获取成功' })
+  async getPermissions(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Result<any[]>> {
+    const permissions = await this.roleService.getPermissions(id);
+    return Result.success(permissions);
+  }
 }

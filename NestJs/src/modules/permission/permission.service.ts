@@ -4,7 +4,7 @@ import { PermissionRepository } from './repositories/permission.repository';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { QueryPermissionDto } from './dto/query-permission.dto';
-import { PermissionVo } from './dto/permission.vo';
+import { PermissionVo, UserPermissionsVo } from './dto/permission.vo';
 import { BusinessError } from '../../common/exceptions/business.exception';
 
 /**
@@ -17,25 +17,125 @@ export class PermissionService {
   constructor(private readonly permissionRepository: PermissionRepository) {}
 
   /**
-   * 创建权限
+   * 创建权限（动态管理）
+   *
+   * @note Prisma 客户端类型与 schema 不匹配，需要重新运行 `npx prisma generate`
    */
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
   async create(
     createPermissionDto: CreatePermissionDto,
   ): Promise<PermissionVo> {
     const { code, name } = createPermissionDto;
 
-    // 检查代码是否已存在
-    const existingCode = await this.permissionRepository.findByCode(code);
-    if (existingCode) {
-      BusinessError.conflict('权限代码已存在');
+    // 检查代码是否已存在（如果有code）
+    if (code) {
+      const existingCode = await this.permissionRepository.findByCode(code);
+      if (existingCode) {
+        BusinessError.conflict('权限代码已存在');
+      }
+    }
+
+    // 构建 Prisma 创建输入
+    const createData: any = {
+      name: createPermissionDto.name,
+      code: createPermissionDto.code,
+      type: createPermissionDto.type,
+      title: createPermissionDto.title,
+      icon: createPermissionDto.icon,
+      path: createPermissionDto.path,
+      component: createPermissionDto.component,
+      redirect: createPermissionDto.redirect,
+      visible: createPermissionDto.visible ?? true,
+      keepAlive: createPermissionDto.keepAlive ?? false,
+      description: createPermissionDto.description,
+      metadata: createPermissionDto.metadata,
+      sort: createPermissionDto.sort ?? 0,
+    };
+
+    // 如果有父权限ID，添加关联
+    if (createPermissionDto.parentId) {
+      createData.parentId = createPermissionDto.parentId;
     }
 
     // 创建权限
-    const permission =
-      await this.permissionRepository.create(createPermissionDto);
+    const permission = await this.permissionRepository.create(createData);
 
     this.logger.log(`创建权限成功: ${name}`);
-    return permission as PermissionVo;
+    return permission as unknown as PermissionVo;
+  }
+
+  /**
+   * 获取权限树（用于前端渲染菜单）
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+  async getTree(): Promise<PermissionVo[]> {
+    const permissions = await this.permissionRepository.findMany({
+      where: { status: 1 },
+      orderBy: { id: 'asc' } as any,
+    });
+
+    return this.buildTree(permissions as unknown as PermissionVo[]);
+  }
+
+  /**
+   * 获取用户菜单树（只返回 type=1,2 且 visible=true）
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
+  async getUserMenuTree(userId: number): Promise<PermissionVo[]> {
+    // 获取用户所有权限
+    const permissions: any =
+      await this.permissionRepository.findByUserId(userId);
+
+    // 过滤菜单类型
+    const menuPermissions: any = permissions.filter(
+      (p: any) => (p.type === 1 || p.type === 2) && p.visible && p.status === 1,
+    );
+
+    return this.buildTree(menuPermissions as unknown as PermissionVo[]);
+  }
+
+  /**
+   * 获取当前用户的权限信息（包含权限代码列表和菜单树）
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
+  async getUserPermissions(userId: number): Promise<UserPermissionsVo> {
+    // 获取用户所有权限
+    const allPermissions: any =
+      await this.permissionRepository.findByUserId(userId);
+
+    // 提取所有权限代码（过滤掉空的 code）
+    const permissions: string[] = allPermissions
+      .filter((p: any) => p.code && p.status === 1)
+      .map((p: any) => p.code);
+
+    // 过滤菜单类型（type=1,2 且 visible=true）
+    const menuPermissions: any = allPermissions.filter(
+      (p: any) => (p.type === 1 || p.type === 2) && p.visible && p.status === 1,
+    );
+
+    // 构建菜单树
+    const menus = this.buildTree(menuPermissions as unknown as PermissionVo[]);
+
+    return {
+      permissions,
+      menus,
+    };
+  }
+
+  /**
+   * 构建树形结构
+   */
+  private buildTree(
+    permissions: PermissionVo[],
+    parentId: number | null = null,
+  ): PermissionVo[] {
+    return permissions
+      .filter((p) => p.parentId === parentId)
+      .map((p) => ({
+        ...p,
+        children: this.buildTree(permissions, p.id),
+      }))
+      .sort((a, b) => a.sort - b.sort);
   }
 
   /**
@@ -46,15 +146,14 @@ export class PermissionService {
     if (!permission) {
       BusinessError.notFound('权限不存在');
     }
-    return permission as PermissionVo;
+    return permission as unknown as PermissionVo;
   }
 
   /**
    * 分页查询权限列表
    */
   async findAll(queryPermissionDto: QueryPermissionDto) {
-    const { name, code, resource, action, status, page, pageSize } =
-      queryPermissionDto;
+    const { name, code, status, page, pageSize } = queryPermissionDto;
 
     // 构建查询条件
     const where: Prisma.PermissionWhereInput = {};
@@ -65,14 +164,6 @@ export class PermissionService {
 
     if (code) {
       where.code = { contains: code };
-    }
-
-    if (resource) {
-      where.resource = resource;
-    }
-
-    if (action) {
-      where.action = action;
     }
 
     if (status !== undefined) {
@@ -91,7 +182,7 @@ export class PermissionService {
     ]);
 
     return {
-      list: permissions as PermissionVo[],
+      list: permissions as unknown as PermissionVo[],
       total,
       page: page!,
       pageSize: pageSize!,
@@ -125,11 +216,11 @@ export class PermissionService {
     // 更新权限
     const updatedPermission = await this.permissionRepository.update(
       id,
-      updatePermissionDto,
+      updatePermissionDto as Prisma.PermissionUpdateInput,
     );
 
     this.logger.log(`更新权限成功: ${updatedPermission.name}`);
-    return updatedPermission as PermissionVo;
+    return updatedPermission as unknown as PermissionVo;
   }
 
   /**
@@ -144,14 +235,5 @@ export class PermissionService {
 
     await this.permissionRepository.delete(id);
     this.logger.log(`删除权限成功: ${permission.name}`);
-  }
-
-  /**
-   * 根据资源查询权限
-   */
-  async findByResource(resource: string): Promise<PermissionVo[]> {
-    const permissions =
-      await this.permissionRepository.findByResource(resource);
-    return permissions as PermissionVo[];
   }
 }

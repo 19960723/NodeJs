@@ -149,6 +149,44 @@ export class RoleService {
   }
 
   /**
+   * 为角色分配权限
+   */
+  async assignPermissions(
+    roleId: number,
+    permissionIds: number[],
+  ): Promise<void> {
+    // 检查角色是否存在
+    const role = await this.roleRepository.findById(roleId);
+    if (!role) {
+      BusinessError.notFound('角色不存在');
+    }
+
+    // 删除原有权限关联
+    await this.roleRepository.deletePermissions(roleId);
+
+    // 添加新的权限关联
+    if (permissionIds && permissionIds.length > 0) {
+      await this.roleRepository.assignPermissions(roleId, permissionIds);
+    }
+
+    this.logger.log(
+      `为角色 ${role.name} 分配了 ${permissionIds.length} 个权限`,
+    );
+  }
+
+  /**
+   * 获取角色的权限列表
+   */
+  async getPermissions(roleId: number) {
+    const role = await this.roleRepository.findById(roleId);
+    if (!role) {
+      BusinessError.notFound('角色不存在');
+    }
+
+    return this.roleRepository.getPermissions(roleId);
+  }
+
+  /**
    * 转换为 RoleVo
    */
   private toRoleVo(role: Role): RoleVo {

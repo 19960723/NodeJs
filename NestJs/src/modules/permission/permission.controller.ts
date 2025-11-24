@@ -19,18 +19,61 @@ import { PermissionService } from './permission.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { QueryPermissionDto } from './dto/query-permission.dto';
-import { PermissionVo } from './dto/permission.vo';
+import { PermissionVo, UserPermissionsVo } from './dto/permission.vo';
 import { Result } from '../../common/dto/result.dto';
 import { RequirePermissions } from '../../common/decorators/permissions.decorator';
+import { CurrentUser } from '../../common/decorators/user.decorator';
 
 /**
- * Permission Controller
+ * Permission Controller（RBAC 动态权限管理）
  */
 @ApiTags('权限管理')
 @ApiBearerAuth('JWT')
 @Controller('permissions')
 export class PermissionController {
   constructor(private readonly permissionService: PermissionService) {}
+
+  /**
+   * 获取权限树
+   */
+  @Get('tree')
+  @RequirePermissions('permission:list')
+  @ApiOperation({ summary: '获取权限树' })
+  @ApiResponse({ status: 200, description: '获取成功', type: [PermissionVo] })
+  async getTree(): Promise<Result<PermissionVo[]>> {
+    const result = await this.permissionService.getTree();
+    return Result.success(result);
+  }
+
+  /**
+   * 获取当前用户菜单树
+   */
+  @Get('menu')
+  @ApiOperation({ summary: '获取当前用户菜单树' })
+  @ApiResponse({ status: 200, description: '获取成功', type: [PermissionVo] })
+  async getUserMenu(
+    @CurrentUser('userId') userId: number,
+  ): Promise<Result<PermissionVo[]>> {
+    const result = await this.permissionService.getUserMenuTree(userId);
+    return Result.success(result);
+  }
+
+  /**
+   * 获取当前用户的权限信息（包含权限代码列表和菜单树）
+   */
+  @Get('user/permissions')
+  @ApiOperation({ summary: '获取当前用户的权限信息' })
+  @ApiResponse({
+    status: 200,
+    description: '获取成功',
+    type: UserPermissionsVo,
+  })
+  async getUserPermissions(
+    @CurrentUser('userId') userId: number,
+  ): Promise<Result<UserPermissionsVo>> {
+    const result = await this.permissionService.getUserPermissions(userId);
+    return Result.success(result, '获取用户权限成功');
+  }
 
   /**
    * 创建权限
@@ -97,19 +140,5 @@ export class PermissionController {
   async remove(@Param('id', ParseIntPipe) id: number): Promise<Result<null>> {
     await this.permissionService.remove(id);
     return Result.success(null, '删除权限成功');
-  }
-
-  /**
-   * 根据资源查询权限
-   */
-  @Get('resource/:resource')
-  @RequirePermissions('permission:list')
-  @ApiOperation({ summary: '根据资源查询权限' })
-  @ApiResponse({ status: 200, description: '查询成功' })
-  async findByResource(
-    @Param('resource') resource: string,
-  ): Promise<Result<PermissionVo[]>> {
-    const result = await this.permissionService.findByResource(resource);
-    return Result.success(result, '查询权限成功');
   }
 }

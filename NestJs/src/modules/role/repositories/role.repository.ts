@@ -90,4 +90,45 @@ export class RoleRepository extends BaseRepository {
       where: { id },
     });
   }
+
+  /**
+   * 删除角色的所有权限关联
+   */
+  async deletePermissions(roleId: number): Promise<void> {
+    await this.prisma.rolePermission.deleteMany({
+      where: { roleId },
+    });
+  }
+
+  /**
+   * 为角色分配权限
+   */
+  async assignPermissions(
+    roleId: number,
+    permissionIds: number[],
+  ): Promise<void> {
+    const data = permissionIds.map((permissionId) => ({
+      roleId,
+      permissionId,
+    }));
+
+    await this.prisma.rolePermission.createMany({
+      data,
+      skipDuplicates: true,
+    });
+  }
+
+  /**
+   * 获取角色的权限列表
+   */
+  async getPermissions(roleId: number) {
+    const rolePermissions = await this.prisma.rolePermission.findMany({
+      where: { roleId },
+      include: {
+        permission: true,
+      },
+    });
+
+    return rolePermissions.map((rp) => rp.permission);
+  }
 }

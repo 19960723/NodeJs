@@ -80,12 +80,24 @@ export class PermissionRepository extends BaseRepository {
   }
 
   /**
-   * 根据资源查询权限
+   * 根据用户ID获取权限列表
    */
-  async findByResource(resource: string) {
+  async findByUserId(userId: number) {
     return this.prisma.permission.findMany({
-      where: { resource },
-      orderBy: { action: 'asc' },
+      where: {
+        roles: {
+          some: {
+            role: {
+              users: {
+                some: { userId },
+              },
+              status: 1,
+            },
+          },
+        },
+        status: 1,
+      },
+      orderBy: [{ sort: 'asc' }, { id: 'asc' }],
     });
   }
 }

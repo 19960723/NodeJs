@@ -16,16 +16,6 @@ export class QueryPermissionDto {
   @IsOptional()
   code?: string;
 
-  @ApiProperty({ description: '资源类型', required: false })
-  @IsString()
-  @IsOptional()
-  resource?: string;
-
-  @ApiProperty({ description: '操作类型', required: false })
-  @IsString()
-  @IsOptional()
-  action?: string;
-
   @ApiProperty({ description: '状态', required: false })
   @IsInt()
   @IsOptional()

@@ -1,9 +1,9 @@
-# 项目架构说明
+# 项目架构
 
 ## 技术栈
 
 - **框架**: NestJS 11.x
-- **ORM**: Prisma 6.x (稳定版)
+- **ORM**: Prisma 6.x
 - **数据库**: MySQL
 - **认证**: JWT + Passport
 - **语言**: TypeScript 5.x
@@ -12,269 +12,161 @@
 ## 目录结构
 
 ```
-NestJs/
-├── prisma/                    # Prisma 配置和数据库
-│   ├── schema.prisma         # 数据库模型定义
-│   └── seed.ts               # 数据库种子文件
+src/
+├── common/              # 公共模块
+│   ├── constants/       # 常量（错误码）
+│   ├── decorators/      # 装饰器（@Public, @Roles, @CurrentUser等）
+│   ├── dto/            # 通用DTO（分页、统一返回）
+│   ├── exceptions/     # 异常处理
+│   ├── filters/        # 全局过滤器
+│   ├── guards/         # 守卫（JWT、角色、权限）
+│   ├── interceptors/   # 拦截器（日志、响应转换）
+│   ├── logger/         # Winston日志系统
+│   ├── repositories/   # Prisma服务和基础仓储
+│   ├── strategies/     # JWT策略
+│   └── utils/          # 工具函数
 │
-├── src/                      # 源代码目录
-│   ├── common/               # 公共模块
-│   │   ├── decorators/       # 自定义装饰器
-│   │   │   ├── public.decorator.ts      # 公开路由装饰器
-│   │   │   └── user.decorator.ts        # 用户装饰器
-│   │   ├── dto/              # 通用 DTO
-│   │   │   ├── page.dto.ts              # 分页 DTO
-│   │   │   └── result.dto.ts            # 统一返回格式
-│   │   ├── exceptions/       # 自定义异常
-│   │   │   └── business.exception.ts    # 业务异常
-│   │   ├── filters/          # 异常过滤器
-│   │   │   └── all-exception.filter.ts  # 全局异常过滤器
-│   │   ├── guards/           # 守卫
-│   │   │   └── jwt-auth.guard.ts        # JWT 认证守卫
-│   │   ├── interceptors/     # 拦截器
-│   │   │   ├── logging.interceptor.ts   # 日志拦截器
-│   │   │   └── transform.interceptor.ts # 响应转换拦截器
-│   │   ├── repositories/     # 数据访问层
-│   │   │   ├── base.repository.ts       # 基础仓储类
-│   │   │   ├── prisma.module.ts         # Prisma 模块
-│   │   │   └── prisma.service.ts        # Prisma 服务
-│   │   ├── strategies/       # 认证策略
-│   │   │   └── jwt.strategy.ts          # JWT 策略
-│   │   └── utils/            # 工具函数
-│   │       └── hash.util.ts             # 密码哈希工具
-│   │
-│   ├── config/               # 配置模块
-│   │   └── config.module.ts             # 全局配置
-│   │
-│   ├── modules/              # 业务模块
-│   │   ├── auth/             # 认证模块
-│   │   │   ├── dto/
-│   │   │   ├── auth.controller.ts
-│   │   │   ├── auth.service.ts
-│   │   │   └── auth.module.ts
-│   │   │
-│   │   ├── user/             # 用户管理模块
-│   │   │   ├── dto/
-│   │   │   ├── repositories/
-│   │   │   ├── user.controller.ts
-│   │   │   ├── user.service.ts
-│   │   │   └── user.module.ts
-│   │   │
-│   │   ├── role/             # 角色管理模块
-│   │   │   ├── dto/
-│   │   │   ├── repositories/
-│   │   │   ├── role.controller.ts
-│   │   │   ├── role.service.ts
-│   │   │   └── role.module.ts
-│   │   │
-│   │   ├── article/          # 文章管理模块
-│   │   │   ├── dto/
-│   │   │   ├── repositories/
-│   │   │   ├── article.controller.ts
-│   │   │   ├── article.service.ts
-│   │   │   └── article.module.ts
-│   │   │
-│   │   └── category/         # 分类管理模块
-│   │       ├── dto/
-│   │       ├── repositories/
-│   │       ├── category.controller.ts
-│   │       ├── category.service.ts
-│   │       └── category.module.ts
-│   │
-│   ├── app.module.ts         # 根模块
-│   └── main.ts               # 应用入口
+├── config/             # 配置模块（环境变量、Joi验证）
 │
-├── test/                     # 测试文件
-├── scripts/                  # 脚本文件
-├── dist/                     # 编译输出目录
+├── modules/            # 业务模块
+│   ├── auth/          # 认证（登录/注册/Token刷新）
+│   ├── user/          # 用户管理
+│   ├── role/          # 角色管理
+│   ├── permission/    # 权限管理
+│   ├── article/       # 文章管理
+│   └── category/      # 分类管理
 │
-├── .env                      # 环境变量（不提交）
-├── .env.example              # 环境变量示例
-├── .gitignore               # Git 忽略配置
-├── package.json             # 项目依赖
-├── pnpm-lock.yaml           # pnpm 锁定文件
-├── tsconfig.json            # TypeScript 配置
-├── nest-cli.json            # NestJS CLI 配置
-└── README.md                # 项目说明
+├── app.module.ts      # 根模块
+└── main.ts            # 应用入口
 ```
 
 ## 架构设计
 
 ### 分层架构
 
-项目采用经典的三层架构：
-
 ```
-Controller (控制层)
-    ↓
-Service (业务层)
-    ↓
-Repository (数据访问层)
-    ↓
-Database (数据库)
+Controller → Service → Repository → Prisma → Database
 ```
-
-### 模块说明
-
-#### 1. Common 模块
-
-- **Decorators**: 自定义装饰器，如 `@Public()` 标记公开路由，`@CurrentUser()` 获取当前用户
-- **DTO**: 通用数据传输对象，如分页、统一返回格式
-- **Exceptions**: 自定义异常类
-- **Filters**: 全局异常处理
-- **Guards**: 路由守卫，如 JWT 认证守卫
-- **Interceptors**: 拦截器，如日志记录、响应转换
-- **Repositories**: Prisma 服务和基础仓储类
-- **Strategies**: 认证策略
-- **Utils**: 工具函数
-
-#### 2. Config 模块
-
-- 全局配置管理
-- 环境变量加载
-
-#### 3. Business 模块
-
-- **Auth**: 用户认证（登录、注册）
-- **User**: 用户管理（CRUD）
-- **Role**: 角色管理（CRUD）
-- **Article**: 文章管理（CRUD）
-- **Category**: 分类管理（CRUD）
 
 ### 数据流
 
 ```
-Client Request
-    ↓
-Guard (JWT 验证)
-    ↓
-Controller (路由处理)
-    ↓
-Service (业务逻辑)
-    ↓
-Repository (数据访问)
-    ↓
-Prisma Client
-    ↓
-Database
-    ↓
-Response (经过 Interceptor 转换)
-    ↓
-Client
+请求 → Guards → Controller → Service → Repository → 数据库
+响应 ← Interceptor ← Controller ← Service ← Repository ← 数据库
 ```
 
 ## 核心特性
 
 ### 1. 统一返回格式
 
-所有接口返回统一的格式：
-
 ```typescript
 {
-  code: number;      // 状态码
-  message: string;   // 消息
-  data?: any;        // 数据
-  timestamp: string; // 时间戳
+  "code": 0,
+  "message": "成功",
+  "data": {...},
+  "timestamp": "2024-11-24T10:00:00Z"
 }
 ```
 
-### 2. JWT 认证
+### 2. 错误码系统
 
-- 使用 JWT 进行用户认证
-- 通过 `@Public()` 装饰器标记公开路由
-- 默认所有路由需要认证
+- 10000-19999: 通用错误
+- 20000-29999: 用户相关
+- 30000-39999: 认证相关
+- 40000-49999: 权限相关
+- 50000-59999: 资源相关
+- 60000-69999: 业务逻辑
 
-### 3. 参数校验
+### 3. RBAC权限模型
 
-- 使用 `class-validator` 进行自动参数校验
-- DTO 类中使用装饰器定义验证规则
+```
+User ─┬─> UserRole ──> Role ─┬─> RolePermission ──> Permission
+      └─ 多对多              └─ 多对多
+```
 
-### 4. 异常处理
+### 4. JWT双令牌机制
 
-- 全局异常过滤器统一处理异常
-- 业务异常使用 `BusinessException`
-- 自动转换为统一的错误格式
+- **Access Token**: 7天（API调用）
+- **Refresh Token**: 30天（Token刷新，可撤销）
 
-### 5. Repository 模式
+### 5. Winston日志系统
 
-- 数据访问层封装
-- 继承 `BaseRepository` 获得通用 CRUD 方法
-- 易于测试和维护
+- 分级日志（error/warn/info/debug）
+- 文件持久化 + 按日轮转
+- 敏感信息自动脱敏
+- 请求追踪（Request ID）
 
-## 数据库模型
+### 6. 全局特性
 
-### User (用户)
+- ✅ 参数自动验证（class-validator）
+- ✅ 限流保护（ThrottlerGuard）
+- ✅ 全局异常处理（AllExceptionFilter）
+- ✅ 响应转换（TransformInterceptor）
+- ✅ Swagger文档（自动生成）
 
-- 基础信息：用户名、邮箱、密码、昵称、头像、手机号
-- 状态管理
-- 与角色多对多关联
-- 与文章一对多关联
+## 数据模型
 
-### Role (角色)
+### 核心表
 
-- 角色名称、编码、描述
-- 状态管理
-- 与用户多对多关联
-
-### Article (文章)
-
-- 标题、别名、摘要、内容、封面
-- 作者关联
-- 分类关联
-- 浏览量、点赞量统计
-
-### Category (分类)
-
-- 名称、别名、描述
-- 父级分类（支持树形结构）
-- 排序、状态管理
+- **users** - 用户表
+- **roles** - 角色表
+- **permissions** - 权限表
+- **user_roles** - 用户角色关联
+- **role_permissions** - 角色权限关联
+- **articles** - 文章表
+- **categories** - 分类表
+- **refresh_tokens** - 刷新令牌表
 
 ## 开发规范
 
 ### 命名规范
 
-- **文件**: kebab-case (如 `user.service.ts`)
-- **类**: PascalCase (如 `UserService`)
-- **方法/变量**: camelCase (如 `getUserById`)
-- **常量**: UPPER_SNAKE_CASE (如 `JWT_SECRET`)
+- **文件**: kebab-case（user.service.ts）
+- **类**: PascalCase（UserService）
+- **方法/变量**: camelCase（getUserById）
+- **常量**: UPPER_SNAKE_CASE（JWT_SECRET）
 
 ### 模块结构
 
-每个业务模块应包含：
-
-- `module.ts` - 模块定义
-- `controller.ts` - 控制器
-- `service.ts` - 服务
-- `dto/` - 数据传输对象
-- `repositories/` - 数据访问层（如需要）
-
-### 提交规范
-
-- `feat`: 新功能
-- `fix`: 修复 bug
-- `docs`: 文档更新
-- `style`: 代码格式
-- `refactor`: 重构
-- `test`: 测试
-- `chore`: 构建/工具
-
-## 部署说明
-
-### 开发环境
-
-```bash
-pnpm install
-pnpm prisma generate
-pnpm prisma migrate dev
-pnpm run start:dev
+```
+module/
+├── dto/                    # 数据传输对象
+├── repositories/           # 数据访问层
+├── module.controller.ts    # 控制器
+├── module.service.ts       # 服务
+└── module.module.ts        # 模块定义
 ```
 
-### 生产环境
+## 环境变量
+
+关键配置项：
+
+```env
+DATABASE_URL=mysql://user:pass@localhost:3306/db
+JWT_SECRET=your_secret_key_min_32_chars
+JWT_EXPIRES_IN=7d
+JWT_REFRESH_EXPIRES_IN=30d
+PORT=3000
+NODE_ENV=development
+```
+
+## 常用命令
 
 ```bash
-pnpm install
+# 开发
+pnpm start:dev
+
+# 数据库
 pnpm prisma generate
-pnpm prisma migrate deploy
-pnpm run build
-pnpm run start:prod
+pnpm prisma migrate dev
+pnpm prisma studio
+pnpm prisma db seed
+
+# 测试
+pnpm test
+pnpm test:e2e
+
+# 构建
+pnpm build
+pnpm start:prod
 ```
