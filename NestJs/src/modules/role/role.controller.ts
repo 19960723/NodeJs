@@ -8,7 +8,6 @@ import {
   Delete,
   Query,
   ParseIntPipe,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -22,7 +21,6 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import { QueryRoleDto } from './dto/query-role.dto';
 import { RoleVo } from './dto/role.vo';
 import { Result } from '../../common/dto/result.dto';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 /**
  * Role Controller
@@ -30,7 +28,6 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
  */
 @ApiTags('角色管理')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
 @Controller('role')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}

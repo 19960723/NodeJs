@@ -8,7 +8,6 @@ import {
   Delete,
   Query,
   ParseIntPipe,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -22,7 +21,6 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { QueryCategoryDto } from './dto/query-category.dto';
 import { CategoryVo } from './dto/category.vo';
 import { Result } from '../../common/dto/result.dto';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { Public } from '../../common/decorators/public.decorator';
 
 /**
@@ -31,7 +29,6 @@ import { Public } from '../../common/decorators/public.decorator';
  */
 @ApiTags('分类管理')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}

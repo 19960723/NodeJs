@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, Logger, VersioningType } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -54,17 +54,14 @@ async function bootstrap() {
       .setTitle('NestJS 企业级项目 API')
       .setDescription('基于 NestJS + Prisma + MySQL 的企业级后端项目 API 文档')
       .setVersion('1.0')
-      .addBearerAuth(
-        {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-          name: 'Authorization',
-          description: '请输入 JWT Token',
-          in: 'header',
-        },
-        'JWT',
-      )
+      .addBearerAuth({
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+        description: '请输入 JWT Token',
+        in: 'header',
+      })
       .addTag('认证管理', '用户登录、注册、Token 管理')
       .addTag('用户管理', '用户 CRUD 操作')
       .addTag('角色管理', '角色 CRUD 操作')
@@ -96,4 +93,4 @@ async function bootstrap() {
   );
 }
 
-bootstrap();
+void bootstrap();

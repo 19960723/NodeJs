@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -15,7 +15,6 @@ import { UserVo } from '../user/dto/user.vo';
 import { Result } from '../../common/dto/result.dto';
 import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../../common/decorators/user.decorator';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 /**
  * Auth Controller
@@ -56,7 +55,6 @@ export class AuthController {
    * 获取当前登录用户信息
    */
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @Get('profile')
   @ApiOperation({ summary: '获取当前用户信息' })
   @ApiResponse({ status: 200, description: '获取成功', type: UserVo })
@@ -71,7 +69,6 @@ export class AuthController {
    * 获取当前登录用户信息
    */
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @Get('user')
   @ApiOperation({ summary: '获取当前用户信息' })
   @ApiResponse({ status: 200, description: '获取成功', type: UserVo })

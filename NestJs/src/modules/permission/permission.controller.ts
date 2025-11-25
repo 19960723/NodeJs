@@ -28,7 +28,7 @@ import { CurrentUser } from '../../common/decorators/user.decorator';
  * Permission Controller（RBAC 动态权限管理）
  */
 @ApiTags('权限管理')
-@ApiBearerAuth('JWT')
+@ApiBearerAuth()
 @Controller('permissions')
 export class PermissionController {
   constructor(private readonly permissionService: PermissionService) {}
