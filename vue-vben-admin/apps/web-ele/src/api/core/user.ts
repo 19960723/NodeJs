@@ -6,14 +6,14 @@ import { requestClient } from '#/api/request';
  * 获取用户信息
  */
 export async function getUserInfoApi() {
-  return requestClient.get<UserInfo>('/user'); // /user
+  return requestClient.get<UserInfo>('/user/profile'); // /user
 }
 
 /**
  * 获取用户列表
  */
 export async function getUserListApi(params?: any) {
-  return requestClient.get<any>('/user/list', { params });
+  return requestClient.get<any>('/user', { params });
 }
 
 /**
@@ -68,14 +68,14 @@ export async function deleteRole(id: number) {
  * 分配角色菜单
  */
 export async function assignRoleMenus(id: number, menuIds: number[]) {
-  return requestClient.post<any>(`/role/${id}/menus`, { menuIds });
+  return requestClient.post<any>(`/role/${id}/permissions`, { menuIds });
 }
 
 /**
  * 获取角色菜单
  */
 export async function getRoleMenus(id: number) {
-  return requestClient.get<any>(`/role/${id}/menus`);
+  return requestClient.get<any>(`/role/${id}/permissions`);
 }
 
 /**

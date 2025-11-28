@@ -22,14 +22,14 @@ export namespace AuthApi {
  * 登录
  */
 export async function loginApi(data: AuthApi.LoginParams) {
-  return requestClient.post<AuthApi.LoginResult>('/user/login', data);
+  return requestClient.post<AuthApi.LoginResult>('/auth/login', data);
 }
 
 /**
  * 刷新accessToken
  */
 export async function refreshTokenApi() {
-  return baseRequestClient.post<AuthApi.RefreshTokenResult>('/user/refresh', {
+  return baseRequestClient.post<AuthApi.RefreshTokenResult>('/auth/refresh', {
     withCredentials: true,
   });
 }
@@ -38,7 +38,7 @@ export async function refreshTokenApi() {
  * 退出登录
  */
 export async function logoutApi() {
-  return requestClient.post('/user/logout', {
+  return requestClient.post('/auth/logout', {
     withCredentials: true,
   });
 }
@@ -48,6 +48,6 @@ export async function logoutApi() {
  */
 export async function getUserPermissionsApi() {
   return requestClient.get<{ permissions: string[]; menus: any[] }>(
-    '/menus/user/permissions',
+    '/permissions/user',
   );
 }

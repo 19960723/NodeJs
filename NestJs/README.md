@@ -392,7 +392,7 @@ getPublicData() {
 - `GET /api/permissions` - 获取权限列表
 - `GET /api/permissions/tree` - 获取权限树
 - `GET /api/permissions/menu` - 获取当前用户菜单树
-- `GET /api/permissions/user/permissions` - 获取当前用户的权限信息（权限代码列表 + 菜单树）
+- `GET /api/permissions/user` - 获取当前用户的权限信息（权限代码列表 + 菜单树）
 - `POST /api/permissions` - 创建权限
 - `PATCH /api/permissions/:id` - 更新权限
 - `DELETE /api/permissions/:id` - 删除权限

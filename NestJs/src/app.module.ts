@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { ConfigModule } from './config/config.module';
 import { PrismaModule } from './common/repositories/prisma.module';
 import { LoggerModule } from './common/logger/logger.module';
+import { RedisModule } from './common/redis/redis.module';
 
 // 业务模块
 import { AuthModule } from './modules/auth/auth.module';
@@ -21,6 +22,8 @@ import { AllExceptionFilter } from './common/filters/all-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { RolesGuard } from './common/guards/roles.guard';
+import { PermissionsGuard } from './common/guards/permissions.guard';
 
 /**
  * 应用根模块
@@ -31,6 +34,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     ConfigModule,
     PrismaModule,
     LoggerModule,
+    RedisModule,
 
     // 限流模块
     ThrottlerModule.forRootAsync({
@@ -76,6 +80,16 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    // 全局角色守卫
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+    // 全局权限守卫
+    {
+      provide: APP_GUARD,
+      useClass: PermissionsGuard,
     },
   ],
 })

@@ -6,6 +6,7 @@ import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { QueryPermissionDto } from './dto/query-permission.dto';
 import { PermissionVo, UserPermissionsVo } from './dto/permission.vo';
 import { BusinessError } from '../../common/exceptions/business.exception';
+import { RedisService } from '../../common/redis/redis.service';
 
 /**
  * Permission Service
@@ -13,8 +14,13 @@ import { BusinessError } from '../../common/exceptions/business.exception';
 @Injectable()
 export class PermissionService {
   private readonly logger = new Logger(PermissionService.name);
+  private readonly TREE_CACHE_KEY = 'permission:tree:all';
+  private readonly USER_MENU_PREFIX = 'permission:menu:user:';
 
-  constructor(private readonly permissionRepository: PermissionRepository) {}
+  constructor(
+    private readonly permissionRepository: PermissionRepository,
+    private readonly redisService: RedisService,
+  ) {}
 
   /**
    * 创建权限（动态管理）
@@ -60,6 +66,9 @@ export class PermissionService {
     // 创建权限
     const permission = await this.permissionRepository.create(createData);
 
+    // 清除缓存
+    await this.clearCache();
+
     this.logger.log(`创建权限成功: ${name}`);
     return permission as unknown as PermissionVo;
   }
@@ -69,12 +78,23 @@ export class PermissionService {
    */
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
   async getTree(): Promise<PermissionVo[]> {
+    // 尝试从缓存获取
+    const cachedTree = await this.redisService.get(this.TREE_CACHE_KEY);
+    if (cachedTree) {
+      return JSON.parse(cachedTree);
+    }
+
     const permissions = await this.permissionRepository.findMany({
       where: { status: 1 },
       orderBy: { id: 'asc' } as any,
     });
 
-    return this.buildTree(permissions as unknown as PermissionVo[]);
+    const tree = this.buildTree(permissions as unknown as PermissionVo[]);
+
+    // 写入缓存 (1小时)
+    await this.redisService.set(this.TREE_CACHE_KEY, JSON.stringify(tree), 3600);
+
+    return tree;
   }
 
   /**
@@ -82,6 +102,13 @@ export class PermissionService {
    */
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
   async getUserMenuTree(userId: number): Promise<PermissionVo[]> {
+    const cacheKey = `${this.USER_MENU_PREFIX}${userId}`;
+    const cachedMenu = await this.redisService.get(cacheKey);
+
+    if (cachedMenu) {
+      return JSON.parse(cachedMenu);
+    }
+
     // 获取用户所有权限
     const permissions: any =
       await this.permissionRepository.findByUserId(userId);
@@ -91,7 +118,12 @@ export class PermissionService {
       (p: any) => (p.type === 1 || p.type === 2) && p.visible && p.status === 1,
     );
 
-    return this.buildTree(menuPermissions as unknown as PermissionVo[]);
+    const menuTree = this.buildTree(menuPermissions as unknown as PermissionVo[]);
+
+    // 写入缓存 (1小时)
+    await this.redisService.set(cacheKey, JSON.stringify(menuTree), 3600);
+
+    return menuTree;
   }
 
   /**
@@ -219,6 +251,9 @@ export class PermissionService {
       updatePermissionDto as Prisma.PermissionUpdateInput,
     );
 
+    // 清除缓存
+    await this.clearCache();
+
     this.logger.log(`更新权限成功: ${updatedPermission.name}`);
     return updatedPermission as unknown as PermissionVo;
   }
@@ -234,6 +269,25 @@ export class PermissionService {
     }
 
     await this.permissionRepository.delete(id);
+
+    // 清除缓存
+    await this.clearCache();
+
     this.logger.log(`删除权限成功: ${permission.name}`);
+  }
+
+  /**
+   * 清除权限相关缓存
+   */
+  private async clearCache(): Promise<void> {
+    // 清除全局权限树缓存
+    await this.redisService.del(this.TREE_CACHE_KEY);
+    
+    // 清除所有用户的菜单缓存（因为无法确定影响了哪些用户，简单起见全部清除）
+    // 生产环境如果用户量大，可以使用 scan 扫描删除，或者只删除受影响角色的用户缓存
+    const userMenuKeys = await this.redisService.keys(`${this.USER_MENU_PREFIX}*`);
+    if (userMenuKeys.length > 0) {
+      await Promise.all(userMenuKeys.map(key => this.redisService.del(key)));
+    }
   }
 }

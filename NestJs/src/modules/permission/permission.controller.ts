@@ -61,7 +61,7 @@ export class PermissionController {
   /**
    * 获取当前用户的权限信息（包含权限代码列表和菜单树）
    */
-  @Get('user/permissions')
+  @Get('user')
   @ApiOperation({ summary: '获取当前用户的权限信息' })
   @ApiResponse({
     status: 200,
