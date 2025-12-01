@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  Logger,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 import { PrismaService } from '../repositories/prisma.service';
@@ -41,44 +46,43 @@ export class RolesGuard implements CanActivate {
 
     // 尝试从 Redis 获取缓存
     const cacheKey = `auth:roles:${user.userId}`;
-    const cachedRoles = await this.redisService.get(cacheKey);
-    let userRoleCodes: string[] = [];
+    const userRoleCodes = await this.redisService.getJSON<string[]>(cacheKey);
 
-    if (cachedRoles) {
+    if (userRoleCodes) {
       this.logger.debug(`Cache hit for user ${user.userId}`);
-      userRoleCodes = JSON.parse(cachedRoles);
-    } else {
-      this.logger.debug(`Cache miss for user ${user.userId}`);
-      // 查询用户的角色
-      const userWithRoles = await this.prisma.user.findUnique({
-        where: { id: user.userId },
-        include: {
-          roles: {
-            include: {
-              role: true,
-            },
-          },
-        },
-      });
-
-      if (!userWithRoles) {
-        throw new BusinessException('用户不存在', ErrorCode.USER_NOT_FOUND);
-      }
-
-      // 提取用户的角色代码
-      userRoleCodes = userWithRoles.roles.map((ur) => ur.role.code);
-
-      // 写入缓存，设置 1 小时过期
-      await this.redisService.set(
-        cacheKey,
-        JSON.stringify(userRoleCodes),
-        3600,
-      );
+      return this.checkRoles(requiredRoles, userRoleCodes);
     }
 
+    this.logger.debug(`Cache miss for user ${user.userId}`);
+    // 查询用户的角色
+    const userWithRoles = await this.prisma.user.findUnique({
+      where: { id: user.userId },
+      include: {
+        roles: {
+          include: {
+            role: true,
+          },
+        },
+      },
+    });
+
+    if (!userWithRoles) {
+      throw new BusinessException('用户不存在', ErrorCode.USER_NOT_FOUND);
+    }
+
+    // 提取用户的角色代码
+    const dbRoleCodes = userWithRoles.roles.map((ur) => ur.role.code);
+
+    // 写入缓存，设置 1 小时过期
+    await this.redisService.setJSON(cacheKey, dbRoleCodes, 3600);
+
+    return this.checkRoles(requiredRoles, dbRoleCodes);
+  }
+
+  private checkRoles(requiredRoles: string[], userRoles: string[]): boolean {
     // 检查用户是否拥有所需的任一角色 (OR 逻辑)
     const hasRequiredRole = requiredRoles.some((role) =>
-      userRoleCodes.includes(role),
+      userRoles.includes(role),
     );
 
     if (!hasRequiredRole) {

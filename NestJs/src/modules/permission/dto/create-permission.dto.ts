@@ -15,10 +15,10 @@ import {
  * 权限类型枚举
  */
 export enum PermissionType {
-  DIRECTORY = 1, // 目录
-  MENU = 2, // 菜单
-  BUTTON = 3, // 按钮
-  API = 4, // 纯API
+  DIRECTORY = 'M', // 目录
+  MENU = 'C', // 菜单
+  BUTTON = 'A', // 按钮
+  API = 'API', // 纯API
 }
 
 /**
@@ -51,7 +51,7 @@ export class CreatePermissionDto {
   code?: string;
 
   @ApiProperty({
-    description: '权限类型：1-目录 2-菜单 3-按钮 4-API',
+    description: '权限类型: M-目录 C-菜单 A-按钮 API-纯API',
     enum: PermissionType,
     example: PermissionType.MENU,
   })

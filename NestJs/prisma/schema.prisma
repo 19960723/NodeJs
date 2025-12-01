@@ -130,9 +130,9 @@ model Permission {
   // ========== 核心字段 ==========
   name        String   @db.VarChar(50) // 权限名称（英文标识，如：UserManage）
   code        String?  @unique @db.VarChar(100) // 权限代码（如：user:create），目录类型可为空
-  type        Int      @db.TinyInt // 权限类型：1-目录 2-菜单 3-按钮 4-纯API
+  type        Int      @db.TinyInt // 权限类型：M-目录 C-菜单 A-按钮 API-纯API
   
-  // ========== 前端展示字段（type=1,2 时使用）==========
+  // ========== 前端展示字段（type=M,C 时使用）==========
   title       String?  @db.VarChar(50) // 显示标题（中文，如：用户管理）
   icon        String?  @db.VarChar(50) // 图标名称
   path        String?  @db.VarChar(200) // 路由路径

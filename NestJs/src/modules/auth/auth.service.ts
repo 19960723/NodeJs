@@ -11,6 +11,8 @@ import { BusinessError } from '../../common/exceptions/business.exception';
 import { HashUtil } from '../../common/utils/hash.util';
 import { User } from '@prisma/client';
 import { randomBytes } from 'crypto';
+import { RedisService } from '../../common/redis/redis.service';
+import { PrismaService } from '../../common/repositories/prisma.service';
 
 /**
  * Auth Service
@@ -25,6 +27,8 @@ export class AuthService {
     private readonly refreshTokenRepository: RefreshTokenRepository,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly redisService: RedisService,
+    private readonly prisma: PrismaService,
   ) {}
 
   /**
@@ -111,9 +115,68 @@ export class AuthService {
   }
 
   /**
+   * 缓存用户角色和权限 (预热)
+   */
+  private async cacheUserPermissions(userId: number): Promise<void> {
+    try {
+      // 查询用户角色和权限
+      const userWithRoles = await this.prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          roles: {
+            include: {
+              role: {
+                include: {
+                  permissions: {
+                    include: {
+                      permission: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!userWithRoles) return;
+
+      // 1. 缓存角色
+      const userRoleCodes = userWithRoles.roles.map((ur) => ur.role.code);
+      const rolesKey = `auth:roles:${userId}`;
+      await this.redisService.setJSON(rolesKey, userRoleCodes, 3600);
+      this.logger.debug(
+        `Cached roles for user ${userId}: ${userRoleCodes.join(', ')}`,
+      );
+
+      // 2. 缓存权限
+      const userPermissionCodes = userWithRoles.roles
+        .flatMap((ur) => ur.role.permissions)
+        .map((rp) => rp.permission.code);
+      const permissionsKey = `auth:permissions:${userId}`;
+      await this.redisService.setJSON(
+        permissionsKey,
+        userPermissionCodes,
+        3600,
+      );
+      this.logger.debug(
+        `Cached permissions for user ${userId}: ${userPermissionCodes.length} items`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to cache permissions for user ${userId}`,
+        error,
+      );
+    }
+  }
+
+  /**
    * 生成 JWT Token (双令牌机制)
    */
   private async generateToken(user: User): Promise<LoginVo> {
+    // 异步预热缓存
+    this.cacheUserPermissions(user.id);
+
     const payload = {
       userId: user.id,
       username: user.username,

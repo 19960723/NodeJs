@@ -74,14 +74,16 @@ export namespace SystemMenuApi {
  * 获取用户所有菜单
  */
 export async function getUserAllMenusApi() {
-  return requestClient.get<RouteRecordStringComponent[]>('/menus/user');
+  return requestClient.get<RouteRecordStringComponent[]>('/permissions/menu');
 }
 
 /**
  * 获取菜单数据列表
  */
 export async function getAllMenusApi() {
-  return requestClient.get<Array<SystemMenuApi.SystemMenu>>('/menus');
+  return requestClient.get<Array<SystemMenuApi.SystemMenu>>(
+    '/permissions/tree',
+  );
 }
 
 /**
@@ -90,7 +92,7 @@ export async function getAllMenusApi() {
 export async function createMenu(
   data: Omit<SystemMenuApi.SystemMenu, 'children' | 'id'>,
 ) {
-  return requestClient.post('/menus', data);
+  return requestClient.post('/permissions', data);
 }
 
 /**
@@ -100,12 +102,12 @@ export async function updateMenu(
   id: string,
   data: Omit<SystemMenuApi.SystemMenu, 'children' | 'id'>,
 ) {
-  return requestClient.put(`/menus/${id}`, data);
+  return requestClient.put(`/permissions/${id}`, data);
 }
 
 /**
  * 删除菜单
  */
 export async function deleteMenu(id: string) {
-  return requestClient.delete(`/menus/${id}`);
+  return requestClient.delete(`/permissions/${id}`);
 }

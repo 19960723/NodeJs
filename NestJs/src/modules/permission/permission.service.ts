@@ -79,9 +79,11 @@ export class PermissionService {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
   async getTree(): Promise<PermissionVo[]> {
     // 尝试从缓存获取
-    const cachedTree = await this.redisService.get(this.TREE_CACHE_KEY);
+    const cachedTree = await this.redisService.getJSON<PermissionVo[]>(
+      this.TREE_CACHE_KEY,
+    );
     if (cachedTree) {
-      return JSON.parse(cachedTree);
+      return cachedTree;
     }
 
     const permissions = await this.permissionRepository.findMany({
@@ -92,7 +94,7 @@ export class PermissionService {
     const tree = this.buildTree(permissions as unknown as PermissionVo[]);
 
     // 写入缓存 (1小时)
-    await this.redisService.set(this.TREE_CACHE_KEY, JSON.stringify(tree), 3600);
+    await this.redisService.setJSON(this.TREE_CACHE_KEY, tree, 3600);
 
     return tree;
   }
@@ -103,10 +105,11 @@ export class PermissionService {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
   async getUserMenuTree(userId: number): Promise<PermissionVo[]> {
     const cacheKey = `${this.USER_MENU_PREFIX}${userId}`;
-    const cachedMenu = await this.redisService.get(cacheKey);
+    const cachedMenu =
+      await this.redisService.getJSON<PermissionVo[]>(cacheKey);
 
     if (cachedMenu) {
-      return JSON.parse(cachedMenu);
+      return cachedMenu;
     }
 
     // 获取用户所有权限
@@ -118,10 +121,12 @@ export class PermissionService {
       (p: any) => (p.type === 1 || p.type === 2) && p.visible && p.status === 1,
     );
 
-    const menuTree = this.buildTree(menuPermissions as unknown as PermissionVo[]);
+    const menuTree = this.buildTree(
+      menuPermissions as unknown as PermissionVo[],
+    );
 
     // 写入缓存 (1小时)
-    await this.redisService.set(cacheKey, JSON.stringify(menuTree), 3600);
+    await this.redisService.setJSON(cacheKey, menuTree, 3600);
 
     return menuTree;
   }
@@ -282,12 +287,14 @@ export class PermissionService {
   private async clearCache(): Promise<void> {
     // 清除全局权限树缓存
     await this.redisService.del(this.TREE_CACHE_KEY);
-    
+
     // 清除所有用户的菜单缓存（因为无法确定影响了哪些用户，简单起见全部清除）
     // 生产环境如果用户量大，可以使用 scan 扫描删除，或者只删除受影响角色的用户缓存
-    const userMenuKeys = await this.redisService.keys(`${this.USER_MENU_PREFIX}*`);
+    const userMenuKeys = await this.redisService.keys(
+      `${this.USER_MENU_PREFIX}*`,
+    );
     if (userMenuKeys.length > 0) {
-      await Promise.all(userMenuKeys.map(key => this.redisService.del(key)));
+      await Promise.all(userMenuKeys.map((key) => this.redisService.del(key)));
     }
   }
 }

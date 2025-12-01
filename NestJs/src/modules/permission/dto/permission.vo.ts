@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { PermissionType } from './create-permission.dto';
 
 /**
  * 权限返回 VO（RBAC 标准模型）
@@ -16,8 +17,8 @@ export class PermissionVo {
   @ApiProperty({ description: '权限代码' })
   code?: string;
 
-  @ApiProperty({ description: '权限类型：1-目录 2-菜单 3-按钮 4-API' })
-  type: number;
+  @ApiProperty({ description: '权限类型: M-目录 C-菜单 A-按钮 API-纯API' })
+  type: PermissionType;
 
   @ApiProperty({ description: '显示标题' })
   title?: string;

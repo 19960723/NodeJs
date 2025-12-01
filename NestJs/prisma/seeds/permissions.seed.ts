@@ -3,10 +3,10 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export enum PermissionType {
-  DIRECTORY = 1,
-  MENU = 2,
-  BUTTON = 3,
-  API = 4,
+  DIRECTORY = 'M',
+  MENU = 'C',
+  BUTTON = 'A',
+  API = 'API',
 }
 
 export const permissionsSeed = [
