@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PermissionRepository } from './repositories/permission.repository';
-import { CreatePermissionDto } from './dto/create-permission.dto';
+import { CreatePermissionDto, PermissionType } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { QueryPermissionDto } from './dto/query-permission.dto';
 import { PermissionVo, UserPermissionsVo } from './dto/permission.vo';
@@ -118,7 +118,11 @@ export class PermissionService {
 
     // 过滤菜单类型
     const menuPermissions: any = permissions.filter(
-      (p: any) => (p.type === 1 || p.type === 2) && p.visible && p.status === 1,
+      (p: any) =>
+        (p.type === PermissionType.DIRECTORY ||
+          p.type === PermissionType.MENU) &&
+        p.visible &&
+        p.status === 1,
     );
 
     const menuTree = this.buildTree(
@@ -147,7 +151,11 @@ export class PermissionService {
 
     // 过滤菜单类型（type=1,2 且 visible=true）
     const menuPermissions: any = allPermissions.filter(
-      (p: any) => (p.type === 1 || p.type === 2) && p.visible && p.status === 1,
+      (p: any) =>
+        (p.type === PermissionType.DIRECTORY ||
+          p.type === PermissionType.MENU) &&
+        p.visible &&
+        p.status === 1,
     );
 
     // 构建菜单树

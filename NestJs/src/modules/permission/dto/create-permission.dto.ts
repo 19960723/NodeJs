@@ -9,6 +9,7 @@ import {
   MaxLength,
   Min,
   ValidateIf,
+  IsEnum,
 } from 'class-validator';
 
 /**
@@ -55,7 +56,7 @@ export class CreatePermissionDto {
     enum: PermissionType,
     example: PermissionType.MENU,
   })
-  @IsInt()
+  @IsEnum(PermissionType)
   @IsNotEmpty({ message: '权限类型不能为空' })
   type: PermissionType;
 
