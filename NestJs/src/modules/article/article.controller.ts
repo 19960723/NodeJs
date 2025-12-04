@@ -3,7 +3,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   Query,
@@ -95,7 +95,7 @@ export class ArticleController {
   /**
    * 更新文章
    */
-  @Patch(':id')
+  @Put(':id')
   @ApiOperation({ summary: '更新文章' })
   @ApiResponse({ status: 200, description: '更新成功', type: ArticleVo })
   async update(

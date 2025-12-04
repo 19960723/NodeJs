@@ -14,7 +14,7 @@ export class QueryPermissionDto {
   @ApiProperty({ description: '权限代码', required: false })
   @IsString()
   @IsOptional()
-  code?: string;
+  perms?: string;
 
   @ApiProperty({ description: '状态', required: false })
   @IsInt()

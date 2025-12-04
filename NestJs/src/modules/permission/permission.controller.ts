@@ -3,7 +3,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   Query,
@@ -118,7 +118,7 @@ export class PermissionController {
   /**
    * 更新权限
    */
-  @Patch(':id')
+  @Put(':id')
   @RequirePermissions('permission:update')
   @ApiOperation({ summary: '更新权限' })
   @ApiResponse({ status: 200, description: '更新成功', type: PermissionVo })

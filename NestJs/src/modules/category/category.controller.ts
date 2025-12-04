@@ -3,7 +3,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   Query,
@@ -81,7 +81,7 @@ export class CategoryController {
   /**
    * 更新分类
    */
-  @Patch(':id')
+  @Put(':id')
   @ApiOperation({ summary: '更新分类' })
   @ApiResponse({ status: 200, description: '更新成功', type: CategoryVo })
   async update(

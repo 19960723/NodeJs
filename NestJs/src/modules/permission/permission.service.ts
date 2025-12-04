@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PermissionRepository } from './repositories/permission.repository';
-import { CreatePermissionDto, PermissionType } from './dto/create-permission.dto';
+import {
+  CreatePermissionDto,
+  PermissionType,
+} from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { QueryPermissionDto } from './dto/query-permission.dto';
 import { PermissionVo, UserPermissionsVo } from './dto/permission.vo';
@@ -31,11 +34,11 @@ export class PermissionService {
   async create(
     createPermissionDto: CreatePermissionDto,
   ): Promise<PermissionVo> {
-    const { code, name } = createPermissionDto;
+    const { perms, name } = createPermissionDto;
 
-    // 检查代码是否已存在（如果有code）
-    if (code) {
-      const existingCode = await this.permissionRepository.findByCode(code);
+    // 检查代码是否已存在（如果有perms）
+    if (perms) {
+      const existingCode = await this.permissionRepository.findByCode(perms);
       if (existingCode) {
         BusinessError.conflict('权限代码已存在');
       }
@@ -44,7 +47,7 @@ export class PermissionService {
     // 构建 Prisma 创建输入
     const createData: any = {
       name: createPermissionDto.name,
-      code: createPermissionDto.code,
+      perms: createPermissionDto.perms,
       type: createPermissionDto.type,
       title: createPermissionDto.title,
       icon: createPermissionDto.icon,
@@ -144,10 +147,10 @@ export class PermissionService {
     const allPermissions: any =
       await this.permissionRepository.findByUserId(userId);
 
-    // 提取所有权限代码（过滤掉空的 code）
+    // 提取所有权限代码（过滤掉空的 perms）
     const permissions: string[] = allPermissions
-      .filter((p: any) => p.code && p.status === 1)
-      .map((p: any) => p.code);
+      .filter((p: any) => p.perms && p.status === 1)
+      .map((p: any) => p.perms);
 
     // 过滤菜单类型（type=1,2 且 visible=true）
     const menuPermissions: any = allPermissions.filter(
@@ -198,7 +201,7 @@ export class PermissionService {
    * 分页查询权限列表
    */
   async findAll(queryPermissionDto: QueryPermissionDto) {
-    const { name, code, status, page, pageSize } = queryPermissionDto;
+    const { name, perms, status, page, pageSize } = queryPermissionDto;
 
     // 构建查询条件
     const where: Prisma.PermissionWhereInput = {};
@@ -207,8 +210,8 @@ export class PermissionService {
       where.name = { contains: name };
     }
 
-    if (code) {
-      where.code = { contains: code };
+    if (perms) {
+      where.perms = { contains: perms };
     }
 
     if (status !== undefined) {
@@ -249,9 +252,9 @@ export class PermissionService {
     }
 
     // 如果更新代码，检查是否已被其他权限使用
-    if (updatePermissionDto.code) {
+    if (updatePermissionDto.perms) {
       const existingCode = await this.permissionRepository.findByCode(
-        updatePermissionDto.code,
+        updatePermissionDto.perms,
       );
       if (existingCode && existingCode.id !== id) {
         BusinessError.conflict('权限代码已被其他权限使用');

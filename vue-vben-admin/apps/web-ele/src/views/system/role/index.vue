@@ -60,6 +60,7 @@ const columns = [
     slots: { default: 'status' },
   },
   {
+    align: 'left',
     title: $t('system.role.description'),
     field: 'description',
     minWidth: 200,
@@ -67,7 +68,7 @@ const columns = [
   {
     align: 'center',
     title: $t('system.role.createdAt'),
-    field: 'created_at',
+    field: 'createdAt',
     width: 180,
   },
   {

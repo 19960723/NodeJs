@@ -22,7 +22,13 @@ export class UserService {
    * 创建用户
    */
   async create(createUserDto: CreateUserDto): Promise<UserVo> {
-    const { username, email, password, phone } = createUserDto;
+    const { username, email, phone } = createUserDto;
+    let { password } = createUserDto;
+
+    // 如果未提供密码，默认使用用户名作为密码
+    if (!password) {
+      password = username;
+    }
 
     // 检查用户名是否已存在
     const existingUser = await this.userRepository.findByUsername(username);
@@ -73,7 +79,8 @@ export class UserService {
    * 分页查询用户列表
    */
   async findAll(queryUserDto: QueryUserDto) {
-    const { username, email, phone, status, page, pageSize } = queryUserDto;
+    const { username, email, phone, status, page, pageSize, keyword } =
+      queryUserDto;
 
     // 构建查询条件
     const where: Prisma.UserWhereInput = {};
@@ -92,6 +99,14 @@ export class UserService {
 
     if (status !== undefined) {
       where.status = status;
+    }
+    if (keyword) {
+      where.OR = [
+        { username: { contains: keyword } },
+        { email: { contains: keyword } },
+        { name: { contains: keyword } },
+        { nickname: { contains: keyword } },
+      ];
     }
 
     // 查询数据
@@ -123,6 +138,7 @@ export class UserService {
     if (!user) {
       BusinessError.notFound('用户不存在');
     }
+    console.log('updateUserDto', updateUserDto);
 
     // 如果更新邮箱，检查是否已被其他用户使用
     if (updateUserDto.email) {

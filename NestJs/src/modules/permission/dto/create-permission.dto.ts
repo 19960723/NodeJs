@@ -49,7 +49,7 @@ export class CreatePermissionDto {
   @IsString()
   @IsOptional()
   @MaxLength(100)
-  code?: string;
+  perms?: string;
 
   @ApiProperty({
     description: '权限类型: M-目录 C-菜单 A-按钮 API-纯API',

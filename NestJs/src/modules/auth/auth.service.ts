@@ -152,7 +152,7 @@ export class AuthService {
       // 2. 缓存权限
       const userPermissionCodes = userWithRoles.roles
         .flatMap((ur) => ur.role.permissions)
-        .map((rp) => rp.permission.code);
+        .map((rp) => rp.permission.perms);
       const permissionsKey = `auth:permissions:${userId}`;
       await this.redisService.setJSON(
         permissionsKey,

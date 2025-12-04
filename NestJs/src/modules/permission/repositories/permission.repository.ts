@@ -29,8 +29,8 @@ export class PermissionRepository extends BaseRepository {
   /**
    * 根据代码查询权限
    */
-  async findByCode(code: string) {
-    return this.prisma.permission.findUnique({ where: { code } });
+  async findByCode(perms: string) {
+    return this.prisma.permission.findUnique({ where: { perms } });
   }
 
   /**

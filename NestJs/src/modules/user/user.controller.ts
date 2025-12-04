@@ -2,8 +2,8 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Body,
-  Patch,
   Param,
   Delete,
   Query,
@@ -77,7 +77,7 @@ export class UserController {
   /**
    * 更新用户
    */
-  @Patch(':id')
+  @Put(':id')
   @ApiOperation({ summary: '更新用户' })
   @ApiResponse({ status: 200, description: '更新成功', type: UserVo })
   async update(

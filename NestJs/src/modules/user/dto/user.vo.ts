@@ -14,6 +14,9 @@ export class UserVo {
   @ApiProperty({ description: '邮箱' })
   email: string;
 
+  @ApiProperty({ description: '姓名' })
+  name?: string;
+
   @ApiProperty({ description: '昵称', required: false })
   nickname?: string;
 

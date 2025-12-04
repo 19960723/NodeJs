@@ -31,7 +31,7 @@ export class CreateRoleDto {
   @IsString({ message: '角色编码必须是字符串' })
   @MinLength(2, { message: '角色编码最少 2 个字符' })
   @MaxLength(50, { message: '角色编码最多 50 个字符' })
-  @Matches(/^[A-Z_]+$/, { message: '角色编码只能包含大写字母和下划线' })
+  @Matches(/^[A-Za-z_]+$/, { message: '角色编码只能包含字母和下划线' })
   code: string;
 
   @ApiPropertyOptional({ description: '角色描述', example: '系统管理员角色' })

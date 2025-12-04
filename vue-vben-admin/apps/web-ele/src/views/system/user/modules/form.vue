@@ -70,6 +70,7 @@ const formSchema = [
       ],
     },
     fieldName: 'gender',
+    defaultValue: 1,
     label: '性别',
   },
   {

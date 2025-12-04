@@ -27,7 +27,7 @@ function getMenuTypeOptions() {
 const columns = [
   {
     title: $t('system.menu.menuName'),
-    field: 'name',
+    field: 'title',
     minWidth: 150,
     align: 'left',
     treeNode: true,
@@ -118,7 +118,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 function onCreate(row: any) {
   if (row) {
-    formDrawerApi.setData({ parent_id: row.id }).open();
+    formDrawerApi.setData({ parentId: row.id }).open();
   } else {
     formDrawerApi.open();
   }
@@ -166,7 +166,7 @@ async function onDelete(row: any) {
       </template>
       <template #name="{ row }">
         <div class="flex items-center justify-start gap-2">
-          <span>{{ $t(row.name) }}</span>
+          <span>{{ $t(row.title) }}</span>
         </div>
       </template>
       <template #action="{ row }">

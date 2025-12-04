@@ -52,6 +52,9 @@ export class PermissionsGuard implements CanActivate {
 
     if (userPermissionCodes) {
       this.logger.debug(`Cache hit for user ${user.userId}`);
+      this.logger.debug(
+        `User permissions: ${JSON.stringify(userPermissionCodes)}`,
+      );
     } else {
       this.logger.debug(`Cache miss for user ${user.userId}`);
       // 查询用户的权限 (通过角色)
@@ -77,11 +80,11 @@ export class PermissionsGuard implements CanActivate {
       if (!userWithPermissions) {
         throw new BusinessException('用户不存在', ErrorCode.USER_NOT_FOUND);
       }
-
+      console.log(userWithPermissions, 'userWithPermissions', user.userId);
       // 提取用户的所有权限代码
       const dbPermissionCodes = userWithPermissions.roles
         .flatMap((ur) => ur.role.permissions)
-        .map((rp) => rp.permission.code);
+        .map((rp) => rp.permission.perms);
 
       // 写入缓存，设置 1 小时过期
       await this.redisService.setJSON(cacheKey, dbPermissionCodes, 3600);
@@ -91,7 +94,6 @@ export class PermissionsGuard implements CanActivate {
       // 但实际上逻辑是一致的，我们直接用新变量名更清晰
       return this.checkPermissions(requiredPermissions, dbPermissionCodes);
     }
-
     return this.checkPermissions(requiredPermissions, userPermissionCodes);
   }
 

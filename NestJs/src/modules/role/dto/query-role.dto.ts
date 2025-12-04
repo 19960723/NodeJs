@@ -26,4 +26,9 @@ export class QueryRoleDto extends PageDto {
   @IsInt()
   @Min(0)
   status?: number;
+
+  @ApiPropertyOptional({ description: '关键词（模糊搜索）', example: '管理' })
+  @IsOptional()
+  @IsString()
+  keyword?: string;
 }

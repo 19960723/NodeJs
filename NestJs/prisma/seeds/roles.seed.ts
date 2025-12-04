@@ -13,15 +13,9 @@ export const rolesSeed = [
     status: 1,
   },
   {
-    name: '编辑',
-    code: 'editor',
-    description: '可以管理文章和分类',
-    status: 1,
-  },
-  {
-    name: '作者',
-    code: 'author',
-    description: '可以创建和管理自己的文章',
+    name: '普通用户',
+    code: 'user',
+    description: '普通用户',
     status: 1,
   },
   {
@@ -37,7 +31,7 @@ export const rolesSeed = [
  */
 export const rolePermissionsMap = {
   admin: [
-    // 拥有所有权限
+    //超级管理员-拥有所有权限
     'user:create',
     'user:read',
     'user:update',
@@ -66,31 +60,21 @@ export const rolePermissionsMap = {
     'category:delete',
     'category:list',
   ],
-  editor: [
-    // 文章和分类管理
-    'article:create',
+  user: [
+    // 普通用户-拥有查看用户、角色、权限、文章、分类的权限
+    'user:read',
+    'user:list',
+    'role:read',
+    'role:list',
+    'permission:read',
+    'permission:list',
     'article:read',
-    'article:update',
-    'article:delete',
-    'article:list',
-    'article:publish',
-    'category:create',
-    'category:read',
-    'category:update',
-    'category:delete',
-    'category:list',
-  ],
-  author: [
-    // 创建和查看文章
-    'article:create',
-    'article:read',
-    'article:update',
     'article:list',
     'category:read',
     'category:list',
   ],
   guest: [
-    // 只能查看
+    // 访客-只能查看
     'article:read',
     'article:list',
     'category:read',
@@ -128,7 +112,7 @@ export async function seedRoles() {
       // 查询权限 ID
       const permissions = await prisma.permission.findMany({
         where: {
-          code: { in: permissionCodes },
+          perms: { in: permissionCodes },
         },
       });
 

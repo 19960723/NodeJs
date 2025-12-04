@@ -31,4 +31,9 @@ export class QueryUserDto extends PageDto {
   @IsInt()
   @Min(0)
   status?: number;
+
+  @ApiPropertyOptional({ description: '关键词（模糊搜索）', example: '张三' })
+  @IsOptional()
+  @IsString()
+  keyword?: string;
 }

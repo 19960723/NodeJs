@@ -62,7 +62,7 @@ export namespace SystemMenuApi {
     /** 路由路径 */
     path: string;
     /** 父级ID */
-    pid: string;
+    parentId: string;
     /** 重定向 */
     redirect?: string;
     /** 菜单类型 */

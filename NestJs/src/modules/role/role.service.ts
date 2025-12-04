@@ -58,7 +58,7 @@ export class RoleService {
    * 分页查询角色列表
    */
   async findAll(queryRoleDto: QueryRoleDto) {
-    const { name, code, status, page, pageSize } = queryRoleDto;
+    const { name, code, status, page, pageSize, keyword } = queryRoleDto;
 
     // 构建查询条件
     const where: Prisma.RoleWhereInput = {};
@@ -73,6 +73,12 @@ export class RoleService {
 
     if (status !== undefined) {
       where.status = status;
+    }
+    if (keyword) {
+      where.OR = [
+        { name: { contains: keyword } },
+        { code: { contains: keyword } },
+      ];
     }
 
     // 查询数据

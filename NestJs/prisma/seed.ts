@@ -23,11 +23,11 @@ async function main() {
     where: { code: 'admin' },
   });
 
-  const authorRole = await prisma.role.findUnique({
-    where: { code: 'author' },
+  const userRole = await prisma.role.findUnique({
+    where: { code: 'user' },
   });
 
-  if (!adminRole || !authorRole) {
+  if (!adminRole || !userRole) {
     throw new Error('角色未正确创建');
   }
 
@@ -73,7 +73,7 @@ async function main() {
     where: { username: 'testuser' },
     update: {},
     create: {
-      username: 'testuser',
+      username: 'testuser1',
       email: 'test@example.com',
       password: testPassword,
       nickname: '测试作者',
@@ -86,13 +86,13 @@ async function main() {
     where: {
       userId_roleId: {
         userId: testUser.id,
-        roleId: authorRole.id,
+        roleId: userRole.id,
       },
     },
     update: {},
     create: {
       userId: testUser.id,
-      roleId: authorRole.id,
+      roleId: userRole.id,
     },
   });
 

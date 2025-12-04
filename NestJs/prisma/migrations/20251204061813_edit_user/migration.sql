@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE `users` ADD COLUMN `gender` TINYINT NULL DEFAULT 1,
+    ADD COLUMN `name` VARCHAR(50) NULL,
+    ADD COLUMN `remark` VARCHAR(255) NULL;

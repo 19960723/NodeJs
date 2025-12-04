@@ -48,7 +48,7 @@ const formSchema = [
   },
   {
     component: 'ApiTreeSelect',
-    fieldName: 'parent_id',
+    fieldName: 'parentId',
     label: $t('system.menu.parent'),
     componentProps: {
       api: getAllMenusApi,
@@ -84,7 +84,7 @@ const formSchema = [
   },
   {
     component: 'Input',
-    fieldName: 'name',
+    fieldName: 'title',
     label: $t('system.menu.menuName'),
     rules: 'required',
   },
@@ -134,7 +134,7 @@ const formSchema = [
   },
   {
     component: 'Input',
-    fieldName: 'order',
+    fieldName: 'sort',
     label: $t('system.menu.order'),
   },
   {

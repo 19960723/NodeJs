@@ -2,8 +2,8 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Body,
-  Patch,
   Param,
   Delete,
   Query,
@@ -76,7 +76,7 @@ export class RoleController {
   /**
    * 更新角色
    */
-  @Patch(':id')
+  @Put(':id')
   @ApiOperation({ summary: '更新角色' })
   @ApiResponse({ status: 200, description: '更新成功', type: RoleVo })
   async update(
