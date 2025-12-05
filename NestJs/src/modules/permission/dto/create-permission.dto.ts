@@ -37,9 +37,9 @@ export class CreatePermissionDto {
     example: 'UserManage',
   })
   @IsString()
-  @IsNotEmpty({ message: '权限名称不能为空' })
-  @MaxLength(50)
-  name: string;
+  // @IsNotEmpty({ message: '权限名称不能为空' })
+  @MaxLength(50, { message: '最多 50 个字符' })
+  name?: string;
 
   @ApiProperty({
     description: '权限代码（目录类型可为空）',
@@ -66,6 +66,7 @@ export class CreatePermissionDto {
     required: false,
     example: '用户管理',
   })
+  @IsNotEmpty({ message: '不能为空' })
   @IsString()
   @IsOptional()
   @MaxLength(50)

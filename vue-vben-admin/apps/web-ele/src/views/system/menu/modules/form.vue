@@ -51,6 +51,7 @@ const formSchema = [
     fieldName: 'parentId',
     label: $t('system.menu.parent'),
     componentProps: {
+      checkStrictly: true,
       api: getAllMenusApi,
       class: 'w-full',
       filterTreeNode(input: string, node: Recordable<any>) {

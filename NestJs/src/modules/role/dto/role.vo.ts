@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { UserVo } from 'src/modules/user/dto/user.vo';
 
 /**
  * 角色返回 VO
@@ -24,4 +25,15 @@ export class RoleVo {
 
   @ApiProperty({ description: '更新时间' })
   updatedAt: Date;
+}
+
+/**
+ * 用户角色信息 VO
+ */
+export class UserRolesVo {
+  @ApiProperty({ description: '用户列表', type: [UserVo] })
+  users: UserVo[];
+
+  @ApiProperty({ description: '用户ID列表', type: [Number] })
+  userIds: number[];
 }

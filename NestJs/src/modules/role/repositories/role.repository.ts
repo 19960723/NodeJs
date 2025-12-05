@@ -131,4 +131,20 @@ export class RoleRepository extends BaseRepository {
 
     return rolePermissions.map((rp) => rp.permission);
   }
+
+  /**
+   * 获取角色关联的用户列表
+   */
+  async getUsers(roleId: number) {
+    const users = await this.prisma.userRole.findMany({
+      where: { roleId },
+      include: {
+        user: true,
+      },
+    });
+    return {
+      users: users.map((ur) => ur.user),
+      userIds: users.map((ur) => ur.userId),
+    };
+  }
 }

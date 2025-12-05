@@ -19,7 +19,7 @@ import { RoleService } from './role.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { QueryRoleDto } from './dto/query-role.dto';
-import { RoleVo } from './dto/role.vo';
+import { RoleVo, UserRolesVo } from './dto/role.vo';
 import { Result } from '../../common/dto/result.dto';
 
 /**
@@ -123,5 +123,16 @@ export class RoleController {
   ): Promise<Result<any[]>> {
     const permissions = await this.roleService.getPermissions(id);
     return Result.success(permissions);
+  }
+
+  // 获取角色关联的用户列表
+  @Get(':id/users')
+  @ApiOperation({ summary: '获取角色关联的用户列表' })
+  @ApiResponse({ status: 200, description: '获取成功', type: UserRolesVo })
+  async getUsers(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Result<UserRolesVo>> {
+    const result = await this.roleService.getUsers(id);
+    return Result.success(result as UserRolesVo);
   }
 }

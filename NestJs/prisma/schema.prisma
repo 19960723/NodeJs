@@ -96,7 +96,7 @@ model Permission {
   parentId    Int?     @map("parent_id") // 父权限ID，支持树形结构（菜单层级）
   
   // ========== 核心字段 ==========
-  name        String   @db.VarChar(50) // 权限名称（英文标识，如：UserManage）
+  name        String?   @db.VarChar(50) // 权限名称（英文标识，如：UserManage）
   perms       String?  @unique @db.VarChar(100) // 权限代码（如：user:create），目录类型可为空
   type        String   @db.VarChar(20) // 权限类型：M-目录 C-菜单 A-按钮 API-纯API
   

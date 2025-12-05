@@ -193,6 +193,17 @@ export class RoleService {
   }
 
   /**
+   * 获取角色关联的用户列表
+   */
+  async getUsers(roleId: number) {
+    const role = await this.roleRepository.findById(roleId);
+    if (!role) {
+      BusinessError.notFound('角色不存在');
+    }
+    return this.roleRepository.getUsers(roleId);
+  }
+
+  /**
    * 转换为 RoleVo
    */
   private toRoleVo(role: Role): RoleVo {
