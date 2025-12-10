@@ -99,7 +99,10 @@ export class AllExceptionFilter implements ExceptionFilter {
     else if (exception instanceof Prisma.PrismaClientValidationError) {
       status = HttpStatus.BAD_REQUEST;
       errorCode = ErrorCode.VALIDATION_ERROR;
-      message = '数据验证失败';
+      // 提取简化的错误信息
+      const simplifiedMessage =
+        exception.message.split('\n').pop()?.trim() || '数据格式错误';
+      message = `数据验证失败: ${simplifiedMessage}`;
 
       if (env === 'development') {
         details = { error: exception.message };

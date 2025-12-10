@@ -36,8 +36,8 @@ export class CreatePermissionDto {
     description: '权限名称（英文标识）',
     example: 'UserManage',
   })
-  @IsString()
-  // @IsNotEmpty({ message: '权限名称不能为空' })
+  @IsString({ message: '权限名称必须是字符串' })
+  @IsOptional()
   @MaxLength(50, { message: '最多 50 个字符' })
   name?: string;
 

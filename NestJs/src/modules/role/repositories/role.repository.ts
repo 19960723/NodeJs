@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Role, Prisma } from '@prisma/client';
+import { Role, Permission, Prisma } from '@prisma/client';
 import { PrismaService } from '../../../common/repositories/prisma.service';
 import { BaseRepository } from '../../../common/repositories/base.repository';
 
@@ -121,15 +121,31 @@ export class RoleRepository extends BaseRepository {
   /**
    * 获取角色的权限列表
    */
-  async getPermissions(roleId: number) {
+  async getPermissions(roleId: number): Promise<{
+    roleId: number;
+    permissions: Permission[];
+    permissionIds: number[];
+  }> {
     const rolePermissions = await this.prisma.rolePermission.findMany({
       where: { roleId },
       include: {
         permission: true,
       },
+      orderBy: {
+        permission: {
+          sort: 'asc', // 按排序号升序排列
+        },
+      },
     });
 
-    return rolePermissions.map((rp) => rp.permission);
+    const permissions = rolePermissions.map((rp) => rp.permission);
+    const permissionIds = permissions.map((p) => p.id);
+
+    return {
+      roleId,
+      permissions,
+      permissionIds,
+    };
   }
 
   /**
@@ -146,5 +162,29 @@ export class RoleRepository extends BaseRepository {
       users: users.map((ur) => ur.user),
       userIds: users.map((ur) => ur.userId),
     };
+  }
+
+  /**
+   * 删除角色的用户关联
+   */
+  async deleteUsers(roleId: number): Promise<void> {
+    await this.prisma.userRole.deleteMany({
+      where: { roleId },
+    });
+  }
+
+  /**
+   * 为角色分配用户
+   */
+  async assignUsers(roleId: number, userIds: number[]): Promise<void> {
+    const data = userIds.map((userId) => ({
+      roleId,
+      userId,
+    }));
+
+    await this.prisma.userRole.createMany({
+      data,
+      skipDuplicates: true,
+    });
   }
 }

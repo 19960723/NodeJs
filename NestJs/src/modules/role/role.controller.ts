@@ -120,9 +120,9 @@ export class RoleController {
   @ApiResponse({ status: 200, description: '获取成功' })
   async getPermissions(
     @Param('id', ParseIntPipe) id: number,
-  ): Promise<Result<any[]>> {
-    const permissions = await this.roleService.getPermissions(id);
-    return Result.success(permissions);
+  ): Promise<Result<any>> {
+    const result = await this.roleService.getPermissions(id);
+    return Result.success(result, '获取权限列表成功');
   }
 
   // 获取角色关联的用户列表
@@ -134,5 +134,17 @@ export class RoleController {
   ): Promise<Result<UserRolesVo>> {
     const result = await this.roleService.getUsers(id);
     return Result.success(result as UserRolesVo);
+  }
+
+  // 设置角色关联的用户列表
+  @Post(':id/users')
+  @ApiOperation({ summary: '设置角色关联的用户列表' })
+  @ApiResponse({ status: 200, description: '设置成功' })
+  async assignUsers(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { userIds: number[] },
+  ): Promise<Result<void>> {
+    await this.roleService.assignUsers(id, body.userIds);
+    return Result.success(undefined, '关联用户成功');
   }
 }

@@ -18,7 +18,8 @@ import { RedisService } from '../../common/redis/redis.service';
 export class PermissionService {
   private readonly logger = new Logger(PermissionService.name);
   private readonly TREE_CACHE_KEY = 'permission:tree:all';
-  private readonly USER_MENU_PREFIX = 'permission:menu:user:';
+  // 移除用户菜单缓存前缀，改为实时计算
+  // private readonly USER_MENU_PREFIX = 'permission:menu:user:';
 
   constructor(
     private readonly permissionRepository: PermissionRepository,
@@ -30,7 +31,6 @@ export class PermissionService {
    *
    * @note Prisma 客户端类型与 schema 不匹配，需要重新运行 `npx prisma generate`
    */
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
   async create(
     createPermissionDto: CreatePermissionDto,
   ): Promise<PermissionVo> {
@@ -46,7 +46,7 @@ export class PermissionService {
 
     // 构建 Prisma 创建输入
     const createData: any = {
-      name: createPermissionDto.name,
+      name: createPermissionDto.name || createPermissionDto.title,
       perms: createPermissionDto.perms,
       type: createPermissionDto.type,
       title: createPermissionDto.title,
@@ -73,96 +73,69 @@ export class PermissionService {
     await this.clearCache();
 
     this.logger.log(`创建权限成功: ${name}`);
-    return permission as unknown as PermissionVo;
+    return this.toPermissionVo(permission);
   }
 
   /**
    * 获取权限树（用于前端渲染菜单）
    */
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
   async getTree(): Promise<PermissionVo[]> {
-    // 尝试从缓存获取
-    const cachedTree = await this.redisService.getJSON<PermissionVo[]>(
-      this.TREE_CACHE_KEY,
-    );
-    if (cachedTree) {
-      return cachedTree;
-    }
-
-    const permissions = await this.permissionRepository.findMany({
-      where: { status: 1 },
-      orderBy: { id: 'asc' } as any,
-    });
-
-    const tree = this.buildTree(permissions as unknown as PermissionVo[]);
-
-    // 写入缓存 (1小时)
-    await this.redisService.setJSON(this.TREE_CACHE_KEY, tree, 3600);
-
-    return tree;
+    const allPermissions = await this.getAllPermissions();
+    return this.buildTree(allPermissions);
   }
 
   /**
    * 获取用户菜单树（只返回 type=1,2 且 visible=true）
+   * @note 改为实时计算，不再缓存用户级菜单，避免缓存一致性问题
    */
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
   async getUserMenuTree(userId: number): Promise<PermissionVo[]> {
-    const cacheKey = `${this.USER_MENU_PREFIX}${userId}`;
-    const cachedMenu =
-      await this.redisService.getJSON<PermissionVo[]>(cacheKey);
+    // 1. 获取所有权限（优先查缓存）
+    const allPermissions = await this.getAllPermissions();
 
-    if (cachedMenu) {
-      return cachedMenu;
-    }
-
-    // 获取用户所有权限
-    const permissions: any =
-      await this.permissionRepository.findByUserId(userId);
-
-    // 过滤菜单类型
-    const menuPermissions: any = permissions.filter(
-      (p: any) =>
+    // 2. 获取用户拥有的权限 ID
+    const userPermissionIds = await this.getUserPermissionIds(userId);
+    // 3. 过滤出用户可访问的菜单
+    const menuPermissions = allPermissions.filter(
+      (p) =>
+        userPermissionIds.has(p.id) &&
         (p.type === PermissionType.DIRECTORY ||
           p.type === PermissionType.MENU) &&
         p.visible &&
         p.status === 1,
     );
 
-    const menuTree = this.buildTree(
-      menuPermissions as unknown as PermissionVo[],
-    );
-
-    // 写入缓存 (1小时)
-    await this.redisService.setJSON(cacheKey, menuTree, 3600);
-
-    return menuTree;
+    // 4. 构建树
+    return this.buildTree(menuPermissions);
   }
 
   /**
    * 获取当前用户的权限信息（包含权限代码列表和菜单树）
    */
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
   async getUserPermissions(userId: number): Promise<UserPermissionsVo> {
-    // 获取用户所有权限
-    const allPermissions: any =
-      await this.permissionRepository.findByUserId(userId);
+    // 1. 获取所有权限（优先查缓存）
+    const allPermissions = await this.getAllPermissions();
 
-    // 提取所有权限代码（过滤掉空的 perms）
-    const permissions: string[] = allPermissions
-      .filter((p: any) => p.perms && p.status === 1)
-      .map((p: any) => p.perms);
+    // 2. 获取用户拥有的权限 ID
+    const userPermissionIds = await this.getUserPermissionIds(userId);
 
-    // 过滤菜单类型（type=1,2 且 visible=true）
-    const menuPermissions: any = allPermissions.filter(
-      (p: any) =>
-        (p.type === PermissionType.DIRECTORY ||
-          p.type === PermissionType.MENU) &&
-        p.visible &&
-        p.status === 1,
+    // 3. 过滤出用户可访问的权限
+    const userPermissions = allPermissions.filter(
+      (p) => userPermissionIds.has(p.id) && p.status === 1,
     );
 
-    // 构建菜单树
-    const menus = this.buildTree(menuPermissions as unknown as PermissionVo[]);
+    // 4. 提取权限代码
+    const permissions: string[] = userPermissions
+      .filter((p) => p.perms)
+      .map((p) => p.perms!);
+
+    // 5. 过滤菜单并构建树
+    const menuPermissions = userPermissions.filter(
+      (p) =>
+        (p.type === PermissionType.DIRECTORY ||
+          p.type === PermissionType.MENU) &&
+        p.visible,
+    );
+    const menus = this.buildTree(menuPermissions);
 
     return {
       permissions,
@@ -171,7 +144,43 @@ export class PermissionService {
   }
 
   /**
+   * 获取所有权限（带缓存）
+   */
+  private async getAllPermissions(): Promise<PermissionVo[]> {
+    // 尝试从缓存获取
+    const cachedTree = await this.redisService.getJSON<PermissionVo[]>(
+      this.TREE_CACHE_KEY,
+    );
+    if (cachedTree) {
+      return cachedTree;
+    }
+
+    // 查库
+    const permissions = await this.permissionRepository.findMany({
+      where: { status: 1 },
+      orderBy: { sort: 'asc' }, // 可以在数据库层面排序
+    });
+
+    // 转换 VO
+    const permissionVos = permissions.map((p) => this.toPermissionVo(p));
+
+    // 写入缓存 (1小时)
+    await this.redisService.setJSON(this.TREE_CACHE_KEY, permissionVos, 3600);
+
+    return permissionVos;
+  }
+
+  /**
+   * 获取用户拥有的所有权限 ID
+   */
+  private async getUserPermissionIds(userId: number): Promise<Set<number>> {
+    const permissions = await this.permissionRepository.findByUserId(userId);
+    return new Set(permissions.map((p) => p.id));
+  }
+
+  /**
    * 构建树形结构
+   * @note 输入已经是 VO 列表，不需要再次转换
    */
   private buildTree(
     permissions: PermissionVo[],
@@ -187,6 +196,22 @@ export class PermissionService {
   }
 
   /**
+   * 转换为 VO
+   */
+  private toPermissionVo(permission: any): PermissionVo {
+    return {
+      ...permission,
+      meta: {
+        title: permission.title,
+        icon: permission.icon,
+        visible: permission.visible,
+        keepAlive: permission.keepAlive,
+        metadata: permission.metadata,
+      },
+    };
+  }
+
+  /**
    * 根据 ID 查询权限
    */
   async findById(id: number): Promise<PermissionVo> {
@@ -194,7 +219,7 @@ export class PermissionService {
     if (!permission) {
       BusinessError.notFound('权限不存在');
     }
-    return permission as unknown as PermissionVo;
+    return this.toPermissionVo(permission);
   }
 
   /**
@@ -230,7 +255,7 @@ export class PermissionService {
     ]);
 
     return {
-      list: permissions as unknown as PermissionVo[],
+      list: permissions.map((p) => this.toPermissionVo(p)),
       total,
       page: page!,
       pageSize: pageSize!,
@@ -271,7 +296,7 @@ export class PermissionService {
     await this.clearCache();
 
     this.logger.log(`更新权限成功: ${updatedPermission.name}`);
-    return updatedPermission as unknown as PermissionVo;
+    return this.toPermissionVo(updatedPermission);
   }
 
   /**
@@ -293,19 +318,18 @@ export class PermissionService {
   }
 
   /**
+   * 清除权限相关缓存（公开方法，供控制器调用）
+   */
+  async refreshCache(): Promise<void> {
+    await this.clearCache();
+  }
+
+  /**
    * 清除权限相关缓存
    */
   private async clearCache(): Promise<void> {
-    // 清除全局权限树缓存
+    // 仅需清除全局权限树缓存
+    // 用户菜单因为是实时计算的（基于全量权限 + 用户角色ID），所以无需清理
     await this.redisService.del(this.TREE_CACHE_KEY);
-
-    // 清除所有用户的菜单缓存（因为无法确定影响了哪些用户，简单起见全部清除）
-    // 生产环境如果用户量大，可以使用 scan 扫描删除，或者只删除受影响角色的用户缓存
-    const userMenuKeys = await this.redisService.keys(
-      `${this.USER_MENU_PREFIX}*`,
-    );
-    if (userMenuKeys.length > 0) {
-      await Promise.all(userMenuKeys.map((key) => this.redisService.del(key)));
-    }
   }
 }

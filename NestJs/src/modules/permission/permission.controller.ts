@@ -76,6 +76,18 @@ export class PermissionController {
   }
 
   /**
+   * 刷新权限缓存
+   */
+  @Post('refresh-cache')
+  @RequirePermissions('permission:cache')
+  @ApiOperation({ summary: '刷新权限缓存' })
+  @ApiResponse({ status: 200, description: '刷新成功' })
+  async refreshCache(): Promise<Result<null>> {
+    await this.permissionService.refreshCache();
+    return Result.success(null, '权限缓存刷新成功');
+  }
+
+  /**
    * 创建权限
    */
   @Post()

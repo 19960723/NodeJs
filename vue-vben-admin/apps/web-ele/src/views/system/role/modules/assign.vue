@@ -3,13 +3,14 @@ import { ref } from 'vue';
 import { getAllMenusApi } from '#/api/core/menu';
 import { assignRoleMenus, getRoleMenus } from '#/api/core/user';
 import { useVbenDrawer } from '@vben/common-ui';
-import { ElCheckbox, ElTree } from 'element-plus';
+import { ElCheckbox, ElTree, ElMessage } from 'element-plus';
 import { IconifyIcon } from '@vben/icons';
 import type { ElTree as ElTreeType } from 'element-plus';
 
 interface MenuItem {
   id: string | number;
   name: string;
+  title: string;
   children?: MenuItem[];
 }
 
@@ -87,7 +88,7 @@ async function getMenuList() {
 // 获取角色菜单
 async function getRoleMenuList() {
   const data = await getRoleMenus(roleData.value?.id as number);
-  checkedKeys.value = data.menuIds as number[];
+  checkedKeys.value = data.permissionIds as number[];
 }
 // 获取顶级菜单的选中状态
 function isMenuChecked(menuId: string | number): boolean {
@@ -190,10 +191,7 @@ async function handleConfirm() {
       roleData.value?.id as number,
       checkedKeys.value as number[],
     );
-    console.log('分配权限：', {
-      roleId: roleData.value?.id,
-      menuIds: checkedKeys.value,
-    });
+    ElMessage.success('分配权限成功');
     emit('success');
     drawerApi.close();
   } catch (error) {
@@ -213,7 +211,7 @@ async function handleConfirm() {
                   :model-value="isMenuChecked(item.id)"
                   @change="toggleMenu(item.id, item)"
                 >
-                  {{ $t(item.name) }}
+                  {{ $t(item.title) }}
                 </ElCheckbox>
               </div>
               <div>
@@ -242,7 +240,7 @@ async function handleConfirm() {
             <ElTree
               :ref="setTreeRef(item.id)"
               :data="item.children"
-              :props="{ label: 'name', children: 'children' }"
+              :props="{ label: 'title', children: 'children' }"
               node-key="id"
               show-checkbox
               :default-expand-all="true"
@@ -250,7 +248,7 @@ async function handleConfirm() {
               :default-checked-keys="checkedKeys"
             >
               <template #default="{ data }">
-                <span>{{ $t(data.name) }}</span>
+                <span>{{ $t(data.title) }}</span>
               </template>
             </ElTree>
           </div>

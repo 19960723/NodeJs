@@ -20,6 +20,7 @@
     "menuType": "菜单类型",
     "path": "路由路径",
     "component": "组件路径",
+    "componentName": "组件名称",
     "icon": "图标",
     "order": "排序",
     "status": "状态",

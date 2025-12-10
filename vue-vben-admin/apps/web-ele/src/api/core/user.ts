@@ -68,7 +68,9 @@ export async function deleteRole(id: number) {
  * 分配角色菜单
  */
 export async function assignRoleMenus(id: number, menuIds: number[]) {
-  return requestClient.post<any>(`/role/${id}/permissions`, { menuIds });
+  return requestClient.post<any>(`/role/${id}/permissions`, {
+    permissionIds: menuIds,
+  });
 }
 
 /**

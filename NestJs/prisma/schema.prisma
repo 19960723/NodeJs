@@ -25,7 +25,7 @@ model User {
   avatar    String?  @db.VarChar(255)
   phone     String?  @unique @db.VarChar(20)
   remark    String?  @db.VarChar(255)
-  gender    Int?     @default(1) @db.TinyInt // 1：男 0：女
+  gender    Int?     @default(1) @db.TinyInt // 1:男 0:女
   status    Int      @default(1) @db.TinyInt // 1:正常 0:禁用
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -41,11 +41,11 @@ model User {
 // Refresh Token 表
 model RefreshToken {
   id        Int      @id @default(autoincrement())
-  token     String   @unique @db.VarChar(500)
   userId    Int      @map("user_id")
+  token     String   @unique @db.VarChar(500)
+  isRevoked Boolean  @default(false) @map("is_revoked") // 是否已撤销
   expiresAt DateTime @map("expires_at")
   createdAt DateTime @default(now()) @map("created_at")
-  isRevoked Boolean  @default(false) @map("is_revoked") // 是否已撤销
 
   // 关联关系
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -76,7 +76,46 @@ model Role {
   @@map("roles")
 }
 
-// 用户角色关联表（多对多）
+// 权限表（RBAC 标准模型 - 统一管理菜单和API权限）
+model Permission {
+  id       Int  @id @default(autoincrement())
+  parentId Int? @map("parent_id") // 父权限ID
+
+  // 核心字段
+  name  String? @db.VarChar(50) // 权限名称（英文标识）
+  perms String? @unique @db.VarChar(100) // 权限代码（如：user:create）
+  type  String  @db.VarChar(20) // 权限类型：M-目录 C-菜单 A-按钮 API-纯API
+
+  // 前端展示字段
+  title     String? @db.VarChar(50) // 显示标题（中文）
+  icon      String? @db.VarChar(50) // 图标名称
+  path      String? @db.VarChar(200) // 路由路径
+  component String? @db.VarChar(200) // 组件路径
+  redirect  String? @db.VarChar(200) // 重定向路径
+  visible   Boolean @default(true) // 是否显示
+  keepAlive Boolean @default(false) // 是否缓存
+
+  // 扩展字段
+  description String? @db.VarChar(500) // 描述说明
+  metadata    Json? // 扩展配置
+  sort        Int     @default(0) // 排序号
+
+  // 状态与审计
+  status    Int      @default(1) @db.TinyInt // 1:启用 0:禁用
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // 关联关系
+  roles RolePermission[]
+
+  // 索引
+  @@index([parentId])
+  @@index([type, status])
+  @@index([perms])
+  @@map("permissions")
+}
+
+// 用户角色关联表
 model UserRole {
   id     Int @id @default(autoincrement())
   userId Int @map("user_id")
@@ -90,44 +129,7 @@ model UserRole {
   @@map("user_roles")
 }
 
-// 权限表（RBAC 标准模型 - 统一管理菜单和API权限）
-model Permission {
-  id          Int      @id @default(autoincrement())
-  parentId    Int?     @map("parent_id") // 父权限ID，支持树形结构（菜单层级）
-  
-  // ========== 核心字段 ==========
-  name        String?   @db.VarChar(50) // 权限名称（英文标识，如：UserManage）
-  perms       String?  @unique @db.VarChar(100) // 权限代码（如：user:create），目录类型可为空
-  type        String   @db.VarChar(20) // 权限类型：M-目录 C-菜单 A-按钮 API-纯API
-  
-  // ========== 前端展示字段（type=M,C 时使用）==========
-  title       String?  @db.VarChar(50) // 显示标题（中文，如：用户管理）
-  icon        String?  @db.VarChar(50) // 图标名称
-  path        String?  @db.VarChar(200) // 路由路径
-  component   String?  @db.VarChar(200) // 组件路径（仅菜单使用）
-  redirect    String?  @db.VarChar(200) // 重定向路径（仅目录使用）
-  visible     Boolean  @default(true) // 是否在菜单中显示
-  keepAlive   Boolean  @default(false) // 页面是否缓存
-  
-  // ========== 扩展字段 ==========
-  description String?  @db.VarChar(500) // 描述说明
-  metadata    Json?    // 扩展配置（数据权限、字段权限等）
-  sort        Int      @default(0) // 排序号
-  status      Int      @default(1) @db.TinyInt // 状态：1-启用 0-禁用
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  // 关联关系
-  roles RolePermission[]
-
-  // 优化索引
-  @@index([parentId])
-  @@index([type, status])
-  @@index([perms])
-  @@map("permissions")
-}
-
-// 角色权限关联表（多对多）
+// 角色权限关联表
 model RolePermission {
   id           Int @id @default(autoincrement())
   roleId       Int @map("role_id")
@@ -148,10 +150,10 @@ model RolePermission {
 // 分类表
 model Category {
   id          Int      @id @default(autoincrement())
+  parentId    Int?     @map("parent_id")
   name        String   @unique @db.VarChar(50)
   slug        String   @unique @db.VarChar(50)
   description String?  @db.VarChar(255)
-  parentId    Int?     @map("parent_id")
   sort        Int      @default(0)
   status      Int      @default(1) @db.TinyInt // 1:正常 0:禁用
   createdAt   DateTime @default(now()) @map("created_at")
@@ -166,13 +168,13 @@ model Category {
 // 文章表
 model Article {
   id         Int      @id @default(autoincrement())
+  categoryId Int      @map("category_id")
+  authorId   Int      @map("author_id")
   title      String   @db.VarChar(200)
   slug       String   @unique @db.VarChar(200)
   summary    String?  @db.Text
   content    String   @db.LongText
   cover      String?  @db.VarChar(255)
-  authorId   Int      @map("author_id")
-  categoryId Int      @map("category_id")
   viewCount  Int      @default(0) @map("view_count")
   likeCount  Int      @default(0) @map("like_count")
   status     Int      @default(1) @db.TinyInt // 1:已发布 0:草稿
@@ -186,4 +188,45 @@ model Article {
   @@index([authorId])
   @@index([categoryId])
   @@map("articles")
+}
+
+// ==========================================
+// Dict Module (字典模块)
+// ==========================================
+
+// 字典表
+model Dict {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar(50) // 字典名称
+  code        String   @unique @db.VarChar(50) // 字典编码
+  description String?  @db.VarChar(255) // 描述
+  status      Int      @default(1) @db.TinyInt // 1:正常 0:禁用
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // 关联关系
+  dictItems DictItem[]
+
+  @@map("dicts")
+}
+
+// 字典项表
+model DictItem {
+  id          Int      @id @default(autoincrement())
+  dictId      Int      @map("dict_id")
+  label       String   @db.VarChar(50) // 字典标签
+  value       String   @db.VarChar(50) // 字典键值
+  description String?  @db.VarChar(255) // 描述
+  sort        Int      @default(0) // 排序
+  extension   Json? // 扩展数据
+  status      Int      @default(1) @db.TinyInt // 1:正常 0:禁用
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // 关联关系
+  dict Dict @relation(fields: [dictId], references: [id], onDelete: Cascade)
+
+  @@unique([dictId, value])
+  @@index([dictId, sort])
+  @@map("dict_items")
 }

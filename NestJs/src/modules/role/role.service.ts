@@ -6,6 +6,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import { QueryRoleDto } from './dto/query-role.dto';
 import { RoleVo } from './dto/role.vo';
 import { BusinessError } from '../../common/exceptions/business.exception';
+import { RedisService } from '../../common/redis/redis.service';
 
 /**
  * Role Service
@@ -15,7 +16,10 @@ import { BusinessError } from '../../common/exceptions/business.exception';
 export class RoleService {
   private readonly logger = new Logger(RoleService.name);
 
-  constructor(private readonly roleRepository: RoleRepository) {}
+  constructor(
+    private readonly roleRepository: RoleRepository,
+    private readonly redisService: RedisService,
+  ) {}
 
   /**
    * 创建角色
@@ -175,6 +179,18 @@ export class RoleService {
       await this.roleRepository.assignPermissions(roleId, permissionIds);
     }
 
+    // 清除该角色下所有用户的权限缓存
+    const { userIds } = await this.roleRepository.getUsers(roleId);
+    if (userIds.length > 0) {
+      const keys = userIds.map((userId) => `auth:permissions:${userId}`);
+      await Promise.all(keys.map((key) => this.redisService.del(key)));
+      // 同时清除用户菜单缓存
+      const menuKeys = userIds.map(
+        (userId) => `permission:menu:user:${userId}`,
+      );
+      await Promise.all(menuKeys.map((key) => this.redisService.del(key)));
+    }
+
     this.logger.log(
       `为角色 ${role.name} 分配了 ${permissionIds.length} 个权限`,
     );
@@ -208,5 +224,23 @@ export class RoleService {
    */
   private toRoleVo(role: Role): RoleVo {
     return role as RoleVo;
+  }
+  // 为角色关联用户
+  async assignUsers(roleId: number, userIds: number[]): Promise<void> {
+    // 检查角色是否存在
+    const role = await this.roleRepository.findById(roleId);
+    if (!role) {
+      BusinessError.notFound('角色不存在');
+    }
+
+    // 删除原有权限关联
+    await this.roleRepository.deleteUsers(roleId);
+
+    // 添加新的用户关联
+    if (userIds && userIds.length > 0) {
+      await this.roleRepository.assignUsers(roleId, userIds);
+    }
+
+    this.logger.log(`为角色 ${role.name} 分配了 ${userIds.length} 个用户`);
   }
 }

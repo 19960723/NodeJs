@@ -2,6 +2,26 @@ import { ApiProperty } from '@nestjs/swagger';
 import { PermissionType } from './create-permission.dto';
 
 /**
+ * 路由元信息 VO
+ */
+export class PermissionMetaVo {
+  @ApiProperty({ description: '显示标题' })
+  title?: string;
+
+  @ApiProperty({ description: '图标' })
+  icon?: string;
+
+  @ApiProperty({ description: '是否显示' })
+  visible?: boolean;
+
+  @ApiProperty({ description: '是否缓存' })
+  keepAlive?: boolean;
+
+  @ApiProperty({ description: '扩展配置' })
+  metadata?: any;
+}
+
+/**
  * 权限返回 VO（RBAC 标准模型）
  */
 export class PermissionVo {
@@ -20,11 +40,8 @@ export class PermissionVo {
   @ApiProperty({ description: '权限类型: M-目录 C-菜单 A-按钮 API-纯API' })
   type: PermissionType;
 
-  @ApiProperty({ description: '显示标题' })
-  title?: string;
-
-  @ApiProperty({ description: '图标' })
-  icon?: string;
+  @ApiProperty({ description: '路由元信息' })
+  meta: PermissionMetaVo;
 
   @ApiProperty({ description: '路由路径' })
   path?: string;
@@ -35,17 +52,8 @@ export class PermissionVo {
   @ApiProperty({ description: '重定向路径' })
   redirect?: string;
 
-  @ApiProperty({ description: '是否显示' })
-  visible: boolean;
-
-  @ApiProperty({ description: '是否缓存' })
-  keepAlive: boolean;
-
   @ApiProperty({ description: '描述' })
   description?: string;
-
-  @ApiProperty({ description: '扩展配置' })
-  metadata?: any;
 
   @ApiProperty({ description: '排序' })
   sort: number;
@@ -61,6 +69,21 @@ export class PermissionVo {
 
   @ApiProperty({ description: '子权限', required: false, type: [PermissionVo] })
   children?: PermissionVo[];
+
+  @ApiProperty({ description: '显示标题' })
+  title?: string;
+
+  @ApiProperty({ description: '图标' })
+  icon?: string;
+
+  @ApiProperty({ description: '是否显示' })
+  visible: boolean;
+
+  @ApiProperty({ description: '是否缓存' })
+  keepAlive: boolean;
+
+  @ApiProperty({ description: '扩展配置' })
+  metadata?: any;
 }
 
 /**

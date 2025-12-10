@@ -24,6 +24,7 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { PermissionsGuard } from './common/guards/permissions.guard';
+import { DictModule } from './modules/dict/dict.module';
 
 /**
  * 应用根模块
@@ -54,6 +55,7 @@ import { PermissionsGuard } from './common/guards/permissions.guard';
     PermissionModule,
     CategoryModule,
     ArticleModule,
+    DictModule,
   ],
   providers: [
     // 全局异常过滤器

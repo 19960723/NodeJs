@@ -4,7 +4,7 @@ import type { VNode } from 'vue';
 import { computed, ref, useAttrs, watch, watchEffect } from 'vue';
 
 import { usePagination } from '@vben/hooks';
-import { EmptyIcon, Grip, listIcons } from '@vben/icons';
+import { EmptyIcon, Grip, listIcons, X } from '@vben/icons';
 import { $t } from '@vben/locales';
 
 import {
@@ -138,6 +138,13 @@ watch(
   },
 );
 
+const handleClear = (e: Event) => {
+  e.stopPropagation();
+  currentSelect.value = '';
+  modelValue.value = '';
+  emit('change', '');
+};
+
 const handleClick = (icon: string) => {
   currentSelect.value = icon;
   modelValue.value = icon;
@@ -219,12 +226,20 @@ defineExpose({ toggleOpenState, open, close });
           <Input
             v-bind="$attrs"
             v-model="currentSelect"
+            :class="currentSelect ? 'pr-14' : 'pr-8'"
             :placeholder="$t('ui.iconPicker.placeholder')"
-            class="h-8 w-full pr-8"
+            aria-expanded="visible"
+            class="h-8 w-full transition-all"
             role="combobox"
             :aria-label="$t('ui.iconPicker.placeholder')"
-            aria-expanded="visible"
           />
+          <div
+            v-if="currentSelect"
+            class="absolute right-8 top-2 z-10 flex cursor-pointer items-center justify-center text-muted-foreground hover:text-foreground"
+            @click="handleClear"
+          >
+            <X class="size-4" />
+          </div>
           <VbenIcon
             :icon="currentSelect || Grip"
             class="absolute right-1 top-1 size-6"

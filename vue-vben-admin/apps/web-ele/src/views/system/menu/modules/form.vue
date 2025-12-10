@@ -63,7 +63,7 @@ const formSchema = [
         return title.includes(input) || $t(title).includes(input);
       },
       getPopupContainer,
-      labelField: 'name',
+      labelField: 'title',
       showSearch: true,
       treeDefaultExpandAll: true,
       valueField: 'id',
@@ -113,6 +113,11 @@ const formSchema = [
       },
       triggerFields: ['type'],
     },
+  },
+  {
+    component: 'Input',
+    fieldName: 'name',
+    label: $t('system.menu.componentName'),
   },
   {
     component: 'Input',
