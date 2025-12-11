@@ -32,22 +32,28 @@ export async function deleteDictApi(id: number) {
 }
 
 export async function getDictDataListApi(dictId: number, params: any) {
-  return requestClient.get<SysApi.SysDictData[]>(
-    `/sys/dict-data/list/${dictId}`,
-    {
-      params,
-    },
+  return requestClient.get<SysApi.SysDictData[]>(`/sys/dict/${dictId}/items`, {
+    params,
+  });
+}
+export async function createDictDataApi(dictId: number, data: any) {
+  return requestClient.post<SysApi.SysDictData>(
+    `/sys/dict/${dictId}/items`,
+    data,
   );
 }
-export async function getDictDataByIdApi(id: number) {
-  return requestClient.get<SysApi.SysDictData>(`/sys/dict-data/${id}`);
+export async function updateDictDataApi(
+  dictId: number,
+  itemId: number,
+  data: any,
+) {
+  return requestClient.put<SysApi.SysDictData>(
+    `/sys/dict/${dictId}/items/${itemId}`,
+    data,
+  );
 }
-export async function createDictDataApi(data: any) {
-  return requestClient.post<SysApi.SysDictData>(`/sys/dict-data`, data);
-}
-export async function updateDictDataApi(id: number, data: any) {
-  return requestClient.put<SysApi.SysDictData>(`/sys/dict-data/${id}`, data);
-}
-export async function deleteDictDataApi(id: number) {
-  return requestClient.delete<SysApi.SysDictData>(`/sys/dict-data/${id}`);
+export async function deleteDictDataApi(id: number, itemId: number) {
+  return requestClient.delete<SysApi.SysDictData>(
+    `/sys/dict/${id}/items/${itemId}`,
+  );
 }

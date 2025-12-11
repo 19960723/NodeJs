@@ -12,7 +12,6 @@ import { HashUtil } from '../../common/utils/hash.util';
 import { User } from '@prisma/client';
 import { randomBytes } from 'crypto';
 import { RedisService } from '../../common/redis/redis.service';
-import { PrismaService } from '../../common/repositories/prisma.service';
 
 /**
  * Auth Service
@@ -28,7 +27,6 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly redisService: RedisService,
-    private readonly prisma: PrismaService,
   ) {}
 
   /**
@@ -120,24 +118,8 @@ export class AuthService {
   private async cacheUserPermissions(userId: number): Promise<void> {
     try {
       // 查询用户角色和权限
-      const userWithRoles = await this.prisma.user.findUnique({
-        where: { id: userId },
-        include: {
-          roles: {
-            include: {
-              role: {
-                include: {
-                  permissions: {
-                    include: {
-                      permission: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      });
+      const userWithRoles =
+        await this.userRepository.findWithRolesAndPermissions(userId);
 
       if (!userWithRoles) return;
 

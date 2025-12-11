@@ -111,4 +111,28 @@ export class UserRepository extends BaseRepository {
     });
     return result.count;
   }
+
+  /**
+   * 查询用户及其角色和权限信息
+   */
+  async findWithRolesAndPermissions(id: number) {
+    return this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        roles: {
+          include: {
+            role: {
+              include: {
+                permissions: {
+                  include: {
+                    permission: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  }
 }

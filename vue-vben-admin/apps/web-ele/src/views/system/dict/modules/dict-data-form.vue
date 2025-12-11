@@ -13,7 +13,6 @@ const [Modal, modalApi] = useVbenModal({
   onOpenChange(isOpen) {
     if (isOpen) {
       const values = modalApi.getData<any>();
-      console.log(values, '===');
       formData.value = values;
       if (formData.value) {
         formApi.setValues(formData.value);
@@ -29,11 +28,10 @@ const [Modal, modalApi] = useVbenModal({
     const values = await formApi.getValues();
     // 锁定 Modal，防止重复提交
     modalApi.lock();
-    console.log(values, '===', formData.value);
     // 调用 API
     (formData.value?.id
-      ? updateDictDataApi(formData.value?.id, values)
-      : createDictDataApi({ ...values, dict_id: formData.value?.dict_id })
+      ? updateDictDataApi(formData.value?.dictId, formData.value?.id, values)
+      : createDictDataApi(formData.value?.dictId, values)
     )
       .then(() => {
         ElMessage.success(

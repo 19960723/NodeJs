@@ -230,3 +230,4 @@ model DictItem {
   @@index([dictId, sort])
   @@map("dict_items")
 }
+

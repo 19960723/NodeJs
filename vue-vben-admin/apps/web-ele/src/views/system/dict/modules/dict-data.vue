@@ -60,7 +60,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
           return await getDictDataListApi(dict_info.value.id, {
             page: page.currentPage,
             pageSize: page.pageSize,
-            dict_id: dict_info.value.id,
+            // dict_id: dict_info.value.id,
             ...formValues,
           });
         },
@@ -98,7 +98,7 @@ const dict_title = computed(() => {
 });
 
 function onCreate() {
-  formModalApi.setData({ dict_id: dict_info.value.id }).open();
+  formModalApi.setData({ dictId: dict_info.value.id }).open();
 }
 function onEdit(row: any) {
   formModalApi.setData(row).open();
@@ -106,7 +106,7 @@ function onEdit(row: any) {
 async function onDelete(row: any) {
   try {
     await ElMessageBox.confirm(
-      `确定要删除字典数据"${row.name}"吗？此操作不可恢复。`,
+      `确定要删除字典数据"${row.label}"吗？此操作不可恢复。`,
       '确认删除',
       {
         confirmButtonText: '确认',
@@ -115,7 +115,7 @@ async function onDelete(row: any) {
       },
     );
 
-    await deleteDictDataApi(row.id);
+    await deleteDictDataApi(dict_info.value.id, row.id);
     ElMessage.success('删除字典数据成功');
     gridApi.reload();
   } catch (error: any) {
