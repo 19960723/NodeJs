@@ -29,6 +29,7 @@ model User {
   status    Int      @default(1) @db.TinyInt // 1:正常 0:禁用
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   // 关联关系
   roles         UserRole[]
@@ -104,6 +105,7 @@ model Permission {
   status    Int      @default(1) @db.TinyInt // 1:启用 0:禁用
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   // 关联关系
   roles RolePermission[]
@@ -158,6 +160,7 @@ model Category {
   status      Int      @default(1) @db.TinyInt // 1:正常 0:禁用
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
 
   // 关联关系
   articles Article[]
@@ -180,6 +183,7 @@ model Article {
   status     Int      @default(1) @db.TinyInt // 1:已发布 0:草稿
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
 
   // 关联关系
   author   User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
@@ -222,6 +226,7 @@ model DictItem {
   status      Int      @default(1) @db.TinyInt // 1:正常 0:禁用
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
 
   // 关联关系
   dict Dict @relation(fields: [dictId], references: [id], onDelete: Cascade)

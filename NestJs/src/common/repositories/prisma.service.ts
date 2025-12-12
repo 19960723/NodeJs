@@ -6,6 +6,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
+import { SoftDeleteMiddleware } from './middleware/soft-delete.middleware';
 
 /**
  * Prisma Service
@@ -32,6 +33,9 @@ export class PrismaService
   async onModuleInit() {
     await this.$connect();
     this.logger.log('Prisma 数据库连接成功');
+
+    // 注册软删除中间件
+    this.$use(SoftDeleteMiddleware());
 
     if (process.env.NODE_ENV === 'development') {
       this.$on('query' as never, (e: any) => {
