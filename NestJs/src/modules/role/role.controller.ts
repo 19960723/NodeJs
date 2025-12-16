@@ -21,6 +21,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import { QueryRoleDto } from './dto/query-role.dto';
 import { RoleVo, UserRolesVo } from './dto/role.vo';
 import { Result } from '../../common/dto/result.dto';
+import { AuditLog } from '../../common/decorators/audit-log.decorator';
 
 /**
  * Role Controller
@@ -37,6 +38,7 @@ export class RoleController {
    */
   @Post()
   @ApiOperation({ summary: '创建角色' })
+  @AuditLog('创建角色')
   @ApiResponse({ status: 200, description: '创建成功', type: RoleVo })
   async create(@Body() createRoleDto: CreateRoleDto): Promise<Result<RoleVo>> {
     const role = await this.roleService.create(createRoleDto);
@@ -78,6 +80,7 @@ export class RoleController {
    */
   @Put(':id')
   @ApiOperation({ summary: '更新角色' })
+  @AuditLog('更新角色')
   @ApiResponse({ status: 200, description: '更新成功', type: RoleVo })
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -92,6 +95,7 @@ export class RoleController {
    */
   @Delete(':id')
   @ApiOperation({ summary: '删除角色' })
+  @AuditLog('删除角色')
   @ApiResponse({ status: 200, description: '删除成功' })
   async remove(@Param('id', ParseIntPipe) id: number): Promise<Result<void>> {
     await this.roleService.remove(id);
@@ -103,6 +107,7 @@ export class RoleController {
    */
   @Post(':id/permissions')
   @ApiOperation({ summary: '为角色分配权限' })
+  @AuditLog('为角色分配权限')
   @ApiResponse({ status: 200, description: '分配成功' })
   async assignPermissions(
     @Param('id', ParseIntPipe) id: number,
@@ -139,6 +144,7 @@ export class RoleController {
   // 设置角色关联的用户列表
   @Post(':id/users')
   @ApiOperation({ summary: '设置角色关联的用户列表' })
+  @AuditLog('设置角色关联的用户')
   @ApiResponse({ status: 200, description: '设置成功' })
   async assignUsers(
     @Param('id', ParseIntPipe) id: number,
