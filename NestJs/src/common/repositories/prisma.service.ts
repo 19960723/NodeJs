@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   Injectable,
   OnModuleInit,
@@ -6,7 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { SoftDeleteMiddleware } from './middleware/soft-delete.middleware';
+import { SoftDeleteExtension } from './middleware/soft-delete.middleware';
 
 /**
  * Prisma Service
@@ -19,6 +20,7 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   private readonly logger = new Logger(PrismaService.name);
+  private readonly extendedClient: any;
 
   constructor() {
     super({
@@ -28,14 +30,34 @@ export class PrismaService
         { emit: 'event', level: 'warn' },
       ],
     });
+
+    this.extendedClient = this.$extends(SoftDeleteExtension);
+
+    return new Proxy(this, {
+      get: (target, prop, receiver) => {
+        if (
+          [
+            'onModuleInit',
+            'onModuleDestroy',
+            '$connect',
+            '$disconnect',
+            '$on',
+            '$transaction',
+          ].includes(prop as string)
+        ) {
+          return Reflect.get(target, prop, receiver);
+        }
+        if (prop in target.extendedClient) {
+          return target.extendedClient[prop];
+        }
+        return Reflect.get(target, prop, receiver);
+      },
+    });
   }
 
   async onModuleInit() {
     await this.$connect();
     this.logger.log('Prisma 数据库连接成功');
-
-    // 注册软删除中间件
-    this.$use(SoftDeleteMiddleware());
 
     if (process.env.NODE_ENV === 'development') {
       this.$on('query' as never, (e: any) => {
