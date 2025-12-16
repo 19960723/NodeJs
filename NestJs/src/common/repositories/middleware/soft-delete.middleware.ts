@@ -6,95 +6,79 @@
 /* eslint-disable @typescript-eslint/require-await */
 import { Prisma } from '@prisma/client';
 
-/**
- * 软删除排除列表
- * 默认情况下，所有模型都被视为支持软删除（必须包含 deletedAt 字段）。
- * 如果某个模型不包含 deletedAt 字段（例如关联表），请将其添加到此列表中，
- * 否则执行 delete 操作时会报错。
- */
-const ignoreSoftDeleteModels: string[] = [
-  // 示例：不需要软删除的关联表或日志表
-  // 'UserRole',
-  // 'RolePermission',
-];
+export const softDeleteExtension = Prisma.defineExtension((client) => {
+  return client.$extends({
+    name: 'soft-delete',
+    query: {
+      $allModels: {
+        async delete({ model, args, query }) {
+          // 动态检测：检查模型是否有 deletedAt 字段
+          // 注意：dmmf 是 Prisma Client 的内部属性，类型定义中可能未公开，需要断言
+          const dmmf = (Prisma as any).dmmf;
+          const hasDeletedAt = dmmf?.datamodel.models
+            .find((m: any) => m.name === model)
+            ?.fields.some((f: any) => f.name === 'deletedAt');
 
-export const SoftDeleteExtension = Prisma.defineExtension({
-  name: 'soft-delete',
-  query: {
-    $allModels: {
-      async $allOperations({ model, operation, args, query }) {
-        if (
-          model &&
-          !ignoreSoftDeleteModels.includes(model) &&
-          ['findFirst', 'findMany', 'count'].includes(operation)
-        ) {
-          const argsAny = args as any;
-          argsAny.where = argsAny.where || {};
-          // 如果显式指定了 deletedAt，则不干预
-          if (argsAny.where.deletedAt === undefined) {
-            argsAny.where.deletedAt = null;
-          }
-        }
-        return query(args);
-      },
-    },
-  },
-  model: {
-    $allModels: {
-      async delete<M, A>(
-        this: M,
-        args: Prisma.Args<M, 'delete'>,
-      ): Promise<Prisma.Result<M, A, 'update'>> {
-        const context = Prisma.getExtensionContext(this);
-        const model = (context as any).$name;
-
-        if (!ignoreSoftDeleteModels.includes(model)) {
-          return (context as any).update({
-            ...args,
-            data: { deletedAt: new Date() },
-          });
-        }
-        return (context as any).delete(args);
-      },
-      async deleteMany<M, A>(
-        this: M,
-        args: Prisma.Args<M, 'deleteMany'>,
-      ): Promise<Prisma.Result<M, A, 'updateMany'>> {
-        const context = Prisma.getExtensionContext(this);
-        const model = (context as any).$name;
-
-        if (!ignoreSoftDeleteModels.includes(model)) {
-          // deleteMany 的 args 可能包含 data 吗？通常不包含。
-          // updateMany 需要 data。
-          const newArgs = { ...args } as any;
-          return (context as any).updateMany({
-            ...newArgs,
-            data: { ...newArgs.data, deletedAt: new Date() },
-          });
-        }
-        return (context as any).deleteMany(args);
-      },
-      async findUnique<M, A>(
-        this: M,
-        args: Prisma.Args<M, 'findUnique'>,
-      ): Promise<Prisma.Result<M, A, 'findUnique'>> {
-        const context = Prisma.getExtensionContext(this);
-        const model = (context as any).$name;
-
-        if (!ignoreSoftDeleteModels.includes(model)) {
-          // findUnique 不支持非唯一字段过滤，必须转为 findFirst
-          // 检查是否有显式 deletedAt
-          const where = (args as any).where || {};
-          if (where.deletedAt === undefined) {
-            // 转换为 findFirst
-            return (context as any).findFirst({
+          if (hasDeletedAt) {
+            return (client as any)[model].update({
               ...args,
-              where: { ...where, deletedAt: null },
+              data: { deletedAt: new Date() },
             });
           }
-        }
-        return (context as any).findUnique(args);
+
+          return query(args);
+        },
+        async deleteMany({ model, args, query }) {
+          const dmmf = (Prisma as any).dmmf;
+          const hasDeletedAt = dmmf?.datamodel.models
+            .find((m: any) => m.name === model)
+            ?.fields.some((f: any) => f.name === 'deletedAt');
+
+          if (hasDeletedAt) {
+            return (client as any)[model].updateMany({
+              ...args,
+              data: { deletedAt: new Date() },
+            });
+          }
+          return query(args);
+        },
+        async findMany({ model, args, query }) {
+          const dmmf = (Prisma as any).dmmf;
+          const hasDeletedAt = dmmf?.datamodel.models
+            .find((m: any) => m.name === model)
+            ?.fields.some((f: any) => f.name === 'deletedAt');
+
+          if (hasDeletedAt) {
+            args.where = { deletedAt: null, ...args.where };
+          }
+          return query(args);
+        },
+        async findFirst({ model, args, query }) {
+          const dmmf = (Prisma as any).dmmf;
+          const hasDeletedAt = dmmf?.datamodel.models
+            .find((m: any) => m.name === model)
+            ?.fields.some((f: any) => f.name === 'deletedAt');
+
+          if (hasDeletedAt) {
+            args.where = { deletedAt: null, ...args.where };
+          }
+          return query(args);
+        },
+        async findUnique({ model, args, query }) {
+          const dmmf = (Prisma as any).dmmf;
+          const hasDeletedAt = dmmf?.datamodel.models
+            .find((m: any) => m.name === model)
+            ?.fields.some((f: any) => f.name === 'deletedAt');
+
+          if (hasDeletedAt) {
+            // findUnique 必须转为 findFirst 才能加额外的 where 条件
+            return (client as any)[model].findFirst({
+              where: { ...args.where, deletedAt: null },
+            });
+          }
+          return query(args);
+        },
       },
     },
-  },
+  });
 });

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   Injectable,
   OnModuleInit,
@@ -7,12 +5,11 @@ import {
   Logger,
 } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { SoftDeleteExtension } from './middleware/soft-delete.middleware';
+import { softDeleteExtension } from './middleware/soft-delete.middleware';
 
 /**
  * Prisma Service
  * 管理 Prisma Client 的生命周期
- * Prisma 7.0 需要配置 engineType
  */
 @Injectable()
 export class PrismaService
@@ -31,25 +28,18 @@ export class PrismaService
       ],
     });
 
-    this.extendedClient = this.$extends(SoftDeleteExtension);
+    // 启用软删除扩展
+    // 注意：$extends 返回一个新的 Client 实例
+    const extendedClient = this.$extends(softDeleteExtension);
 
+    // 使用 Proxy 代理，让 PrismaService 的实例表现得像 extendedClient
     return new Proxy(this, {
       get: (target, prop, receiver) => {
-        if (
-          [
-            'onModuleInit',
-            'onModuleDestroy',
-            '$connect',
-            '$disconnect',
-            '$on',
-            '$transaction',
-          ].includes(prop as string)
-        ) {
-          return Reflect.get(target, prop, receiver);
+        // 优先从 extendedClient 获取属性 (比如 user, post 等模型访问)
+        if (prop in extendedClient) {
+          return (extendedClient as any)[prop];
         }
-        if (prop in target.extendedClient) {
-          return target.extendedClient[prop];
-        }
+        // 否则回落到原始实例 (比如 $connect, $on 等)
         return Reflect.get(target, prop, receiver);
       },
     });
@@ -60,19 +50,9 @@ export class PrismaService
     this.logger.log('Prisma 数据库连接成功');
 
     if (process.env.NODE_ENV === 'development') {
-      this.$on('query' as never, (e: any) => {
-        this.logger.debug(`Query: ${e.query}`);
-        this.logger.debug(`Duration: ${e.duration}ms`);
-      });
+      // 这里的 $on 还是原始 client 的
+      // (this as any).$on('query', (e: any) => { ... })
     }
-
-    this.$on('error' as never, (e: any) => {
-      this.logger.error(`Prisma Error: ${e.message}`);
-    });
-
-    this.$on('warn' as never, (e: any) => {
-      this.logger.warn(`Prisma Warning: ${e.message}`);
-    });
   }
 
   async onModuleDestroy() {
