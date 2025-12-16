@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   Injectable,
   OnModuleInit,
@@ -6,12 +5,11 @@ import {
   Logger,
 } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { SoftDeleteMiddleware } from './middleware/soft-delete.middleware';
+import { softDeleteExtension } from './middleware/soft-delete.middleware';
 
 /**
  * Prisma Service
  * 管理 Prisma Client 的生命周期
- * Prisma 7.0 需要配置 engineType
  */
 @Injectable()
 export class PrismaService
@@ -28,29 +26,32 @@ export class PrismaService
         { emit: 'event', level: 'warn' },
       ],
     });
+
+    // 启用软删除扩展
+    // 注意：$extends 返回一个新的 Client 实例
+    const extendedClient = this.$extends(softDeleteExtension);
+
+    // 使用 Proxy 代理，让 PrismaService 的实例表现得像 extendedClient
+    return new Proxy(this, {
+      get: (target, prop, receiver) => {
+        // 优先从 extendedClient 获取属性 (比如 user, post 等模型访问)
+        if (prop in extendedClient) {
+          return (extendedClient as any)[prop];
+        }
+        // 否则回落到原始实例 (比如 $connect, $on 等)
+        return Reflect.get(target, prop, receiver);
+      },
+    });
   }
 
   async onModuleInit() {
     await this.$connect();
     this.logger.log('Prisma 数据库连接成功');
 
-    // 注册软删除中间件
-    this.$use(SoftDeleteMiddleware());
-
     if (process.env.NODE_ENV === 'development') {
-      this.$on('query' as never, (e: any) => {
-        this.logger.debug(`Query: ${e.query}`);
-        this.logger.debug(`Duration: ${e.duration}ms`);
-      });
+      // 这里的 $on 还是原始 client 的
+      // (this as any).$on('query', (e: any) => { ... })
     }
-
-    this.$on('error' as never, (e: any) => {
-      this.logger.error(`Prisma Error: ${e.message}`);
-    });
-
-    this.$on('warn' as never, (e: any) => {
-      this.logger.warn(`Prisma Warning: ${e.message}`);
-    });
   }
 
   async onModuleDestroy() {

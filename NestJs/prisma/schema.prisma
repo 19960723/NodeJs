@@ -16,19 +16,19 @@ datasource db {
 
 // 用户表
 model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique @db.VarChar(50)
-  email     String   @unique @db.VarChar(100)
-  password  String   @db.VarChar(255)
-  nickname  String?  @db.VarChar(50)
-  name      String?  @db.VarChar(50)
-  avatar    String?  @db.VarChar(255)
-  phone     String?  @unique @db.VarChar(20)
-  remark    String?  @db.VarChar(255)
-  gender    Int?     @default(1) @db.TinyInt // 1:男 0:女
-  status    Int      @default(1) @db.TinyInt // 1:正常 0:禁用
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id        Int       @id @default(autoincrement())
+  username  String    @unique @db.VarChar(50)
+  email     String    @unique @db.VarChar(100)
+  password  String    @db.VarChar(255)
+  nickname  String?   @db.VarChar(50)
+  name      String?   @db.VarChar(50)
+  avatar    String?   @db.VarChar(255)
+  phone     String?   @unique @db.VarChar(20)
+  remark    String?   @db.VarChar(255)
+  gender    Int?      @default(1) @db.TinyInt // 1:男 0:女
+  status    Int       @default(1) @db.TinyInt // 1:正常 0:禁用
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
   // 关联关系
@@ -102,9 +102,9 @@ model Permission {
   sort        Int     @default(0) // 排序号
 
   // 状态与审计
-  status    Int      @default(1) @db.TinyInt // 1:启用 0:禁用
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  status    Int       @default(1) @db.TinyInt // 1:启用 0:禁用
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
   // 关联关系
@@ -151,15 +151,15 @@ model RolePermission {
 
 // 分类表
 model Category {
-  id          Int      @id @default(autoincrement())
-  parentId    Int?     @map("parent_id")
-  name        String   @unique @db.VarChar(50)
-  slug        String   @unique @db.VarChar(50)
-  description String?  @db.VarChar(255)
-  sort        Int      @default(0)
-  status      Int      @default(1) @db.TinyInt // 1:正常 0:禁用
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id          Int       @id @default(autoincrement())
+  parentId    Int?      @map("parent_id")
+  name        String    @unique @db.VarChar(50)
+  slug        String    @unique @db.VarChar(50)
+  description String?   @db.VarChar(255)
+  sort        Int       @default(0)
+  status      Int       @default(1) @db.TinyInt // 1:正常 0:禁用
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
   deletedAt   DateTime? @map("deleted_at")
 
   // 关联关系
@@ -170,19 +170,19 @@ model Category {
 
 // 文章表
 model Article {
-  id         Int      @id @default(autoincrement())
-  categoryId Int      @map("category_id")
-  authorId   Int      @map("author_id")
-  title      String   @db.VarChar(200)
-  slug       String   @unique @db.VarChar(200)
-  summary    String?  @db.Text
-  content    String   @db.LongText
-  cover      String?  @db.VarChar(255)
-  viewCount  Int      @default(0) @map("view_count")
-  likeCount  Int      @default(0) @map("like_count")
-  status     Int      @default(1) @db.TinyInt // 1:已发布 0:草稿
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  id         Int       @id @default(autoincrement())
+  categoryId Int       @map("category_id")
+  authorId   Int       @map("author_id")
+  title      String    @db.VarChar(200)
+  slug       String    @unique @db.VarChar(200)
+  summary    String?   @db.Text
+  content    String    @db.LongText
+  cover      String?   @db.VarChar(255)
+  viewCount  Int       @default(0) @map("view_count")
+  likeCount  Int       @default(0) @map("like_count")
+  status     Int       @default(1) @db.TinyInt // 1:已发布 0:草稿
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
   deletedAt  DateTime? @map("deleted_at")
 
   // 关联关系
@@ -216,16 +216,16 @@ model Dict {
 
 // 字典项表
 model DictItem {
-  id          Int      @id @default(autoincrement())
-  dictId      Int      @map("dict_id")
-  label       String   @db.VarChar(50) // 字典标签
-  value       String   @db.VarChar(50) // 字典键值
-  description String?  @db.VarChar(255) // 描述
-  sort        Int      @default(0) // 排序
+  id          Int       @id @default(autoincrement())
+  dictId      Int       @map("dict_id")
+  label       String    @db.VarChar(50) // 字典标签
+  value       String    @db.VarChar(50) // 字典键值
+  description String?   @db.VarChar(255) // 描述
+  sort        Int       @default(0) // 排序
   extension   Json? // 扩展数据
-  status      Int      @default(1) @db.TinyInt // 1:正常 0:禁用
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  status      Int       @default(1) @db.TinyInt // 1:正常 0:禁用
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
   deletedAt   DateTime? @map("deleted_at")
 
   // 关联关系
@@ -236,3 +236,27 @@ model DictItem {
   @@map("dict_items")
 }
 
+// ==========================================
+// System Module (系统模块)
+// ==========================================
+
+// 操作审计日志表
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int?     @map("user_id") // 操作人ID（可能为空，如未登录操作）
+  action    String   @db.VarChar(100) // 操作动作（如：删除用户）
+  method    String   @db.VarChar(10) // 请求方法（GET, POST等）
+  path      String   @db.VarChar(255) // 请求路径
+  params    String?  @db.Text // 请求参数（JSON字符串）
+  result    String?  @db.Text // 响应结果（可选，JSON字符串，只记录关键信息）
+  status    Int      @default(200) // 响应状态码
+  ip        String?  @db.VarChar(50) // IP地址
+  duration  Int      @default(0) // 耗时（毫秒）
+  userAgent String?  @map("user_agent") @db.VarChar(500) // 浏览器信息
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

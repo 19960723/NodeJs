@@ -25,6 +25,8 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { PermissionsGuard } from './common/guards/permissions.guard';
 import { DictModule } from './modules/dict/dict.module';
+import { AuditLogModule } from './modules/system/audit-log/audit-log.module';
+import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor';
 
 /**
  * 应用根模块
@@ -56,6 +58,7 @@ import { DictModule } from './modules/dict/dict.module';
     CategoryModule,
     ArticleModule,
     DictModule,
+    AuditLogModule,
   ],
   providers: [
     // 全局异常过滤器
@@ -72,6 +75,11 @@ import { DictModule } from './modules/dict/dict.module';
     {
       provide: APP_INTERCEPTOR,
       useClass: LoggingInterceptor,
+    },
+    // 全局操作审计拦截器
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditLogInterceptor,
     },
     // 全局限流守卫
     {

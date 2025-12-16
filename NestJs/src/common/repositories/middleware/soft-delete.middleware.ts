@@ -1,48 +1,78 @@
 import { Prisma } from '@prisma/client';
 
-export function SoftDeleteMiddleware(): Prisma.Middleware {
-  return async (params, next) => {
-    const softDeleteModels = [
-      'User',
-      'Role',
-      'Permission',
-      'Category',
-      'Article',
-      'Dict',
-      'DictItem',
-    ];
+export const softDeleteExtension = Prisma.defineExtension((client) => {
+  return client.$extends({
+    name: 'soft-delete',
+    query: {
+      $allModels: {
+        async delete({ model, args, query }) {
+          // 动态检测：检查模型是否有 deletedAt 字段
+          // 注意：dmmf 是 Prisma Client 的内部属性，类型定义中可能未公开，需要断言
+          const dmmf = (Prisma as any).dmmf;
+          const hasDeletedAt = dmmf?.datamodel.models
+            .find((m: any) => m.name === model)
+            ?.fields.some((f: any) => f.name === 'deletedAt');
 
-    if (params.model && softDeleteModels.includes(params.model)) {
-      if (params.action === 'delete') {
-        // Delete 变为 Update
-        params.action = 'update';
-        params.args['data'] = { deletedAt: new Date() };
-      }
-      if (params.action === 'deleteMany') {
-        // DeleteMany 变为 UpdateMany
-        params.action = 'updateMany';
-        if (params.args.data !== undefined) {
-          params.args.data['deletedAt'] = new Date();
-        } else {
-          params.args['data'] = { deletedAt: new Date() };
-        }
-      }
+          if (hasDeletedAt) {
+            return (client as any)[model].update({
+              ...args,
+              data: { deletedAt: new Date() },
+            });
+          }
 
-      // 过滤已删除的数据
-      if (['findUnique', 'findFirst', 'findMany'].includes(params.action)) {
-        if (params.action === 'findUnique') {
-          // findUnique 不能直接加非 unique 字段过滤，转为 findFirst
-          params.action = 'findFirst';
-        }
-        if (!params.args) params.args = {};
-        if (!params.args.where) params.args.where = {};
+          return query(args);
+        },
+        async deleteMany({ model, args, query }) {
+          const dmmf = (Prisma as any).dmmf;
+          const hasDeletedAt = dmmf?.datamodel.models
+            .find((m: any) => m.name === model)
+            ?.fields.some((f: any) => f.name === 'deletedAt');
 
-        // 如果显式指定了 deletedAt，则不干预（允许查询回收站）
-        if (params.args.where.deletedAt === undefined) {
-          params.args.where.deletedAt = null;
-        }
-      }
-    }
-    return next(params);
-  };
-}
+          if (hasDeletedAt) {
+            return (client as any)[model].updateMany({
+              ...args,
+              data: { deletedAt: new Date() },
+            });
+          }
+          return query(args);
+        },
+        async findMany({ model, args, query }) {
+          const dmmf = (Prisma as any).dmmf;
+          const hasDeletedAt = dmmf?.datamodel.models
+            .find((m: any) => m.name === model)
+            ?.fields.some((f: any) => f.name === 'deletedAt');
+
+          if (hasDeletedAt) {
+            args.where = { deletedAt: null, ...args.where };
+          }
+          return query(args);
+        },
+        async findFirst({ model, args, query }) {
+          const dmmf = (Prisma as any).dmmf;
+          const hasDeletedAt = dmmf?.datamodel.models
+            .find((m: any) => m.name === model)
+            ?.fields.some((f: any) => f.name === 'deletedAt');
+
+          if (hasDeletedAt) {
+            args.where = { deletedAt: null, ...args.where };
+          }
+          return query(args);
+        },
+        async findUnique({ model, args, query }) {
+          const dmmf = (Prisma as any).dmmf;
+          const hasDeletedAt = dmmf?.datamodel.models
+            .find((m: any) => m.name === model)
+            ?.fields.some((f: any) => f.name === 'deletedAt');
+
+          if (hasDeletedAt) {
+            // findUnique 必须转为 findFirst 才能加额外的 where 条件
+            return (client as any)[model].findFirst({
+              where: { ...args.where, deletedAt: null },
+            });
+          }
+          return query(args);
+        },
+      },
+    },
+  });
+});

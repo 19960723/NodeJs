@@ -21,7 +21,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { QueryUserDto } from './dto/query-user.dto';
 import { UserVo } from './dto/user.vo';
 import { Result } from '../../common/dto/result.dto';
-import { Public } from '../../common/decorators/public.decorator';
+import { AuditLog } from '../../common/decorators/audit-log.decorator';
 
 /**
  * User Controller
@@ -37,6 +37,7 @@ export class UserController {
    * 创建用户
    */
   @Post()
+  @AuditLog('创建用户')
   @ApiOperation({ summary: '创建用户' })
   @ApiResponse({ status: 200, description: '创建成功', type: UserVo })
   async create(@Body() createUserDto: CreateUserDto): Promise<Result<UserVo>> {
@@ -78,6 +79,7 @@ export class UserController {
    * 更新用户
    */
   @Put(':id')
+  @AuditLog('更新用户')
   @ApiOperation({ summary: '更新用户' })
   @ApiResponse({ status: 200, description: '更新成功', type: UserVo })
   async update(
@@ -92,6 +94,7 @@ export class UserController {
    * 删除用户
    */
   @Delete(':id')
+  @AuditLog('删除用户')
   @ApiOperation({ summary: '删除用户' })
   @ApiResponse({ status: 200, description: '删除成功' })
   async remove(@Param('id', ParseIntPipe) id: number): Promise<Result> {
